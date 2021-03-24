@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Home - Trabacco</title>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a th:href="@{/}">Home</a></li>
+            <li><a th:href="@{/record}">Record</a></li>
+        </ul>
+    </nav>
+
+    <h1>Trabacco</h1>
+
+    <ul th:each="key : ${dateToSnusCount.keySet()}">
+        <li th:text="${key} + ': ' + ${dateToSnusCount.get(key)}"></li>
+    </ul>
+</body>
+</html>
