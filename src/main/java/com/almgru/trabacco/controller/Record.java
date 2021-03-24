@@ -1,5 +1,7 @@
 package com.almgru.trabacco.controller;
 
+import com.almgru.trabacco.data.EntryRepository;
+import com.almgru.trabacco.entity.Entry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,11 +15,11 @@ import java.util.Map;
 
 @Controller
 public class Record {
-    private final Map<LocalDate, Integer> dateToSnusCount;
+    private final EntryRepository repository;
 
     @Autowired
-    public Record(Map<LocalDate, Integer> dateToSnusCount) {
-        this.dateToSnusCount = dateToSnusCount;
+    public Record(EntryRepository repository) {
+        this.repository = repository;
     }
 
     @GetMapping("/record")
@@ -28,9 +30,7 @@ public class Record {
     @PostMapping("/record")
     public String record(@RequestParam("date") LocalDate date, @RequestParam("amount") int amount,
                              RedirectAttributes attr) {
-        Integer current = dateToSnusCount.get(date);
-        current = current != null ? current : 0;
-        dateToSnusCount.put(date, current + amount);
+        repository.save(new Entry(date, amount));
         attr.addFlashAttribute("message", "Snus recorded successfully!");
         return "redirect:/record";
     }

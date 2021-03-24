@@ -14,8 +14,8 @@
 
     <h1>Trabacco</h1>
 
-    <ul th:each="key : ${dateToSnusCount.keySet()}">
-        <li th:text="${key} + ': ' + ${dateToSnusCount.get(key)}"></li>
+    <ul th:each="entry : ${entries}">
+        <li th:text="${entry}"></li>
     </ul>
 </body>
 </html>

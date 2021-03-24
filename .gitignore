@@ -31,3 +31,9 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### H2 ###
+*.mv.db
+*.trace.db
+
+src/main/resources/application.properties
