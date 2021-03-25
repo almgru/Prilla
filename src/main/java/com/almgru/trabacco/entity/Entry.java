@@ -4,7 +4,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
@@ -13,13 +13,15 @@ public class Entry {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private LocalDate date;
+    private LocalDateTime inserted;
+    private LocalDateTime removed;
     private int amount;
 
     public Entry() { }
 
-    public Entry(LocalDate date, int amount) {
-        this.date = date;
+    public Entry(LocalDateTime inserted, LocalDateTime removed, int amount) {
+        this.inserted = inserted;
+        this.removed = removed;
         this.amount = amount;
     }
 
@@ -27,12 +29,20 @@ public class Entry {
         return id;
     }
 
-    public LocalDate getDate() {
-        return date;
+    public LocalDateTime getInserted() {
+        return inserted;
     }
 
-    public void setDate(LocalDate date) {
-        this.date = date;
+    public void setInserted(LocalDateTime inserted) {
+        this.inserted = inserted;
+    }
+
+    public LocalDateTime getRemoved() {
+        return removed;
+    }
+
+    public void setRemoved(LocalDateTime removed) {
+        this.removed = removed;
     }
 
     public int getAmount() {
@@ -48,19 +58,20 @@ public class Entry {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Entry entry = (Entry) o;
-        return amount == entry.amount && Objects.equals(id, entry.id) && Objects.equals(date, entry.date);
+        return amount == entry.amount && Objects.equals(id, entry.id) && Objects.equals(inserted, entry.inserted) && Objects.equals(removed, entry.removed);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, date, amount);
+        return Objects.hash(id, inserted, removed, amount);
     }
 
     @Override
     public String toString() {
         return "Entry{" +
                 "id=" + id +
-                ", date=" + date +
+                ", inserted=" + inserted +
+                ", removed=" + removed +
                 ", amount=" + amount +
                 '}';
     }

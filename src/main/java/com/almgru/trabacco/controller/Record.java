@@ -3,6 +3,7 @@ package com.almgru.trabacco.controller;
 import com.almgru.trabacco.data.EntryRepository;
 import com.almgru.trabacco.entity.Entry;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,7 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Controller
 public class Record {
@@ -27,9 +28,11 @@ public class Record {
     }
 
     @PostMapping("/record")
-    public String record(@RequestParam("date") LocalDate date, @RequestParam("amount") int amount,
-                             RedirectAttributes attr) {
-        repository.save(new Entry(date, amount));
+    public String record(
+            @RequestParam("inserted") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime inserted,
+            @RequestParam("removed") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime removed,
+            @RequestParam("amount") int amount, RedirectAttributes attr) {
+        repository.save(new Entry(inserted, removed, amount));
         attr.addFlashAttribute("message", "Snus recorded successfully!");
         return "redirect:/record";
     }
