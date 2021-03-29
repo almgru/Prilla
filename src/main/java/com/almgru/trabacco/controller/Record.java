@@ -1,14 +1,14 @@
 package com.almgru.trabacco.controller;
 
 import com.almgru.trabacco.data.EntryRepository;
+import com.almgru.trabacco.dto.AddRecordDTO;
 import com.almgru.trabacco.entity.Entry;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
@@ -28,12 +28,15 @@ public class Record {
     }
 
     @PostMapping("/record")
-    public String record(
-            @RequestParam("inserted") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime inserted,
-            @RequestParam("removed") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime removed,
-            @RequestParam("amount") int amount, RedirectAttributes attr) {
-        repository.save(new Entry(inserted, removed, amount));
+    public String record(@ModelAttribute AddRecordDTO request, RedirectAttributes attr) {
+        repository.save(new Entry(
+                LocalDateTime.of(request.insertedDate(), request.insertedTime()),
+                LocalDateTime.of(request.removedDate(), request.removedTime()),
+                request.amount()
+        ));
+
         attr.addFlashAttribute("message", "Snus recorded successfully!");
+
         return "redirect:/record";
     }
 }

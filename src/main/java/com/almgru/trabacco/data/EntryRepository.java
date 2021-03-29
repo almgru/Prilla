@@ -14,8 +14,7 @@ import java.util.List;
 public interface EntryRepository extends JpaRepository<Entry, Integer> {
     @Query(
             "SELECT new com.almgru.trabacco.dto.WeekDataDTO(e.insertedDate, SUM(e.amount)) FROM Entry e " +
-            "GROUP BY e.insertedDate " +
-            "HAVING e.insertedDate BETWEEN :start AND :end"
+            "GROUP BY e.insertedDate HAVING e.insertedDate BETWEEN :start AND :end"
     )
     List<WeekDataDTO> findByDateBetweenGroupByDate(@Param("start") LocalDate start, @Param("end") LocalDate end);
 }

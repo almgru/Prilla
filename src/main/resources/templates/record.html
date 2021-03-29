@@ -18,11 +18,25 @@
     <p th:if="${message != null}" th:text="${message}"></p>
 
     <form th:action="@{/record}" method="post">
-        <label for="inserted">Inserted at: </label>
-        <input type="datetime-local" id="inserted" name="inserted" required />
+        <fieldset>
+            <legend>Inserted</legend>
 
-        <label for="removed">Removed at: </label>
-        <input type="datetime-local" id="removed" name="removed" required />
+            <label for="insertedDate">Date</label>
+            <input type="date" id="insertedDate" name="insertedDate" required />
+
+            <label for="insertedTime">Time</label>
+            <input type="time" id="insertedTime" name="insertedTime" required />
+        </fieldset>
+
+        <fieldset>
+            <legend>Removed</legend>
+
+            <label for="removedDate">Date</label>
+            <input type="date" id="removedDate" name="removedDate" required />
+
+            <label for="removedTime">Time</label>
+            <input type="time" id="removedTime" name="removedTime" required />
+        </fieldset>
 
         <label for="amount">Amount: </label>
         <input type="number" id="amount" name="amount" value="1" required />
