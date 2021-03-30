@@ -37,6 +37,11 @@ public class Record {
 
         attr.addFlashAttribute("message", "Snus recorded successfully!");
 
+        // Keep value for insertedDate and removedDate
+        attr.addFlashAttribute("insertedDate", request.insertedDate());
+        attr.addFlashAttribute("removedDate", request.removedDate());
+
+        //noinspection SpringMVCViewInspection
         return "redirect:/record";
     }
 }

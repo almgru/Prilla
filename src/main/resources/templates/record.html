@@ -22,7 +22,9 @@
             <legend>Inserted</legend>
 
             <label for="insertedDate">Date</label>
-            <input type="date" id="insertedDate" name="insertedDate" required />
+            <!--suppress ThymeleafVariablesResolveInspection -->
+            <input type="date" id="insertedDate" name="insertedDate" required
+                   th:value='${insertedDate != null ? insertedDate : ""}' />
 
             <label for="insertedTime">Time</label>
             <input type="time" id="insertedTime" name="insertedTime" required />
@@ -32,7 +34,9 @@
             <legend>Removed</legend>
 
             <label for="removedDate">Date</label>
-            <input type="date" id="removedDate" name="removedDate" required />
+            <!--suppress ThymeleafVariablesResolveInspection -->
+            <input type="date" id="removedDate" name="removedDate" required
+                   th:value='${removedDate != null ? removedDate : ""}' />
 
             <label for="removedTime">Time</label>
             <input type="time" id="removedTime" name="removedTime" required />
