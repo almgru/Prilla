@@ -5,13 +5,7 @@
     <title>Home - Trabacco</title>
 </head>
 <body>
-    <nav>
-        <ul>
-            <li><a th:href="@{/}">Home</a></li>
-            <li><a th:href="@{/record}">Record</a></li>
-        </ul>
-    </nav>
-
+    <nav th:replace="fragments/nav.html :: nav(page='index')"></nav>
     <h1>Trabacco</h1>
 
     <div id="chart-area"></div>

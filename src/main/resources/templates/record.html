@@ -5,12 +5,7 @@
     <title>Record - Trabacco</title>
 </head>
 <body>
-    <nav>
-        <ul>
-            <li><a th:href="@{/}">Home</a></li>
-            <li><a th:href="@{/record}">Record</a></li>
-        </ul>
-    </nav>
+    <nav th:replace="fragments/nav.html :: nav(page='record')"></nav>
 
     <h1>Record</h1>
 
