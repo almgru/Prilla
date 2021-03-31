@@ -42,7 +42,7 @@ public class API {
                 .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate lastDayOfWeek = firstDayOfWeek.plusDays(6);
 
-        List<WeekDataDTO> weekData = repository.findByDateBetweenGroupByDate(firstDayOfWeek, lastDayOfWeek);
+        List<WeekDataDTO> weekData = repository.findByInsertedDateBetweenGroupByDayOfWeek(firstDayOfWeek, lastDayOfWeek);
 
         return Stream.iterate(firstDayOfWeek, d -> d.plusDays(1))
                 .limit(ChronoUnit.DAYS.between(firstDayOfWeek, lastDayOfWeek) + 1)
