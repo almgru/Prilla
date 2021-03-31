@@ -14,36 +14,47 @@
 
     <h1>Record</h1>
 
-    <!--suppress ThymeleafVariablesResolveInspection -->
     <p th:if="${message != null}" th:text="${message}"></p>
 
-    <form th:action="@{/record}" method="post">
+    <form th:action="@{/record}" method="post" th:object="${recordForm}">
         <fieldset>
             <legend>Inserted</legend>
 
             <label for="insertedDate">Date</label>
-            <!--suppress ThymeleafVariablesResolveInspection -->
-            <input type="date" id="insertedDate" name="insertedDate" required
-                   th:value='${insertedDate != null ? insertedDate : ""}' />
+            <input type="date" id="insertedDate" name="insertedDate" required th:field="*{insertedDate}" />
+
+            <ul th:if='${#fields.hasErrors("insertedDate")}'>
+                <li th:each='err : ${#fields.errors("insertedDate")}' th:text="${err}"></li>
+            </ul>
 
             <label for="insertedTime">Time</label>
-            <input type="time" id="insertedTime" name="insertedTime" required />
+            <input type="time" id="insertedTime" name="insertedTime" required th:field="*{insertedTime}" />
         </fieldset>
 
         <fieldset>
             <legend>Removed</legend>
 
             <label for="removedDate">Date</label>
-            <!--suppress ThymeleafVariablesResolveInspection -->
-            <input type="date" id="removedDate" name="removedDate" required
-                   th:value='${removedDate != null ? removedDate : ""}' />
+            <input type="date" id="removedDate" name="removedDate" required th:field="*{removedDate}" />
+
+            <ul th:if='${#fields.hasErrors("removedDate")}'>
+                <li th:each='err : ${#fields.errors("removedDate")}' th:text="${err}"></li>
+            </ul>
 
             <label for="removedTime">Time</label>
-            <input type="time" id="removedTime" name="removedTime" required />
+            <input type="time" id="removedTime" name="removedTime" required th:field="*{removedTime}" />
+
+            <ul th:if='${#fields.hasErrors("removedTime")}'>
+                <li th:each='err : ${#fields.errors("removedTime")}' th:text="${err}"></li>
+            </ul>
         </fieldset>
 
         <label for="amount">Amount: </label>
-        <input type="number" id="amount" name="amount" value="1" required />
+        <input type="number" id="amount" name="amount" value="1" required th:field="*{amount}" />
+
+        <ul th:if='${#fields.hasErrors("amount")}'>
+            <li th:each='err : ${#fields.errors("amount")}' th:text="${err}"></li>
+        </ul>
 
         <input type="submit" value="Add" />
     </form>
