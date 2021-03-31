@@ -1,5 +1,7 @@
 package com.almgru.trabacco.entity;
 
+import org.springframework.data.annotation.Immutable;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -10,6 +12,7 @@ import java.time.LocalTime;
 import java.util.Objects;
 
 @Entity
+@Immutable
 public class Entry {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,26 +43,12 @@ public class Entry {
         return LocalDateTime.of(this.insertedDate, this.insertedTime);
     }
 
-    public void setInserted(LocalDateTime inserted) {
-        this.insertedDate = inserted.toLocalDate();
-        this.insertedTime = inserted.toLocalTime();
-    }
-
     public LocalDateTime getRemoved() {
         return LocalDateTime.of(this.removedDate, this.removedTime);
     }
 
-    public void setRemoved(LocalDateTime removed) {
-        this.removedDate = removed.toLocalDate();
-        this.removedTime = removed.toLocalTime();
-    }
-
     public int getAmount() {
         return amount;
-    }
-
-    public void setAmount(int amount) {
-        this.amount = amount;
     }
 
     @Override
