@@ -1,7 +1,7 @@
 package com.almgru.trabacco.data;
 
-import com.almgru.trabacco.dto.WeekDataDTO;
 import com.almgru.trabacco.entity.Entry;
+import com.almgru.trabacco.projection.WeekDataProjection;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,10 +12,9 @@ import java.util.List;
 
 @Repository
 public interface EntryRepository extends JpaRepository<Entry, Integer> {
-    // TODO: Move DTO conversion to service
     @Query(
-            "SELECT new com.almgru.trabacco.dto.WeekDataDTO(e.insertedDate, SUM(e.amount)) FROM Entry e " +
+            "SELECT new com.almgru.trabacco.projection.WeekDataProjection(e.insertedDate, SUM(e.amount)) FROM Entry e " +
             "GROUP BY e.insertedDate HAVING e.insertedDate BETWEEN :start AND :end"
     )
-    List<WeekDataDTO> findByInsertedDateBetweenGroupByDayOfWeek(@Param("start") LocalDate start, @Param("end") LocalDate end);
+    List<WeekDataProjection> findByInsertedDateBetweenGroupByDayOfWeek(@Param("start") LocalDate start, @Param("end") LocalDate end);
 }

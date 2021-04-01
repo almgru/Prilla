@@ -2,6 +2,7 @@ package com.almgru.trabacco.controller;
 
 import com.almgru.trabacco.data.EntryRepository;
 import com.almgru.trabacco.dto.WeekDataDTO;
+import com.almgru.trabacco.service.WeekDataConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,10 +23,12 @@ import java.util.stream.Stream;
 @RequestMapping("/api")
 public class API {
     private final EntryRepository repository;
+    private final WeekDataConverter weekDataConverter;
 
     @Autowired
-    public API(EntryRepository repository) {
+    public API(EntryRepository repository, WeekDataConverter weekDataConverter) {
         this.repository = repository;
+        this.weekDataConverter = weekDataConverter;
     }
 
     @GetMapping("week-data")
@@ -42,7 +45,11 @@ public class API {
                 .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate lastDayOfWeek = firstDayOfWeek.plusDays(6);
 
-        List<WeekDataDTO> weekData = repository.findByInsertedDateBetweenGroupByDayOfWeek(firstDayOfWeek, lastDayOfWeek);
+        List<WeekDataDTO> weekData = repository
+                .findByInsertedDateBetweenGroupByDayOfWeek(firstDayOfWeek, lastDayOfWeek)
+                .stream()
+                .map(weekDataConverter::weekDataProjectionToDTO)
+                .collect(Collectors.toList());
 
         return Stream.iterate(firstDayOfWeek, d -> d.plusDays(1))
                 .limit(ChronoUnit.DAYS.between(firstDayOfWeek, lastDayOfWeek) + 1)
