@@ -10,6 +10,8 @@
 
 <h2>Backup & Restore</h2>
 
+<p th:if="${message != null}" th:text="${message}"></p>
+
 <h3>Backup</h3>
 <form th:action="@{/download-backup}" method="get">
     <input type="submit" value="Download Backup" />

@@ -3,8 +3,10 @@ package com.almgru.trabacco.controller;
 import com.almgru.trabacco.data.EntryRepository;
 import com.almgru.trabacco.dto.EntryDTO;
 import com.almgru.trabacco.dto.RestoreBackupFormDTO;
+import com.almgru.trabacco.entity.Entry;
 import com.almgru.trabacco.service.EntryConverter;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
@@ -17,7 +19,11 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.AbstractMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Controller
@@ -60,7 +66,24 @@ public class BackupRestoreController {
 
     @PostMapping("/restore-backup")
     public String restoreBackup(@ModelAttribute("restoreForm") RestoreBackupFormDTO backupForm,
-                                RedirectAttributes attr) {
-        throw new UnsupportedOperationException("Not yet implemented.");
+                                RedirectAttributes attr) throws IOException {
+        var fileContents = backupForm.backupFile().getBytes();
+        var entries = mapper.readValue(fileContents, new TypeReference<List<EntryDTO>>() {});
+        var existingEntries = repository.findAll().stream()
+                .collect(Collectors.toMap(Entry::getAppliedAt, Entry::getRemovedAt));
+        var entriesToInsert = entries.stream()
+                .filter(dto -> existingEntries.get(dto.appliedAt()) == null ||
+                        !existingEntries.get(dto.appliedAt()).isEqual(dto.removedAt()))
+                .map(entryConverter::dtoToEntry)
+                .collect(Collectors.toList());
+
+        if (entriesToInsert.isEmpty()) {
+            attr.addFlashAttribute("message", "No unique entries to restore.");
+        } else {
+            repository.saveAll(entriesToInsert);
+            attr.addFlashAttribute("message", String.format("%d entries restored!", entriesToInsert.size()));
+        }
+
+        return "redirect:/backup-restore";
     }
 }

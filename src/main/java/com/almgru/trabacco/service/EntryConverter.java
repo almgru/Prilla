@@ -20,4 +20,8 @@ public class EntryConverter {
                 formDTO.amount()
         );
     }
+
+    public Entry dtoToEntry(EntryDTO dto) {
+        return new Entry(dto.appliedAt(), dto.removedAt(), dto.amount());
+    }
 }
