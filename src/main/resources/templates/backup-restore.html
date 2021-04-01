@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Backup & Restore - Trabacco</title>
+</head>
+<body>
+<nav th:replace="fragments/nav.html :: nav(page='index')"></nav>
+<h1>Trabacco</h1>
+
+<h2>Backup & Restore</h2>
+
+<h3>Backup</h3>
+<form th:action="@{/download-backup}" method="get">
+    <input type="submit" value="Download Backup" />
+</form>
+</body>
+</html>
