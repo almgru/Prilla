@@ -63,16 +63,4 @@ public class Entry {
     public int hashCode() {
         return Objects.hash(id, insertedDate, insertedTime, removedDate, removedTime, amount);
     }
-
-    @Override
-    public String toString() {
-        return "Entry{" +
-                "id=" + id +
-                ", insertedDate=" + insertedDate +
-                ", insertedTime=" + insertedTime +
-                ", removedDate=" + removedDate +
-                ", removedTime=" + removedTime +
-                ", amount=" + amount +
-                '}';
-    }
 }

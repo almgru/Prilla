@@ -3,6 +3,8 @@ package com.almgru.trabacco.controller;
 import com.almgru.trabacco.data.EntryRepository;
 import com.almgru.trabacco.dto.RecordFormDTO;
 import com.almgru.trabacco.entity.Entry;
+import com.almgru.trabacco.service.EntryConverter;
+import com.almgru.trabacco.service.TextFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,14 +17,19 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
+import java.util.Locale;
 
 @Controller
 public class Record {
     private final EntryRepository repository;
+    private final EntryConverter entryConverter;
+    private final TextFormatter formatter;
 
     @Autowired
-    public Record(EntryRepository repository) {
+    public Record(EntryRepository repository, EntryConverter entryConverter, TextFormatter formatter) {
         this.repository = repository;
+        this.entryConverter = entryConverter;
+        this.formatter = formatter;
     }
 
     @GetMapping("/record")
@@ -35,7 +42,7 @@ public class Record {
 
     @PostMapping("/record")
     public String record(@Valid @ModelAttribute("recordForm") RecordFormDTO dto, BindingResult bindingResult,
-                         RedirectAttributes attr) {
+                         RedirectAttributes attr, Locale locale) {
         // TODO: Add custom validator
         LocalDateTime inserted = LocalDateTime.of(dto.insertedDate(), dto.insertedTime());
         LocalDateTime removed = LocalDateTime.of(dto.removedDate(), dto.removedTime());
@@ -50,15 +57,14 @@ public class Record {
             return "/record";
         }
 
-        // TODO: Add conversion service
-        repository.save(new Entry(
-                LocalDateTime.of(dto.insertedDate(), dto.insertedTime()),
-                LocalDateTime.of(dto.removedDate(), dto.removedTime()),
-                dto.amount()
-        ));
+        Entry entry = entryConverter.formDTOToEntry(dto);
+        repository.save(entry);
 
-        attr.addFlashAttribute("message", "Snus recorded successfully!");
         attr.addFlashAttribute("recordForm", RecordFormDTO.keepDates(dto));
+        attr.addFlashAttribute(
+                "message",
+                String.format("Entry (%s) recorded!", formatter.entry(entry, locale))
+        );
 
         //noinspection SpringMVCViewInspection
         return "redirect:/record";
