@@ -12,6 +12,7 @@ import java.util.List;
 
 @Repository
 public interface EntryRepository extends JpaRepository<Entry, Integer> {
+    // TODO: Move DTO conversion to service
     @Query(
             "SELECT new com.almgru.trabacco.dto.WeekDataDTO(e.insertedDate, SUM(e.amount)) FROM Entry e " +
             "GROUP BY e.insertedDate HAVING e.insertedDate BETWEEN :start AND :end"

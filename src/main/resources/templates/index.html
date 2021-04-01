@@ -10,6 +10,23 @@
 
     <div id="chart-area"></div>
 
+    <table>
+        <thead>
+            <tr>
+                <th>Inserted at</th>
+                <th>Removed at</th>
+                <th>Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="entry : ${entries}">
+                <td th:text="${entry.inserted()}"></td>
+                <td th:text="${entry.removed()}"></td>
+                <td th:text="${entry.amount()}"></td>
+            </tr>
+        </tbody>
+    </table>
+
     <script src="webjars/d3js/d3.min.js"></script>
     <script th:src="@{/js/index.js}"></script>
 </body>
