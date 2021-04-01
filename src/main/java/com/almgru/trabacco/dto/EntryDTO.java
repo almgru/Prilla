@@ -2,4 +2,4 @@ package com.almgru.trabacco.dto;
 
 import java.time.LocalDateTime;
 
-public record EntryDTO(LocalDateTime inserted, LocalDateTime removed, Integer amount) {}
+public record EntryDTO(LocalDateTime appliedAt, LocalDateTime removedAt, Integer amount) {}

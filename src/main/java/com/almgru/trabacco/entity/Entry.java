@@ -18,8 +18,8 @@ public class Entry {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private LocalDate insertedDate;
-    private LocalTime insertedTime;
+    private LocalDate appliedDate;
+    private LocalTime appliedTime;
 
     private LocalDate removedDate;
     private LocalTime removedTime;
@@ -27,11 +27,11 @@ public class Entry {
 
     public Entry() { }
 
-    public Entry(LocalDateTime inserted, LocalDateTime removed, int amount) {
-        this.insertedDate = inserted.toLocalDate();
-        this.insertedTime = inserted.toLocalTime();
-        this.removedDate = removed.toLocalDate();
-        this.removedTime = removed.toLocalTime();
+    public Entry(LocalDateTime appliedAt, LocalDateTime removedAt, int amount) {
+        this.appliedDate = appliedAt.toLocalDate();
+        this.appliedTime = appliedAt.toLocalTime();
+        this.removedDate = removedAt.toLocalDate();
+        this.removedTime = removedAt.toLocalTime();
         this.amount = amount;
     }
 
@@ -39,11 +39,11 @@ public class Entry {
         return id;
     }
 
-    public LocalDateTime getInserted() {
-        return LocalDateTime.of(this.insertedDate, this.insertedTime);
+    public LocalDateTime getAppliedAt() {
+        return LocalDateTime.of(this.appliedDate, this.appliedTime);
     }
 
-    public LocalDateTime getRemoved() {
+    public LocalDateTime getRemovedAt() {
         return LocalDateTime.of(this.removedDate, this.removedTime);
     }
 
@@ -56,11 +56,11 @@ public class Entry {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Entry entry = (Entry) o;
-        return amount == entry.amount && Objects.equals(id, entry.id) && Objects.equals(insertedDate, entry.insertedDate) && Objects.equals(insertedTime, entry.insertedTime) && Objects.equals(removedDate, entry.removedDate) && Objects.equals(removedTime, entry.removedTime);
+        return amount == entry.amount && Objects.equals(id, entry.id) && Objects.equals(appliedDate, entry.appliedDate) && Objects.equals(appliedTime, entry.appliedTime) && Objects.equals(removedDate, entry.removedDate) && Objects.equals(removedTime, entry.removedTime);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, insertedDate, insertedTime, removedDate, removedTime, amount);
+        return Objects.hash(id, appliedDate, appliedTime, removedDate, removedTime, amount);
     }
 }

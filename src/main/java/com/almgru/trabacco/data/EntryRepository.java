@@ -13,8 +13,8 @@ import java.util.List;
 @Repository
 public interface EntryRepository extends JpaRepository<Entry, Integer> {
     @Query(
-            "SELECT new com.almgru.trabacco.projection.WeekDataProjection(e.insertedDate, SUM(e.amount)) FROM Entry e " +
-            "GROUP BY e.insertedDate HAVING e.insertedDate BETWEEN :start AND :end"
+            "SELECT new com.almgru.trabacco.projection.WeekDataProjection(e.appliedDate, SUM(e.amount)) FROM Entry e " +
+            "GROUP BY e.appliedDate HAVING e.appliedDate BETWEEN :start AND :end"
     )
     List<WeekDataProjection> findByInsertedDateBetweenGroupByDayOfWeek(@Param("start") LocalDate start, @Param("end") LocalDate end);
 }

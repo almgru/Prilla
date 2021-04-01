@@ -24,7 +24,7 @@ public class Index {
     @GetMapping("/")
     public String index(Model model) {
         model.addAttribute("entries", repository
-                .findAll(Sort.by("insertedDate").descending().and(Sort.by("insertedTime").descending()))
+                .findAll(Sort.by("appliedDate").descending().and(Sort.by("appliedTime").descending()))
                 .stream()
                 .map(entryConverter::entryToDTO)
                 .collect(Collectors.toList())

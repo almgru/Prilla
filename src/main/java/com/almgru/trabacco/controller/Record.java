@@ -44,13 +44,13 @@ public class Record {
     public String record(@Valid @ModelAttribute("recordForm") RecordFormDTO dto, BindingResult bindingResult,
                          RedirectAttributes attr, Locale locale) {
         // TODO: Add custom validator
-        LocalDateTime inserted = LocalDateTime.of(dto.insertedDate(), dto.insertedTime());
+        LocalDateTime inserted = LocalDateTime.of(dto.appliedDate(), dto.appliedTime());
         LocalDateTime removed = LocalDateTime.of(dto.removedDate(), dto.removedTime());
         if (removed.isBefore(inserted) || removed.isEqual(inserted)) {
             bindingResult.addError(new FieldError("recordForm", "removedDate",
-                            "Removed date & time must be after inserted date & time."));
+                            "Removed date & time must be after appliedAt date & time."));
             bindingResult.addError(new FieldError("recordForm", "removedTime",
-                    "Removed date & time must be after inserted date & time."));
+                    "Removed date & time must be after appliedAt date & time."));
         }
 
         if (bindingResult.hasErrors()) {

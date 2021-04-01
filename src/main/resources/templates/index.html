@@ -13,15 +13,15 @@
     <table>
         <thead>
             <tr>
-                <th>Inserted at</th>
+                <th>Applied at</th>
                 <th>Removed at</th>
                 <th>Amount</th>
             </tr>
         </thead>
         <tbody>
             <tr th:each="entry : ${entries}">
-                <td th:text="${entry.inserted()}"></td>
-                <td th:text="${entry.removed()}"></td>
+                <td th:text="${entry.appliedAt()}"></td>
+                <td th:text="${entry.removedAt()}"></td>
                 <td th:text="${entry.amount()}"></td>
             </tr>
         </tbody>

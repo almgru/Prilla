@@ -7,8 +7,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 public record RecordFormDTO(
-        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate insertedDate,
-        @DateTimeFormat(pattern = "HH:mm") LocalTime insertedTime,
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate appliedDate,
+        @DateTimeFormat(pattern = "HH:mm") LocalTime appliedTime,
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate removedDate,
         @DateTimeFormat(pattern = "HH:mm") LocalTime removedTime,
         @PositiveOrZero Integer amount
@@ -21,7 +21,7 @@ public record RecordFormDTO(
         RecordFormDTO defaultValues = RecordFormDTO.defaultValues();
 
         return new RecordFormDTO(
-                original.insertedDate(), defaultValues.insertedTime(), original.removedDate(),
+                original.appliedDate(), defaultValues.appliedTime(), original.removedDate(),
                 defaultValues.removedTime(), defaultValues.amount()
         );
     }

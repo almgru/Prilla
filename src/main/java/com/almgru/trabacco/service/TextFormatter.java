@@ -18,8 +18,8 @@ public class TextFormatter {
     }
 
     public String entry(Entry entry, Locale locale) {
-        var inserted = localizedDateTime(entry.getInserted(), locale, FormatStyle.SHORT);
-        var removed = localizedDateTime(entry.getRemoved(), locale, FormatStyle.SHORT);
+        var inserted = localizedDateTime(entry.getAppliedAt(), locale, FormatStyle.SHORT);
+        var removed = localizedDateTime(entry.getRemovedAt(), locale, FormatStyle.SHORT);
 
         return String.format("%s — %s: %d %s", inserted, removed, entry.getAmount(),
                 entry.getAmount() > 1 ? "portions" : "portion");

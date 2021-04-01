@@ -13,21 +13,21 @@
 
     <form th:action="@{/record}" method="post" th:object="${recordForm}">
         <fieldset>
-            <legend>Inserted</legend>
+            <legend>Applied at</legend>
 
-            <label for="insertedDate">Date</label>
-            <input type="date" id="insertedDate" name="insertedDate" required th:field="*{insertedDate}" />
+            <label for="appliedDate">Date</label>
+            <input type="date" id="appliedDate" name="appliedDate" required th:field="*{appliedDate}" />
 
-            <ul th:if='${#fields.hasErrors("insertedDate")}'>
-                <li th:each='err : ${#fields.errors("insertedDate")}' th:text="${err}"></li>
+            <ul th:if='${#fields.hasErrors("appliedDate")}'>
+                <li th:each='err : ${#fields.errors("appliedDate")}' th:text="${err}"></li>
             </ul>
 
-            <label for="insertedTime">Time</label>
-            <input type="time" id="insertedTime" name="insertedTime" required th:field="*{insertedTime}" />
+            <label for="appliedTime">Time</label>
+            <input type="time" id="appliedTime" name="appliedTime" required th:field="*{appliedTime}" />
         </fieldset>
 
         <fieldset>
-            <legend>Removed</legend>
+            <legend>Removed at</legend>
 
             <label for="removedDate">Date</label>
             <input type="date" id="removedDate" name="removedDate" required th:field="*{removedDate}" />
