@@ -37,7 +37,7 @@ public class RecordController {
         if (model.getAttribute("recordForm") == null) {
             model.addAttribute("recordForm", RecordFormDTO.defaultValues());
         }
-        return "recordController";
+        return "record";
     }
 
     @PostMapping("/record")

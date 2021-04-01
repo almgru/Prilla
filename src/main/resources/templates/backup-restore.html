@@ -14,5 +14,13 @@
 <form th:action="@{/download-backup}" method="get">
     <input type="submit" value="Download Backup" />
 </form>
+
+<h3>Restore</h3>
+<form th:action="@{/restore-backup}" method="post" th:object="${restoreForm}" enctype="multipart/form-data">
+    <label for="backupFile">Choose a JSON file to restore from</label>
+    <input type="file" id="backupFile" name="backupFile" th:field="*{backupFile}" accept="application/json" />
+
+    <input type="submit" value="Restore" />
+</form>
 </body>
 </html>

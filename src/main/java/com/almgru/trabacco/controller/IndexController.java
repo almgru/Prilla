@@ -30,6 +30,6 @@ public class IndexController {
                 .collect(Collectors.toList())
         );
 
-        return "indexController";
+        return "index";
     }
 }

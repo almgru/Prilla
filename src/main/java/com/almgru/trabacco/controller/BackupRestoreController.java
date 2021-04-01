@@ -2,6 +2,7 @@ package com.almgru.trabacco.controller;
 
 import com.almgru.trabacco.data.EntryRepository;
 import com.almgru.trabacco.dto.EntryDTO;
+import com.almgru.trabacco.dto.RestoreBackupFormDTO;
 import com.almgru.trabacco.service.EntryConverter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,7 +11,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,7 +33,8 @@ public class BackupRestoreController {
     }
 
     @GetMapping("/backup-restore")
-    public String backupAndRestore() {
+    public String backupAndRestore(Model model) {
+        model.addAttribute("restoreForm", RestoreBackupFormDTO.empty());
         return "backup-restore";
     }
 
@@ -50,5 +56,11 @@ public class BackupRestoreController {
                 .contentType(MediaType.APPLICATION_JSON)
                 .contentLength(buffer.length)
                 .body(buffer);
+    }
+
+    @PostMapping("/restore-backup")
+    public String restoreBackup(@ModelAttribute("restoreForm") RestoreBackupFormDTO backupForm,
+                                RedirectAttributes attr) {
+        throw new UnsupportedOperationException("Not yet implemented.");
     }
 }
