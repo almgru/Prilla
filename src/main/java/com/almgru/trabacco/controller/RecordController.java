@@ -20,13 +20,13 @@ import java.time.LocalDateTime;
 import java.util.Locale;
 
 @Controller
-public class Record {
+public class RecordController {
     private final EntryRepository repository;
     private final EntryConverter entryConverter;
     private final TextFormatter formatter;
 
     @Autowired
-    public Record(EntryRepository repository, EntryConverter entryConverter, TextFormatter formatter) {
+    public RecordController(EntryRepository repository, EntryConverter entryConverter, TextFormatter formatter) {
         this.repository = repository;
         this.entryConverter = entryConverter;
         this.formatter = formatter;
@@ -37,7 +37,7 @@ public class Record {
         if (model.getAttribute("recordForm") == null) {
             model.addAttribute("recordForm", RecordFormDTO.defaultValues());
         }
-        return "record";
+        return "recordController";
     }
 
     @PostMapping("/record")

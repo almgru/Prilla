@@ -21,12 +21,12 @@ import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/api")
-public class API {
+public class APIController {
     private final EntryRepository repository;
     private final WeekDataConverter weekDataConverter;
 
     @Autowired
-    public API(EntryRepository repository, WeekDataConverter weekDataConverter) {
+    public APIController(EntryRepository repository, WeekDataConverter weekDataConverter) {
         this.repository = repository;
         this.weekDataConverter = weekDataConverter;
     }

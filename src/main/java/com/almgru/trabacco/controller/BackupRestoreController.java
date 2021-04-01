@@ -16,13 +16,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
-// TODO: Rename controller classes to <name>Controller
-public class BackupRestore {
+public class BackupRestoreController {
     private final EntryRepository repository;
     private final EntryConverter entryConverter;
     private final ObjectMapper mapper;
 
-    public BackupRestore(EntryRepository repository, EntryConverter entryConverter, ObjectMapper mapper) {
+    public BackupRestoreController(EntryRepository repository, EntryConverter entryConverter, ObjectMapper mapper) {
         this.repository = repository;
         this.entryConverter = entryConverter;
         this.mapper = mapper;

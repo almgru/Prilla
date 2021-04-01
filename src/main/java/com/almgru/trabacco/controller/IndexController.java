@@ -11,12 +11,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import java.util.stream.Collectors;
 
 @Controller
-public class Index {
+public class IndexController {
     private final EntryRepository repository;
     private final EntryConverter entryConverter;
 
     @Autowired
-    public Index(EntryRepository repository, EntryConverter entryConverter) {
+    public IndexController(EntryRepository repository, EntryConverter entryConverter) {
         this.repository = repository;
         this.entryConverter = entryConverter;
     }
@@ -30,6 +30,6 @@ public class Index {
                 .collect(Collectors.toList())
         );
 
-        return "index";
+        return "indexController";
     }
 }
