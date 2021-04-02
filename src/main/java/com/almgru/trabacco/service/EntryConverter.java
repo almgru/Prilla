@@ -2,6 +2,7 @@ package com.almgru.trabacco.service;
 
 import com.almgru.trabacco.dto.EntryDTO;
 import com.almgru.trabacco.dto.RecordFormDTO;
+import com.almgru.trabacco.dto.TimeSeriesDataDTO;
 import com.almgru.trabacco.entity.Entry;
 import org.springframework.stereotype.Service;
 

@@ -8,8 +8,16 @@
     <nav th:replace="fragments/nav.html :: nav(page='index')"></nav>
     <h1>Trabacco</h1>
 
-    <button id="previousWeekBtn">Previous week</button>
-    <button id="nextWeekBtn">Next week</button>
+    <div>
+        <button id="rangeWeekBtn">Week</button>
+        <button id="rangeMonthBtn">Month</button>
+        <button id="rangeYearBtn">Year</button>
+    </div>
+
+    <div>
+        <button id="previousBtn">&lt;&lt;</button>
+        <button id="nextBtn">&gt;&gt;</button>
+    </div>
 
     <div id="chart-area"></div>
 
@@ -32,6 +40,6 @@
 
     <script src="webjars/d3js/d3.min.js"></script>
     <script src="webjars/momentjs/moment.js"></script>
-    <script th:src="@{/js/index.js}"></script>
+    <script th:src="@{/js/bar-chart.js}"></script>
 </body>
 </html>
