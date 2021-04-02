@@ -1,19 +1,38 @@
+let current = moment().startOf('week').add(1, 'days');
+
 window.onload = _ => {
-    d3.json("/api/week-data?year=2021&week=13")
-        .then(dataLoaded)
-        .catch(err => console.log(err));
+    document.querySelector('#nextWeekBtn').onclick = nextWeekClicked;
+    document.querySelector('#previousWeekBtn').onclick = previousWeekClicked;
+    fetchWeekData(current.year(), current.isoWeek());
+}
+
+const previousWeekClicked = _ => {
+    current.subtract(7, 'days');
+    fetchWeekData(current.year(), current.isoWeek());
 };
+
+const nextWeekClicked = _ => {
+    current.add(7, 'days');
+    fetchWeekData(current.year(), current.isoWeek());
+}
+
+const fetchWeekData = (year, week) => (
+    d3.json(`/api/week-data?year=${year}&week=${week}`)
+        .then(data => dataLoaded(data, year, week))
+        .catch(err => console.log(err))
+);
 
 const castData = data => data.map(d => ({
     "date": new Date(d.date),
     "amount": Number(d.amount)
 }));
 
-const dataLoaded = data => {
+const dataLoaded = (data, year, week) => {
     const MARGIN = { LEFT: 50, RIGHT: 50, TOP: 50, BOTTOM: 50 };
     const WIDTH = 600 - MARGIN.LEFT - MARGIN.RIGHT;
     const HEIGHT = 400 - MARGIN.TOP - MARGIN.BOTTOM;
-    const week = "13";
+
+    d3.select('#chart-area').selectAll('*').remove();
 
     const svg = d3.select('#chart-area').append('svg')
         .attr('width', WIDTH + MARGIN.LEFT + MARGIN.RIGHT)
@@ -29,7 +48,7 @@ const dataLoaded = data => {
         .attr('y', HEIGHT + 40)
         .attr('font-size', '16px')
         .attr('text-anchor', 'middle')
-        .text(`Day (Week ${week})`);
+        .text(`Day (Week ${week} of ${year})`);
 
     // Y label
     g.append('text')

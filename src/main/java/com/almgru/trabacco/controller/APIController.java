@@ -40,7 +40,7 @@ public class APIController {
             throw new IllegalArgumentException(String.format("No week %d in year %s.\n", week, year));
         }
 
-        LocalDate firstDayOfWeek = LocalDate.now()
+        LocalDate firstDayOfWeek = LocalDate.of(year.getValue(), 6, 1)
                 .with(IsoFields.WEEK_OF_WEEK_BASED_YEAR, week)
                 .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate lastDayOfWeek = firstDayOfWeek.plusDays(6);
