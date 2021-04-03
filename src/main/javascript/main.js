@@ -4,7 +4,6 @@ import 'whatwg-fetch'; // Polyfill for fetch
 
 import { select } from "d3-selection";
 import { scaleBand, scaleLinear } from "d3-scale";
-import { max } from "d3-array";
 import { axisBottom, axisLeft } from "d3-axis";
 import { format} from "d3-format";
 
@@ -142,7 +141,7 @@ const updateBarChart = (data, xLabelText) => {
         .paddingOuter(0.2);
 
     const y = scaleLinear()
-        .domain([0, Math.max(1, max(data, d => d.value))])
+        .domain([0, Math.max(1, Math.max(...data.map(d => d.value)))])
         .range([HEIGHT, 0]);
 
     const xAxisCall = axisBottom(x);
