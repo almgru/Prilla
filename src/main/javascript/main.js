@@ -6,8 +6,10 @@ import { select } from "d3-selection";
 import { scaleBand, scaleLinear } from "d3-scale";
 import { axisBottom, axisLeft } from "d3-axis";
 import { format} from "d3-format";
+import * as dayjs from 'dayjs';
+import * as isoWeek from 'dayjs/plugin/isoWeek';
 
-import moment from 'moment/dist/moment.js';
+dayjs.extend(isoWeek);
 
 const BarChartRange = Object.freeze({
     WEEK: {
@@ -27,10 +29,10 @@ const BarChartRange = Object.freeze({
     }
 });
 
-const startOfWeek = moment().startOf('week').add(1, 'days');
+const startOfWeek = dayjs().startOf('week').add(1, 'days');
 let state = {
     range: BarChartRange.WEEK,
-    date: moment(startOfWeek),
+    date: dayjs(startOfWeek),
     params: {
         year: null,
         week: null
@@ -52,33 +54,33 @@ const setupListeners = () => {
 };
 
 const previousBtnClicked = () => {
-    state.date.subtract(1, state.range.interval);
+    state.date = state.date.subtract(1, state.range.interval);
     state.params = getParams(state);
     fetchData(state);
 };
 
 const nextBtnClicked = () => {
-    state.date.add(1, state.range.interval);
+    state.date = state.date.add(1, state.range.interval);
     state.params = getParams(state);
     fetchData(state);
 };
 
 const rangeWeekBtnClicked = () => {
-    state.date = moment(startOfWeek);
+    state.date = dayjs(startOfWeek);
     state.range = BarChartRange.WEEK;
     state.params = getParams(state);
     fetchData(state);
 };
 
 const rangeMonthBtnClicked = () => {
-    state.date = moment(startOfWeek);
+    state.date = dayjs(startOfWeek);
     state.range = BarChartRange.MONTH;
     state.params = getParams(state);
     fetchData(state);
 }
 
 const rangeYearBtnClicked = _ => {
-    state.date = moment(startOfWeek);
+    state.date = dayjs(startOfWeek);
     state.range =  BarChartRange.YEAR;
     state.params = getParams(state);
     fetchData(state);
