@@ -1,3 +1,9 @@
+import 'd3/dist/d3.min.js';
+import moment from 'moment/dist/moment.js';
+
+console.log(moment);
+console.log(d3);
+
 const BarChartRange = Object.freeze({
     WEEK: {
         name: 'week',

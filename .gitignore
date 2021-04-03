@@ -36,4 +36,12 @@ build/
 *.mv.db
 *.trace.db
 
+### Spring Boot ###
 src/main/resources/application.properties
+
+### NPM ###
+node_modules/
+node/
+
+### Frontend build ###
+src/main/resources/static/js/trabacco.js
