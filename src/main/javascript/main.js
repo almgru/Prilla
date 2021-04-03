@@ -1,8 +1,14 @@
-import 'd3/dist/d3.min.js';
-import moment from 'moment/dist/moment.js';
+import 'core-js/stable'; // General polyfill
+import 'regenerator-runtime/runtime'; // Polyfill for async/await
+import 'whatwg-fetch'; // Polyfill for fetch
 
-console.log(moment);
-console.log(d3);
+import { select } from "d3-selection";
+import { scaleBand, scaleLinear } from "d3-scale";
+import { max } from "d3-array";
+import { axisBottom, axisLeft } from "d3-axis";
+import { format} from "d3-format";
+
+import moment from 'moment/dist/moment.js';
 
 const BarChartRange = Object.freeze({
     WEEK: {
@@ -84,7 +90,8 @@ const fetchData = state => {
         .map(e => e.join('='))
         .join('&');
 
-    d3.json(`${state.range.url}?${paramStr}`)
+    fetch(`${state.range.url}?${paramStr}`)
+        .then(response => response.json())
         .then(castData)
         .then(data => updateBarChart(data, getXLabelText(state)))
         .catch(err => console.log(err))
@@ -100,9 +107,9 @@ const updateBarChart = (data, xLabelText) => {
     const WIDTH = 600 - MARGIN.LEFT - MARGIN.RIGHT;
     const HEIGHT = 400 - MARGIN.TOP - MARGIN.BOTTOM;
 
-    d3.select('#chart-area').selectAll('*').remove();
+    select('#chart-area').selectAll('*').remove();
 
-    const svg = d3.select('#chart-area').append('svg')
+    const svg = select('#chart-area').append('svg')
         .attr('width', WIDTH + MARGIN.LEFT + MARGIN.RIGHT)
         .attr('height', HEIGHT + MARGIN.TOP + MARGIN.BOTTOM);
 
@@ -128,26 +135,26 @@ const updateBarChart = (data, xLabelText) => {
         .attr('transform', 'rotate(-90)')
         .text('Snus portions consumed');
 
-    const x = d3.scaleBand()
+    const x = scaleBand()
         .domain(data.map(d => d.label))
         .range([0, WIDTH])
         .paddingInner(0.2)
         .paddingOuter(0.2);
 
-    const y = d3.scaleLinear()
-        .domain([0, Math.max(1, d3.max(data, d => d.value))])
+    const y = scaleLinear()
+        .domain([0, Math.max(1, max(data, d => d.value))])
         .range([HEIGHT, 0]);
 
-    const xAxisCall = d3.axisBottom(x);
+    const xAxisCall = axisBottom(x);
 
     g.append('g')
         .attr('class', 'x axis')
         .attr('transform', `translate(0, ${HEIGHT})`)
         .call(xAxisCall);
 
-    const yAxisCall = d3.axisLeft(y)
+    const yAxisCall = axisLeft(y)
         .tickValues(y.ticks().filter(tick => Number.isInteger(tick)))
-        .tickFormat(d3.format('d'));
+        .tickFormat(format('d'));
 
     g.append('g')
         .attr('class', 'y axis')

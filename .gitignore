@@ -44,4 +44,4 @@ node_modules/
 node/
 
 ### Frontend build ###
-src/main/resources/static/js/trabacco.js
+src/main/resources/static/js/
