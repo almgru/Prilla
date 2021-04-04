@@ -23,7 +23,7 @@ module.exports = {
             {
                 test: /\.(js|mjs)$/,
                 include: [
-                    path.resolve(__dirname, 'src', 'main', 'javascript', 'main.js'),
+                    path.resolve(__dirname, 'src', 'main', 'javascript'),
                     ...includeModules
                 ],
                 use: 'babel-loader'
