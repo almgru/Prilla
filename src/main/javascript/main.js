@@ -29,7 +29,7 @@ const BarChartRange = Object.freeze({
     }
 });
 
-const startOfWeek = dayjs().startOf('week').add(1, 'days');
+const startOfWeek = dayjs().startOf('week');
 let state = {
     range: BarChartRange.WEEK,
     date: dayjs(startOfWeek),
