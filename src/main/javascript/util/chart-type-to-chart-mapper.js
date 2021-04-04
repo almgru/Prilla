@@ -9,4 +9,4 @@ const chartTable = {
     [ChartType.DURATION_BETWEEN]: boxPlotChart
 };
 
-export default (chartType, data, interval, date, config) => chartTable[chartType](data, interval, date, config);
+export default chartType => chartTable[chartType];

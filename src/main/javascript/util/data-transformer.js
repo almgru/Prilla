@@ -1,6 +1,6 @@
 import ChartType from '../data-structures/chart-type';
 
-const castTable = {
+const transformationTable = {
     [ChartType.CONSUMPTION]: data => data.map(o => ({
         label: o.label,
         value: Number(o.value)
@@ -15,4 +15,4 @@ const castTable = {
     }))
 };
 
-export default (charttype, data) => castTable[charttype](data);
+export default (charttype, data) => transformationTable[charttype](data);
