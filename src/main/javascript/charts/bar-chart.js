@@ -40,8 +40,8 @@ export default (data, interval, date, config) => {
     g.append('text')
         .attr('class', 'y axis-label')
         .attr('x', -(HEIGHT_EXCL_MARGIN / 2))
-        .attr('y', -25)
-        .attr('font-size', '16px')
+        .attr('y', -30)
+        .attr('font-size', config.fontSize)
         .attr('text-anchor', 'middle')
         .attr('transform', 'rotate(-90)')
         .text('Snus portions consumed');

@@ -1,6 +1,7 @@
 package com.almgru.trabacco.controller;
 
 import com.almgru.trabacco.data.EntryRepository;
+import com.almgru.trabacco.dto.DurationDataDTO;
 import com.almgru.trabacco.dto.TimeSeriesDataDTO;
 import com.almgru.trabacco.entity.Entry;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,8 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.IsoFields;
 import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.WeekFields;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -98,5 +101,18 @@ public class APIController {
                 .map(date -> new TimeSeriesDataDTO(DateTimeFormatter.ofPattern("MMM").format(date),
                         yearData.getOrDefault(date.getMonth(), 0)))
                 .collect(Collectors.toList());
+    }
+
+    @GetMapping("fixed-data")
+    public List<DurationDataDTO> fixedData() {
+        return Arrays.asList(
+            new DurationDataDTO("2021-03-29"),
+            new DurationDataDTO("2021-03-30", 1.5, 1.3, 1.3, 2.1, 0.7, 2.0, 1.0, 1.4),
+            new DurationDataDTO("2021-03-31", 0.7, 2.4, 1.6, 1.3, 1.2, 1.5, 1.1, 1.4, 2.0, 0.5, 1.1, 0.4),
+            new DurationDataDTO("2021-04-01", 2.0, 1.8, 0.2, 1.2, 1.6, 1.8, 1.7, 1.4, 1.3, 0.3),
+            new DurationDataDTO("2021-04-02", 2.0, 0.9, 1.7, 0.6, 1.4, 1.8, 1.5, 1.4, 0.8, 1.0, 0.3),
+            new DurationDataDTO("2021-04-03", 2.1, 1.5, 0.9, 1.1, 1.2, 1.3, 1.2, 1.2, 1.9),
+            new DurationDataDTO("2021-04-04", 1.4, 2.4, 1.7)
+        );
     }
 }
