@@ -1,24 +1,25 @@
 import { quantileSorted, median } from 'd3-array';
+import flow from 'lodash.flow';
 
 import ChartType from '../data-structures/chart-type';
 
-const castConsumptionData = async data => data.map(o => ({
+const castConsumptionData = data => data.map(o => ({
     label: o.label,
     value: Number(o.value)
 }));
 
-const castDurationData = async data => data.map(o => ({
+const castDurationData = data => data.map(o => ({
     label: o.label,
     values: o.values.map(e => Number(e))
 }));
 
-const transformDurationData = data => (
-    castDurationData(data)
-    .then(data => ({
+const transformDurationData = flow(
+    data => castDurationData(data),
+    data => ({
         labels: data.map(d => d.label),
         summary: summarizeDurationData(data),
         dots: groupIndividualDurationDataPointsByLabel(data)
-    }))
+    })
 );
 
 const summarizeDurationData = data => (
@@ -58,4 +59,4 @@ const transformationTable = {
     [ChartType.DURATION_BETWEEN]: transformDurationData
 };
 
-export default async (charttype, data) => await transformationTable[charttype](data);
+export default (charttype, data) => transformationTable[charttype](data);
