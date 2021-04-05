@@ -6,6 +6,9 @@ import com.almgru.trabacco.dto.DataRequestDTO;
 import com.almgru.trabacco.dto.TimeSeriesDataDTO;
 import com.almgru.trabacco.entity.Entry;
 import com.almgru.trabacco.enums.TimeSpan;
+import com.almgru.trabacco.service.DateIterator;
+import com.almgru.trabacco.service.EntryConverter;
+import com.almgru.trabacco.service.EntryGrouper;
 import com.almgru.trabacco.service.TextFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,12 +27,14 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.IsoFields;
 import java.time.temporal.TemporalAccessor;
 import java.time.temporal.TemporalAdjusters;
+import java.time.temporal.TemporalAmount;
 import java.time.temporal.TemporalUnit;
 import java.time.temporal.WeekFields;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -39,23 +44,20 @@ import java.util.stream.Stream;
 @RequestMapping("/api")
 public class APIController {
     private final EntryRepository repository;
-    private final TextFormatter textFormatter;
+    private final EntryConverter entryConverter;
+    private final EntryGrouper entryGrouper;
 
     @Autowired
-    public APIController(EntryRepository repository, TextFormatter textFormatter) {
+    public APIController(EntryRepository repository, EntryConverter entryConverter, EntryGrouper entryGrouper) {
         this.repository = repository;
-        this.textFormatter = textFormatter;
+        this.entryConverter = entryConverter;
+        this.entryGrouper = entryGrouper;
     }
 
     @GetMapping("amount-data")
     public List<TimeSeriesDataDTO> amountData(@Valid @ModelAttribute DataRequestDTO request, Locale locale) {
-        var weekFields = WeekFields.of(locale);
         LocalDate startDate;
         LocalDate endDate;
-        long between;
-        TemporalUnit unit;
-        Function<Entry, String> entryToKey;
-        Function<TemporalAccessor, String> dateToKey;
 
         switch (request.span()) {
             case WEEK -> {
@@ -71,41 +73,49 @@ public class APIController {
                         .with(IsoFields.WEEK_OF_WEEK_BASED_YEAR, request.week())
                         .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
                 endDate = startDate.plusWeeks(1).minusDays(1);
-                between = ChronoUnit.DAYS.between(startDate, endDate) + 1;
-                unit = ChronoUnit.DAYS;
-                dateToKey = DateTimeFormatter.ISO_DATE::format;
-                entryToKey = entry -> dateToKey.apply(entry.getAppliedAt().toLocalDate());
+
+                return entryGrouper.groupAmount(
+                        repository.findByAppliedDateIsBetween(startDate, endDate),
+                        entry -> entry.getAppliedAt().toLocalDate(),
+                        new DateIterator(startDate, endDate, ChronoUnit.DAYS)
+                    )
+                    .entrySet()
+                    .stream()
+                    .map(e -> entryConverter.keyValuePairToTimeSeriesDTO(e, DateTimeFormatter.ISO_DATE::format))
+                    .collect(Collectors.toList());
             }
             case MONTH -> {
                 startDate = LocalDate.of(request.year(), request.month(), 1);
                 endDate = startDate.plusMonths(1).minusDays(1);
-                between = ChronoUnit.WEEKS.between(startDate, endDate) + 1;
-                unit = ChronoUnit.WEEKS;
-                dateToKey = date -> Integer.toString(date.get(weekFields.weekOfWeekBasedYear()));
-                entryToKey = entry -> dateToKey.apply(entry.getAppliedAt());
+                var weekFields = WeekFields.of(locale);
+
+                return entryGrouper.groupAmount(
+                            repository.findByAppliedDateIsBetween(startDate, endDate),
+                            entry -> entry.getAppliedAt().toLocalDate().get(weekFields.weekOfWeekBasedYear()),
+                            date -> date.get(weekFields.weekOfWeekBasedYear()),
+                            new DateIterator(startDate, endDate, ChronoUnit.WEEKS)
+                        )
+                        .entrySet()
+                        .stream()
+                        .map(e -> entryConverter.keyValuePairToTimeSeriesDTO(e, i -> Integer.toString(i)))
+                        .collect(Collectors.toList());
             }
             case YEAR -> {
                 startDate = LocalDate.of(request.year(), 1, 1);
                 endDate = startDate.plusYears(1).minusDays(1);
-                between = ChronoUnit.MONTHS.between(startDate, endDate) + 1;
-                unit = ChronoUnit.MONTHS;
-                dateToKey = date -> DateTimeFormatter.ofPattern("MMM").format(date);
-                entryToKey = entry -> dateToKey.apply(entry.getAppliedAt().getMonth());
+
+                return entryGrouper.groupAmount(
+                        repository.findByAppliedDateIsBetween(startDate, endDate),
+                        entry -> entry.getAppliedAt().toLocalDate(),
+                        new DateIterator(startDate, endDate, ChronoUnit.WEEKS)
+                    )
+                    .entrySet()
+                    .stream()
+                    .map(e -> entryConverter.keyValuePairToTimeSeriesDTO(e, DateTimeFormatter.ofPattern("MMM")::format))
+                    .collect(Collectors.toList());
             }
             default -> throw new IllegalStateException();
         }
-
-        var data = repository
-                .findByAppliedDateIsBetween(startDate, endDate)
-                .stream()
-                .collect(Collectors.groupingBy(entryToKey, Collectors.summingInt(Entry::getAmount)));
-
-        return Stream
-                .iterate(startDate, d -> d.plus(1, unit))
-                .limit(between)
-                .map(date -> new TimeSeriesDataDTO(dateToKey.apply(date),
-                        data.getOrDefault(dateToKey.apply(date), 0)))
-                .collect(Collectors.toList());
     }
 
     @GetMapping("duration-data")
