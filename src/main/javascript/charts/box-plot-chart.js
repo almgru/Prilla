@@ -98,8 +98,27 @@ export default (data, interval, date, config) => {
             .attr('x2', d => x(d.label) + x.bandwidth())
             .attr('y1', d => y(d.median))
             .attr('y2', d => y(d.median))
-            .attr('stroke', 'black')
-            .attr('width', x.bandwidth());
+            .attr('stroke', 'black');
+
+    g.selectAll('minLines')
+        .data(data.summary)
+        .enter()
+        .append('line')
+        .attr('x1', d => x(d.label) + x.bandwidth() / 4)
+        .attr('x2', d => x(d.label) + x.bandwidth() * 3 / 4)
+        .attr('y1', d => y(d.min))
+        .attr('y2', d => y(d.min))
+        .attr('stroke', 'black');
+
+    g.selectAll('maxLines')
+        .data(data.summary)
+        .enter()
+        .append('line')
+        .attr('x1', d => x(d.label) + x.bandwidth() / 4)
+        .attr('x2', d => x(d.label) + x.bandwidth() * 3 / 4)
+        .attr('y1', d => y(d.max))
+        .attr('y2', d => y(d.max))
+        .attr('stroke', 'black');
 
     const jitterWidth = x.bandwidth() / 2;
     g.selectAll('dots')
