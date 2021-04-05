@@ -18,10 +18,10 @@ window.onload = () => {
 
     state.onStateChanged = state => (
         fetch(mapChartTypeToApiUrl(state))
-            .then(handleResponse)
+            .then(response => handleResponse(response))
             .then(data => dataTransformer(state.chartType, data))
             .then(data => generateChart(data, state, config))
-            .then(appendChart)
+            .then(chart => appendChart(chart))
             .catch(err => console.log(err))
     );
 
