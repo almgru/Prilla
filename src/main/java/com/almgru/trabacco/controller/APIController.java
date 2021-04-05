@@ -2,8 +2,11 @@ package com.almgru.trabacco.controller;
 
 import com.almgru.trabacco.data.EntryRepository;
 import com.almgru.trabacco.dto.DurationDataDTO;
+import com.almgru.trabacco.dto.DataRequestDTO;
 import com.almgru.trabacco.dto.TimeSeriesDataDTO;
 import com.almgru.trabacco.entity.Entry;
+import com.almgru.trabacco.enums.TimeSpan;
+import com.almgru.trabacco.service.TextFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -11,17 +14,24 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.IsoFields;
+import java.time.temporal.TemporalAccessor;
 import java.time.temporal.TemporalAdjusters;
+import java.time.temporal.TemporalUnit;
 import java.time.temporal.WeekFields;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,92 +39,87 @@ import java.util.stream.Stream;
 @RequestMapping("/api")
 public class APIController {
     private final EntryRepository repository;
+    private final TextFormatter textFormatter;
 
     @Autowired
-    public APIController(EntryRepository repository) {
+    public APIController(EntryRepository repository, TextFormatter textFormatter) {
         this.repository = repository;
+        this.textFormatter = textFormatter;
     }
 
-    @GetMapping("week-data")
-    public List<TimeSeriesDataDTO> timeData(@RequestParam("year") Integer year, @RequestParam("week") Integer week) {
-        long weeksInYear = IsoFields.WEEK_OF_WEEK_BASED_YEAR
-                .rangeRefinedBy(LocalDate.of(year, 1, 1)).getMaximum();
-
-        if (week < 1 || week > weeksInYear) {
-            throw new IllegalArgumentException(String.format("No week %d in year %s.\n", week, year));
-        }
-
-        LocalDate firstDayOfWeek = LocalDate.of(year, 6, 1)
-                .with(IsoFields.WEEK_OF_WEEK_BASED_YEAR, week)
-                .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-        LocalDate lastDayOfWeek = firstDayOfWeek.plusDays(6);
-
-        var weekData = repository
-                .findByAppliedDateIsBetween(firstDayOfWeek, lastDayOfWeek)
-                .stream()
-                .collect(Collectors.groupingBy(entry -> entry.getAppliedAt().toLocalDate(),
-                        Collectors.summingInt(Entry::getAmount)));
-
-        return Stream
-                .iterate(firstDayOfWeek, d -> d.plusDays(1))
-                .limit(ChronoUnit.DAYS.between(firstDayOfWeek, lastDayOfWeek) + 1)
-                .map(date -> new TimeSeriesDataDTO(DateTimeFormatter.ISO_DATE.format(date),
-                        weekData.getOrDefault(date, 0)))
-                .collect(Collectors.toList());
-
-    }
-
-    @GetMapping("month-data")
-    public List<TimeSeriesDataDTO> monthData(@RequestParam("year") Integer year, @RequestParam("month") Integer month,
-                                             Locale locale) {
-        LocalDate firstDayOfMonth = LocalDate.of(year, month, 1);
-        LocalDate lastDayOfMonth = firstDayOfMonth.plusMonths(1).minusDays(1);
-
+    @GetMapping("amount-data")
+    public List<TimeSeriesDataDTO> amountData(@Valid @ModelAttribute DataRequestDTO request, Locale locale) {
         var weekFields = WeekFields.of(locale);
-        var monthData = repository
-                .findByAppliedDateIsBetween(firstDayOfMonth, lastDayOfMonth)
-                .stream()
-                .collect(Collectors.groupingBy(entry -> entry.getAppliedAt().get(weekFields.weekOfWeekBasedYear()),
-                        Collectors.summingInt(Entry::getAmount)));
+        LocalDate startDate;
+        LocalDate endDate;
+        long between;
+        TemporalUnit unit;
+        Function<Entry, String> entryToKey;
+        Function<TemporalAccessor, String> dateToKey;
 
-        return Stream
-                .iterate(firstDayOfMonth, d -> d.plusWeeks(1))
-                .limit(ChronoUnit.WEEKS.between(firstDayOfMonth, lastDayOfMonth) + 1)
-                .map(date -> new TimeSeriesDataDTO(Integer.toString(date.get(weekFields.weekOfWeekBasedYear())),
-                        monthData.getOrDefault(date.get(weekFields.weekOfWeekBasedYear()), 0)))
-                .collect(Collectors.toList());
-    }
+        switch (request.span()) {
+            case WEEK -> {
+                var weeksInYear = IsoFields.WEEK_OF_WEEK_BASED_YEAR
+                        .rangeRefinedBy(LocalDate.of(request.year(), 1, 1)).getMaximum();
 
-    @GetMapping("year-data")
-    public List<TimeSeriesDataDTO> yearData(@RequestParam("year") Integer year) {
-        var firstDayOfYear = LocalDate.of(year, 1, 1);
-        var lastDayOfYear = firstDayOfYear.plusYears(1).minusDays(1);
+                if (request.week() > weeksInYear) {
+                    throw new IllegalArgumentException(
+                            String.format("No week %d in year %s.\n", request.week(), request.year()));
+                }
 
-        var yearData = repository
-                .findByAppliedDateIsBetween(firstDayOfYear, lastDayOfYear)
-                .stream()
-                .collect(Collectors.groupingBy(entry -> entry.getAppliedAt().getMonth(),
-                        Collectors.summingInt(Entry::getAmount)));
-
-        return Stream
-                .iterate(firstDayOfYear, d -> d.plusMonths(1))
-                .limit(ChronoUnit.MONTHS.between(firstDayOfYear, lastDayOfYear) + 1)
-                .map(date -> new TimeSeriesDataDTO(DateTimeFormatter.ofPattern("MMM").format(date),
-                        yearData.getOrDefault(date.getMonth(), 0)))
-                .collect(Collectors.toList());
-    }
-
-    @GetMapping("duration-data/week")
-    public List<DurationDataDTO> durationData(@RequestParam("year") Integer year, @RequestParam("week") Integer week) {
-        var weeksInYear = IsoFields.WEEK_OF_WEEK_BASED_YEAR
-                .rangeRefinedBy(LocalDate.of(year, 1, 1)).getMaximum();
-
-        if (week < 1 || week > weeksInYear) {
-            throw new IllegalArgumentException(String.format("No week %d in year %s.\n", week, year));
+                startDate = LocalDate.of(request.year(), 6, 1)
+                        .with(IsoFields.WEEK_OF_WEEK_BASED_YEAR, request.week())
+                        .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+                endDate = startDate.plusWeeks(1).minusDays(1);
+                between = ChronoUnit.DAYS.between(startDate, endDate) + 1;
+                unit = ChronoUnit.DAYS;
+                dateToKey = DateTimeFormatter.ISO_DATE::format;
+                entryToKey = entry -> dateToKey.apply(entry.getAppliedAt().toLocalDate());
+            }
+            case MONTH -> {
+                startDate = LocalDate.of(request.year(), request.month(), 1);
+                endDate = startDate.plusMonths(1).minusDays(1);
+                between = ChronoUnit.WEEKS.between(startDate, endDate) + 1;
+                unit = ChronoUnit.WEEKS;
+                dateToKey = date -> Integer.toString(date.get(weekFields.weekOfWeekBasedYear()));
+                entryToKey = entry -> dateToKey.apply(entry.getAppliedAt());
+            }
+            case YEAR -> {
+                startDate = LocalDate.of(request.year(), 1, 1);
+                endDate = startDate.plusYears(1).minusDays(1);
+                between = ChronoUnit.MONTHS.between(startDate, endDate) + 1;
+                unit = ChronoUnit.MONTHS;
+                dateToKey = date -> DateTimeFormatter.ofPattern("MMM").format(date);
+                entryToKey = entry -> dateToKey.apply(entry.getAppliedAt().getMonth());
+            }
+            default -> throw new IllegalStateException();
         }
 
-        var firstDayOfWeek = LocalDate.of(year, 6, 1)
-                .with(IsoFields.WEEK_OF_WEEK_BASED_YEAR, week)
+        var data = repository
+                .findByAppliedDateIsBetween(startDate, endDate)
+                .stream()
+                .collect(Collectors.groupingBy(entryToKey, Collectors.summingInt(Entry::getAmount)));
+
+        return Stream
+                .iterate(startDate, d -> d.plus(1, unit))
+                .limit(between)
+                .map(date -> new TimeSeriesDataDTO(dateToKey.apply(date),
+                        data.getOrDefault(dateToKey.apply(date), 0)))
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("duration-data")
+    public List<DurationDataDTO> durationData(@Valid @ModelAttribute DataRequestDTO request) {
+        var weeksInYear = IsoFields.WEEK_OF_WEEK_BASED_YEAR
+                .rangeRefinedBy(LocalDate.of(request.year(), 1, 1)).getMaximum();
+
+        if (request.week() > weeksInYear) {
+            throw new IllegalArgumentException(
+                    String.format("No week %d in year %s.\n", request.week(), request.year()));
+        }
+
+        var firstDayOfWeek = LocalDate.of(request.year(), 6, 1)
+                .with(IsoFields.WEEK_OF_WEEK_BASED_YEAR, request.week())
                 .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         var lastDayOfWeek = firstDayOfWeek.plusDays(6);
 

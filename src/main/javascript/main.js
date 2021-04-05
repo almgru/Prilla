@@ -6,18 +6,18 @@ import config from './config';
 
 import State from './data-structures/state';
 import ChartType from './data-structures/chart-type';
-import Interval from './data-structures/interval';
+import TimeSpan from './data-structures/time-span';
 
-import chartTypeToApiUrlMapper from './util/chart-type-to-api-url-mapper';
-import dataTransformer from './util/data-transformer';
-import chartTypeToChartMapper from './util/chart-type-to-chart-mapper';
+import stateToApiRequestUrl from './mapper/state-to-api-request';
+import dataTransformer from './mapper/data-transformer';
+import chartTypeToChartMapper from './mapper/chart-type-to-chart-mapper';
 
 window.onload = () => {
     const state = new State();
     setupClickListeners(state);
 
     state.onStateChanged = state => (
-        fetch(mapChartTypeToApiUrl(state))
+        fetch(stateToApiRequestUrl(state))
             .then(response => handleResponse(response))
             .then(data => dataTransformer(state.chartType, data))
             .then(data => generateChart(data, state, config))
@@ -31,15 +31,13 @@ window.onload = () => {
 const setupClickListeners = state => {
     document.querySelector('#nextBtn').onclick = state.next;
     document.querySelector('#prevBtn').onclick = state.previous;
-    document.querySelector('#rangeWeekBtn').onclick = () => state.interval = Interval.WEEK;
-    document.querySelector('#rangeMonthBtn').onclick = () => state.interval = Interval.MONTH;
-    document.querySelector('#rangeYearBtn').onclick = () => state.interval = Interval.YEAR;
+    document.querySelector('#rangeWeekBtn').onclick = () => state.timeSpan = TimeSpan.WEEK;
+    document.querySelector('#rangeMonthBtn').onclick = () => state.timeSpan = TimeSpan.MONTH;
+    document.querySelector('#rangeYearBtn').onclick = () => state.timeSpan = TimeSpan.YEAR;
     document.querySelector('#chartConsBtn').onclick = () => state.chartType = ChartType.CONSUMPTION;
     document.querySelector('#chartDurBtn').onclick = () => state.chartType = ChartType.DURATION;
     document.querySelector('#chartBtwnBtn').onclick = () => state.chartType = ChartType.DURATION_BETWEEN;
 };
-
-const mapChartTypeToApiUrl = state => chartTypeToApiUrlMapper(state.chartType, state.interval, state.date);
 
 const handleResponse = response => {
     if (!response.ok) {
@@ -51,7 +49,7 @@ const handleResponse = response => {
 
 const generateChart = (data, state, config) => {
     const chart = chartTypeToChartMapper(state.chartType);
-    return chart(data, state.interval, state.date, config);
+    return chart(data, state.timeSpan, state.date, config);
 };
 
 const appendChart = chart => {

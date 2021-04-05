@@ -1,13 +1,15 @@
 import * as dayjs from "dayjs";
 import * as isoWeek from "dayjs/plugin/isoWeek";
 
+import TimeSpan from './time-span';
+
 dayjs.extend(isoWeek);
 
 export default class State {
     constructor() {
         this._chartType = null;
-        this._interval = null;
         this._onStateChanged = null;
+        this._timeSpan = TimeSpan.WEEK;
         this._defaultDate = dayjs().startOf('week');
         this._date = dayjs(this._defaultDate);
     }
@@ -16,8 +18,8 @@ export default class State {
         return this._chartType;
     }
 
-    get interval() {
-        return this._interval;
+    get timeSpan() {
+        return this._timeSpan;
     }
 
     get date() {
@@ -26,13 +28,12 @@ export default class State {
 
     set chartType(chartType) {
         this._chartType = chartType;
-        this._interval = 'week';
         this._onStateChanged(this);
     }
 
-    set interval(interval) {
+    set timeSpan(timeSpan) {
         this._date = dayjs(this._defaultDate);
-        this._interval = interval;
+        this._timeSpan = timeSpan;
         this._onStateChanged(this);
     }
 
@@ -41,12 +42,12 @@ export default class State {
     }
 
     next = () => {
-        this._date = this._date.add(1, this._interval);
+        this._date = this._date.add(1, this._timeSpan);
         this._onStateChanged(this);
     }
 
     previous = () => {
-        this._date = this._date.subtract(1, this._interval);
+        this._date = this._date.subtract(1, this._timeSpan);
         this._onStateChanged(this);
     }
 }

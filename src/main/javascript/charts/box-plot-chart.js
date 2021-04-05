@@ -3,8 +3,8 @@ import { scaleBand, scaleLinear } from "d3-scale";
 import { axisBottom, axisLeft } from "d3-axis";
 import { format } from 'd3-format';
 
-const getXLabelText = (interval, date) => {
-    switch (interval.toLowerCase()) {
+const getXLabelText = (timeSpan, date) => {
+    switch (timeSpan.toLowerCase()) {
         case 'week':
             return `Day of week ${date.isoWeek()}, ${date.year()}`;
         case 'month':
@@ -12,11 +12,11 @@ const getXLabelText = (interval, date) => {
         case 'year':
             return `Month, ${date.year()}`;
         default:
-            throw new Error('Invalid interval');
+            throw new Error('Invalid timeSpan');
     }
 }
 
-export default (data, interval, date, config) => {
+export default (data, timeSpan, date, config) => {
     const WIDTH_EXCL_MARGIN = config.canvas.size.width - config.canvas.margin.left - config.canvas.margin.right;
     const HEIGHT_EXCL_MARGIN = config.canvas.size.height - config.canvas.margin.top - config.canvas.margin.bottom;
 
@@ -34,7 +34,7 @@ export default (data, interval, date, config) => {
         .attr('y', HEIGHT_EXCL_MARGIN + 40)
         .attr('font-size', config.fontSize)
         .attr('text-anchor', 'middle')
-        .text(getXLabelText(interval, date));
+        .text(getXLabelText(timeSpan, date));
 
     // Y label
     g.append('text')
