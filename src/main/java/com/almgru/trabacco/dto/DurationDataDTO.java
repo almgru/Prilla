@@ -1,4 +1,6 @@
 package com.almgru.trabacco.dto;
 
-public record DurationDataDTO(String label, Double ...values) {
+import java.util.Collection;
+
+public record DurationDataDTO(String label, Collection<Long> values) {
 }

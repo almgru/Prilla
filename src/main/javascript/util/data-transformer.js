@@ -25,7 +25,7 @@ const transformDurationData = flow(
 const summarizeDurationData = data => (
     data.filter(d => d.values.length > 0)
         .map(d => {
-            const sorted = d.values.sort();
+            const sorted = d.values.sort((a, b) => a - b);
             const q1 = quantileSorted(sorted, 0.25);
             const q3 = quantileSorted(sorted, 0.75);
             const iqr = q3 - q1;

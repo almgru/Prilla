@@ -1,6 +1,7 @@
 import { create } from "d3-selection";
 import { scaleBand, scaleLinear } from "d3-scale";
 import { axisBottom, axisLeft } from "d3-axis";
+import { format } from 'd3-format';
 
 const getXLabelText = (interval, date) => {
     switch (interval.toLowerCase()) {
@@ -43,7 +44,7 @@ export default (data, interval, date, config) => {
         .attr('font-size', config.fontSize)
         .attr('text-anchor', 'middle')
         .attr('transform', 'rotate(-90)')
-        .text('Duration (hours)');
+        .text('Duration (minutes)');
 
     const x = scaleBand()
         .domain(data.labels)
@@ -51,8 +52,10 @@ export default (data, interval, date, config) => {
         .paddingInner(config.canvas.padding.inner)
         .paddingOuter(config.canvas.padding.outer);
 
+    const yScaleMax = Math.max(...data.summary.map(o => o.max));
+    const yScaleMin = Math.min(...data.summary.map(o => o.min)) <= 0 ? -(yScaleMax / 50) : 0;
     const y = scaleLinear()
-        .domain([-0.1, Math.max(1, Math.max(...data.summary.map(o => o.max))) + 0.1])
+        .domain([yScaleMin, Math.max(1, yScaleMax)])
         .range([HEIGHT_EXCL_MARGIN, 0]);
 
     const xAxisCall = axisBottom(x);
