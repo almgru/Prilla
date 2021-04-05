@@ -52,7 +52,7 @@ export default (data, interval, date, config) => {
         .paddingOuter(config.canvas.padding.outer);
 
     const y = scaleLinear()
-        .domain([0, Math.max(1, Math.max(...data.summary.map(o => o.max)))])
+        .domain([-0.1, Math.max(1, Math.max(...data.summary.map(o => o.max))) + 0.1])
         .range([HEIGHT_EXCL_MARGIN, 0]);
 
     const xAxisCall = axisBottom(x);
