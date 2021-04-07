@@ -5,6 +5,7 @@
         <ul>
             <li><a th:href="@{/}" th:class="${#strings.equals(page, 'index') ? 'active' : ''}">Home</a></li>
             <li><a th:href="@{/record}" th:class="${#strings.equals(page, 'record') ? 'active' : ''}">Record</a></li>
+            <li><a th:href="@{/charts}" th:class="${#strings.equals(page, 'charts') ? 'active' : ''}">Charts</a></li>
             <li><a th:href="@{/backup-restore}" th:class="${#strings.equals(page, 'backup-restore') ? 'active' : ''}">Backup & Restore</a></li>
         </ul>
     </nav>

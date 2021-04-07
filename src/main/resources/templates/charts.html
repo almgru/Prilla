@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Charts - Trabacco</title>
+</head>
+<body>
+    <nav th:replace="fragments/nav.html :: nav(page='charts')"></nav>
+
+    <h1>Charts</h1>
+
+    <div id="chart-area"></div>
+
+    <button id="prevBtn">&lt;&lt;</button>
+    <button id="nextBtn">&gt;&gt;</button>
+
+    <button id="rangeWeekBtn">Week</button>
+    <button id="rangeMonthBtn">Month</button>
+    <button id="rangeYearBtn">Year</button>
+
+    <button id="chartConsBtn">Consumption Chart</button>
+    <button id="chartDurBtn">Duration Chart</button>
+    <button id="chartBtwnBtn">Duration Between Chart</button>
+
+    <script th:src="@{/js/trabacco.js}"></script>
+</body>
+</html>
