@@ -1,9 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Home - Trabacco</title>
-</head>
+<head th:replace="fragments/head :: head('Home')"></head>
 <body>
     <nav th:replace="fragments/nav.html :: nav(page='index')"></nav>
     <h1>Home</h1>
@@ -24,7 +21,5 @@
             </tr>
         </tbody>
     </table>
-
-    <script th:src="@{/js/trabacco.js}"></script>
 </body>
 </html>

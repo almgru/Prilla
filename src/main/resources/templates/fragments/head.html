@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(page)">
+    <meta charset="UTF-8">
+    <title th:text="${page} + ' — Trabacco'"></title>
+    <link rel="stylesheet" th:href="@{webjars/bootstrap/css/bootstrap.min.css}">
+    <script th:src="@{webjars/bootstrap/js/bootstrap.bundle.js}" async></script>
+    <script th:if="${#strings.equals(page, 'Charts')}" th:src="@{/js/trabacco.js}" async></script>
+</head>
+</html>

@@ -1,28 +1,25 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Backup & Restore - Trabacco</title>
-</head>
+<head th:replace="fragments/head :: head('Backup & Restore')"></head>
 <body>
-<nav th:replace="fragments/nav.html :: nav(page='index')"></nav>
-<h1>Trabacco</h1>
+    <nav th:replace="fragments/nav.html :: nav(page='index')"></nav>
+    <h1>Trabacco</h1>
 
-<h2>Backup & Restore</h2>
+    <h2>Backup & Restore</h2>
 
-<p th:if="${message != null}" th:text="${message}"></p>
+    <p th:if="${message != null}" th:text="${message}"></p>
 
-<h3>Backup</h3>
-<form th:action="@{/download-backup}" method="get">
-    <input type="submit" value="Download Backup" />
-</form>
+    <h3>Backup</h3>
+    <form th:action="@{/download-backup}" method="get">
+        <input type="submit" value="Download Backup" />
+    </form>
 
-<h3>Restore</h3>
-<form th:action="@{/restore-backup}" method="post" th:object="${restoreForm}" enctype="multipart/form-data">
-    <label for="backupFile">Choose a JSON file to restore from</label>
-    <input type="file" id="backupFile" name="backupFile" th:field="*{backupFile}" accept="application/json" />
+    <h3>Restore</h3>
+    <form th:action="@{/restore-backup}" method="post" th:object="${restoreForm}" enctype="multipart/form-data">
+        <label for="backupFile">Choose a JSON file to restore from</label>
+        <input type="file" id="backupFile" name="backupFile" th:field="*{backupFile}" accept="application/json" />
 
-    <input type="submit" value="Restore" />
-</form>
+        <input type="submit" value="Restore" />
+    </form>
 </body>
 </html>
