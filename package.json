@@ -9,7 +9,8 @@
   "author": "Daniel Alm Grundström <daniel.alm.grundstrom@protonmail.com> (https://github.com/almgru)",
   "browser": "src/main/javascript/main.js",
   "scripts": {
-    "build": "webpack"
+    "build": "webpack",
+    "watch": "webpack watch"
   },
   "dependencies": {
     "core-js": "^3.10.0",

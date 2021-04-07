@@ -1,4 +1,4 @@
-import ChartType from '../data-structures/chart-type';
+import ChartType from '../data-structures/enum/chart-type';
 
 import barChart from '../charts/bar-chart';
 import boxPlotChart from '../charts/box-plot-chart';

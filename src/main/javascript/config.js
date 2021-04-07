@@ -2,7 +2,7 @@ export default {
     fontSize: '16px',
     canvas: {
         size: {
-            width: 600,
+            width: 660,
             height: 400
         },
         margin: {
@@ -15,5 +15,8 @@ export default {
             outer: 0.5,
             inner: 0.5
         }
+    },
+    colors: {
+        primary: '#69b3a2'
     }
 };

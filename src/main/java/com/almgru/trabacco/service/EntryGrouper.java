@@ -3,34 +3,31 @@ package com.almgru.trabacco.service;
 import com.almgru.trabacco.entity.Entry;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.LocalDate;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
 public class EntryGrouper {
-    public <K extends Comparable<? super K>> Map<K, Integer> groupAmount(Collection<Entry> entries,
-                                                                    Function<Entry, K> entryToKeyMapper,
-                                                                    Iterator<K> it) {
-        return groupAmount(entries, entryToKeyMapper, i -> i, it);
-    }
-    public <K extends Comparable<? super K>, I> Map<K, Integer> groupAmount(Collection<Entry> entries,
-                                              Function<Entry, K> entryToKeyMapper,
-                                              Function<I, K> iteratorValueToKeyMapper,
-                                              Iterator<I> it) {
-        var map = entries
+    public Map<String, Integer> groupAmountByDate(Collection<Entry> entries, Function<LocalDate, String> mapper) {
+        return entries
                 .stream()
-                .collect(Collectors.groupingBy(entryToKeyMapper,
-                        TreeMap::new,
+                .collect(Collectors.groupingBy(entry -> mapper.apply(entry.getAppliedAt().toLocalDate()),
                         Collectors.summingInt(Entry::getAmount)));
 
-        while (it.hasNext()) {
-            map.putIfAbsent(iteratorValueToKeyMapper.apply(it.next()), 0);
-        }
+    }
 
-        return map;
+    public Map<String, Set<Long>> groupDurationSetByDate(Collection<Entry> entries, Function<LocalDate, String> mapper) {
+        return entries
+                .stream()
+                .collect(Collectors.groupingBy(
+                        entry -> mapper.apply(entry.getAppliedAt().toLocalDate()),
+                        Collectors.mapping(
+                                entry -> Duration.between(entry.getAppliedAt(), entry.getRemovedAt()).toMinutes(),
+                                Collectors.toSet())));
     }
 }

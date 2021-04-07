@@ -1,77 +1,40 @@
-import { create } from "d3-selection";
-import { scaleBand, scaleLinear } from "d3-scale";
-import { axisBottom, axisLeft } from "d3-axis";
-import { format } from 'd3-format';
+import * as d3Scale from "d3-scale";
+import * as d3Axis from "d3-axis";
 
-const getXLabelText = (timeSpan, date) => {
-    switch (timeSpan.toLowerCase()) {
-        case 'week':
-            return `Day of week ${date.isoWeek()}, ${date.year()}`;
-        case 'month':
-            return `Week, ${date.format("MMMM")} ${date.year()}`;
-        case 'year':
-            return `Month, ${date.year()}`;
-        default:
-            throw new Error('Invalid timeSpan');
-    }
-}
+import * as chartUtils from './chart-util';
 
-export default (data, timeSpan, date, config) => {
+export default (data, config) => {
     const WIDTH_EXCL_MARGIN = config.canvas.size.width - config.canvas.margin.left - config.canvas.margin.right;
     const HEIGHT_EXCL_MARGIN = config.canvas.size.height - config.canvas.margin.top - config.canvas.margin.bottom;
 
-    const svg = create('svg')
-        .attr('width', config.canvas.size.width)
-        .attr('height', config.canvas.size.height);
+    const canvas = chartUtils.createCanvas(config);
 
-    const g = svg.append('g')
-        .attr('transform', `translate(${config.canvas.margin.left}, ${config.canvas.margin.top})`);
-
-    // X label
-    g.append('text')
-        .attr('class', 'x axis-label')
-        .attr('x', WIDTH_EXCL_MARGIN / 2)
-        .attr('y', HEIGHT_EXCL_MARGIN + 40)
-        .attr('font-size', config.fontSize)
-        .attr('text-anchor', 'middle')
-        .text(getXLabelText(timeSpan, date));
-
-    // Y label
-    g.append('text')
-        .attr('class', 'y axis-label')
-        .attr('x', -(HEIGHT_EXCL_MARGIN / 2))
-        .attr('y', -30)
-        .attr('font-size', config.fontSize)
-        .attr('text-anchor', 'middle')
-        .attr('transform', 'rotate(-90)')
-        .text('Duration (minutes)');
-
-    const x = scaleBand()
+    const x = d3Scale.scaleBand()
         .domain(data.labels)
         .range([0, WIDTH_EXCL_MARGIN])
         .paddingInner(config.canvas.padding.inner)
         .paddingOuter(config.canvas.padding.outer);
 
-    const yScaleMax = Math.max(...data.summary.map(o => o.max));
-    const yScaleMin = Math.min(...data.summary.map(o => o.min)) <= 0 ? -(yScaleMax / 50) : 0;
-    const y = scaleLinear()
+    const yScaleMax = Math.max(...[...data.dots.map(d => d.value), ...data.summary.map(d => d.max)]);
+    const yScaleMin = Math.min(...[...data.dots.map(d => d.value), ...data.summary.map(d => d.min)]);
+    const y = d3Scale.scaleLinear()
         .domain([yScaleMin, Math.max(1, yScaleMax)])
         .range([HEIGHT_EXCL_MARGIN, 0]);
 
-    const xAxisCall = axisBottom(x);
+    const xAxisCall = d3Axis.axisBottom(x);
 
-    g.append('g')
+    canvas.append('g')
         .attr('class', 'x axis')
         .attr('transform', `translate(0, ${HEIGHT_EXCL_MARGIN})`)
         .call(xAxisCall);
 
-    const yAxisCall = axisLeft(y);
+    const yAxisCall = d3Axis.axisLeft(y);
 
-    g.append('g')
+    canvas.append('g')
         .attr('class', 'y axis')
         .call(yAxisCall);
 
-    g.selectAll('vertLines')
+    canvas.selectAll('vertLines')
         .data(data.summary)
         .enter()
         .append('line')
@@ -79,10 +42,9 @@ export default (data, timeSpan, date, config) => {
             .attr('x2', d => x(d.label) + x.bandwidth() / 2)
             .attr('y1', d => y(d.min))
             .attr('y2', d => y(d.max))
-            .attr('stroke', 'black')
-            .style('width', 40);
+            .attr('stroke', 'black');
 
-    g.selectAll('boxes')
+    canvas.selectAll('boxes')
         .data(data.summary)
         .enter()
         .append('rect')
@@ -91,9 +53,9 @@ export default (data, timeSpan, date, config) => {
             .attr('width', x.bandwidth())
             .attr('height', d => y(d.q1) - y(d.q3))
             .attr('stroke', 'black')
-            .attr('fill', '#69b3a2');
+            .attr('fill', config.colors.primary);
 
-    g.selectAll('medianLines')
+    canvas.selectAll('medianLines')
         .data(data.summary)
         .enter()
         .append('line')
@@ -103,36 +65,37 @@ export default (data, timeSpan, date, config) => {
             .attr('y2', d => y(d.median))
             .attr('stroke', 'black');
 
-    g.selectAll('minLines')
+    canvas.selectAll('minLines')
         .data(data.summary)
         .enter()
         .append('line')
-        .attr('x1', d => x(d.label) + x.bandwidth() / 4)
-        .attr('x2', d => x(d.label) + x.bandwidth() * 3 / 4)
-        .attr('y1', d => y(d.min))
-        .attr('y2', d => y(d.min))
-        .attr('stroke', 'black');
+            .attr('x1', d => x(d.label) + x.bandwidth() / 4)
+            .attr('x2', d => x(d.label) + x.bandwidth() * 3 / 4)
+            .attr('y1', d => y(d.min))
+            .attr('y2', d => y(d.min))
+            .attr('stroke', 'black');
 
-    g.selectAll('maxLines')
+    canvas.selectAll('maxLines')
         .data(data.summary)
         .enter()
         .append('line')
-        .attr('x1', d => x(d.label) + x.bandwidth() / 4)
-        .attr('x2', d => x(d.label) + x.bandwidth() * 3 / 4)
-        .attr('y1', d => y(d.max))
-        .attr('y2', d => y(d.max))
-        .attr('stroke', 'black');
+            .attr('x1', d => x(d.label) + x.bandwidth() / 4)
+            .attr('x2', d => x(d.label) + x.bandwidth() * 3 / 4)
+            .attr('y1', d => y(d.max))
+            .attr('y2', d => y(d.max))
+            .attr('stroke', 'black');
 
     const jitterWidth = x.bandwidth() / 2;
-    g.selectAll('dots')
+    canvas.selectAll('dots')
         .data(data.dots)
         .enter()
         .append('circle')
             .attr('cx', d => x(d.label) + x.bandwidth() / 2 - jitterWidth / 2 + Math.random() * jitterWidth)
             .attr('cy', d => y(d.value))
-            .attr('r', 4)
-            .style('fill', 'white')
+            .attr('r', 2)
+            .attr('fill', 'white')
+            .attr('fill-opacity', '0.0')
             .attr('stroke', 'black');
 
-    return svg.node();
+    return canvas.node().parentNode;
 };

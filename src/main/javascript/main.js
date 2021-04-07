@@ -5,12 +5,13 @@ import 'whatwg-fetch'; // Polyfill for fetch
 import config from './config';
 
 import State from './data-structures/state';
-import ChartType from './data-structures/chart-type';
-import TimeSpan from './data-structures/time-span';
+import ChartType from './data-structures/enum/chart-type';
+import TimeSpan from './data-structures/enum/time-span';
 
-import stateToApiRequestUrl from './mapper/state-to-api-request';
+import stateToApiRequestUrl from './mapper/state-to-api-request-mapper';
 import dataTransformer from './mapper/data-transformer';
 import chartTypeToChartMapper from './mapper/chart-type-to-chart-mapper';
+import * as labelMapper from './mapper/label-mapper';
 
 window.onload = () => {
     const state = new State();
@@ -19,7 +20,7 @@ window.onload = () => {
     state.onStateChanged = state => (
         fetch(stateToApiRequestUrl(state))
             .then(response => handleResponse(response))
-            .then(data => dataTransformer(state.chartType, data))
+            .then(data => dataTransformer(state, data))
             .then(data => generateChart(data, state, config))
             .then(chart => appendChart(chart))
             .catch(err => console.log(err))
@@ -49,7 +50,13 @@ const handleResponse = response => {
 
 const generateChart = (data, state, config) => {
     const chart = chartTypeToChartMapper(state.chartType);
-    return chart(data, state.timeSpan, state.date, config);
+    return chart(data, {
+        ...config,
+        labels: {
+            x: labelMapper.mapXLabel(state.chartType, state.timeSpan, state.date),
+            y: labelMapper.mapYLabel(state.chartType, state.timeSpan, state.date)
+        }
+    });
 };
 
 const appendChart = chart => {
