@@ -3,23 +3,25 @@
 <head th:replace="fragments/head :: head('Home')"></head>
 <body>
     <nav th:replace="fragments/nav.html :: nav(page='index')"></nav>
-    <h1>Home</h1>
+    <main>
+        <h1>Home</h1>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Applied at</th>
-                <th>Removed at</th>
-                <th>Amount</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="entry : ${entries}">
-                <td th:text="${entry.appliedAt()}"></td>
-                <td th:text="${entry.removedAt()}"></td>
-                <td th:text="${entry.amount()}"></td>
-            </tr>
-        </tbody>
-    </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>Applied at</th>
+                    <th>Removed at</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="entry : ${entries}">
+                    <td th:text="${entry.appliedAt()}"><span th:text="${entry.appliedAt()}"></span></td>
+                    <td th:text="${entry.removedAt()}"><span th:text="${entry.removedAt()}"></span></td>
+                    <td th:text="${entry.amount()}"><span th:text="${entry.amount()}"></span></td>
+                </tr>
+            </tbody>
+        </table>
+    </main>
 </body>
 </html>

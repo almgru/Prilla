@@ -1,3 +1,9 @@
+main {
+    width: 95%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .sidebar-wrapper {
     display: flex;
     flex-direction: row;
@@ -30,4 +36,31 @@ h1 {
 
 .chart-and-buttons > button:last-child {
     float: right;
+}
+
+table {
+    width: 100%;
+}
+
+th, td {
+    padding: 1em;
+    border-bottom: 1px solid black;
+    border-right: 1px solid black;
+}
+
+th {
+    font-weight: bold;
+}
+
+tr:nth-of-type(even) {
+    background: #f0f0f0;
+}
+
+td:last-child,
+th:last-child {
+    border-right: none;
+}
+
+tr:last-child td {
+    border-bottom: none;
 }

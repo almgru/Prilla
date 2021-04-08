@@ -8,6 +8,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Controller
@@ -22,11 +25,13 @@ public class IndexController {
     }
 
     @GetMapping("/")
-    public String index(Model model) {
+    public String index(Model model, Locale locale) {
         model.addAttribute("entries", repository
                 .findAll(Sort.by("appliedDate").descending().and(Sort.by("appliedTime").descending()))
                 .stream()
-                .map(entryConverter::entryToDTO)
+                .map(e -> entryConverter.entryToListItem(e, DateTimeFormatter
+                        .ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)
+                        .localizedBy(locale)))
                 .collect(Collectors.toList())
         );
 
