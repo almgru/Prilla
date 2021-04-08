@@ -5,19 +5,25 @@ const createCanvas = config => {
     const HEIGHT_EXCL_MARGIN = config.canvas.size.height - config.canvas.margin.top - config.canvas.margin.bottom;
 
     const canvas = d3Selection.create('svg')
-        .attr('width', config.canvas.size.width)
-        .attr('height', config.canvas.size.height);
+        .attr('viewBox', `0 0 ${config.canvas.size.width} ${config.canvas.size.height}`);
 
     const root = canvas.append('g')
         .attr('transform', `translate(${config.canvas.margin.left}, ${config.canvas.margin.top})`)
 
-    root.append(() => _createAxisLabel(config.labels.x, config.fontSize, WIDTH_EXCL_MARGIN / 2, HEIGHT_EXCL_MARGIN + 40)
-        .attr('class', 'x axis-label')
-        .node());
-    root.append(() => _createAxisLabel(config.labels.y, config.fontSize, -(HEIGHT_EXCL_MARGIN) / 2, -30)
-        .attr('class', 'y axis-label')
+    root.append('text')
+        .attr('x', WIDTH_EXCL_MARGIN / 2, HEIGHT_EXCL_MARGIN + 40)
+        .attr('y', HEIGHT_EXCL_MARGIN + 40)
+        .attr('font-size', config.fontSize)
+        .attr('text-anchor', 'middle')
+        .text(config.labels.x);
+
+    root.append('text')
+        .attr('x', -(HEIGHT_EXCL_MARGIN) / 2)
+        .attr('y', -30)
+        .attr('font-size', config.fontSize)
+        .attr('text-anchor', 'middle')
         .attr('transform', 'rotate(-90)')
-        .node());
+        .text(config.labels.y);
 
     return root;
 };
