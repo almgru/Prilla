@@ -39,7 +39,11 @@ h1 {
 }
 
 table {
+    margin-left: auto;
+    margin-right: auto;
     width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 th, td {
@@ -94,7 +98,45 @@ nav > ul > li > a {
     line-height: 2rem;
 }
 
+@media(max-width: 726px) {
+    thead {
+        display: none;
+    }
+
+    tbody {
+        display: table;
+        width: 100%;
+    }
+
+    tr {
+        display: table-row-group;
+    }
+
+    td {
+        display: table-row;
+    }
+
+    td::before {
+        content: attr(data-label);
+        font-weight: bold;
+    }
+
+    td::before,
+    td > span {
+        display: table-cell;
+
+        padding: 10px;
+    }
+
+    td:last-child::before,
+    td:last-child > span {
+        border-bottom: none;
+    }
+
+}
+
 @media(min-width: 726px) {
+
     nav > ul {
         flex-direction: row;
     }
@@ -113,6 +155,10 @@ nav > ul > li > a {
 }
 
 @media(min-width: 970px) {
+    table {
+        width: 75%;
+    }
+
     nav > ul > li {
         width: 10rem;
     }

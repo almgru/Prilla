@@ -16,9 +16,9 @@
             </thead>
             <tbody>
                 <tr th:each="entry : ${entries}">
-                    <td th:text="${entry.appliedAt()}"><span th:text="${entry.appliedAt()}"></span></td>
-                    <td th:text="${entry.removedAt()}"><span th:text="${entry.removedAt()}"></span></td>
-                    <td th:text="${entry.amount()}"><span th:text="${entry.amount()}"></span></td>
+                    <td data-label="Applied at" th:text="${entry.appliedAt()}"><span th:text="${entry.appliedAt()}"></span></td>
+                    <td data-label="Removed at" th:text="${entry.removedAt()}"><span th:text="${entry.removedAt()}"></span></td>
+                    <td data-label="Amount" th:text="${entry.amount()}"><span th:text="${entry.amount()}"></span></td>
                 </tr>
             </tbody>
         </table>
