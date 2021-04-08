@@ -6,7 +6,6 @@ import config from './config';
 
 import State from './data-structures/state';
 import ChartType from './data-structures/enum/chart-type';
-import TimeSpan from './data-structures/enum/time-span';
 
 import stateToApiRequestUrl from './mapper/state-to-api-request-mapper';
 import dataTransformer from './mapper/data-transformer';
@@ -32,12 +31,12 @@ window.onload = () => {
 const setupClickListeners = state => {
     document.querySelector('#nextBtn').onclick = state.next;
     document.querySelector('#prevBtn').onclick = state.previous;
-    document.querySelector('#rangeWeekBtn').onclick = () => state.timeSpan = TimeSpan.WEEK;
-    document.querySelector('#rangeMonthBtn').onclick = () => state.timeSpan = TimeSpan.MONTH;
-    document.querySelector('#rangeYearBtn').onclick = () => state.timeSpan = TimeSpan.YEAR;
-    document.querySelector('#chartConsBtn').onclick = () => state.chartType = ChartType.CONSUMPTION;
-    document.querySelector('#chartDurBtn').onclick = () => state.chartType = ChartType.DURATION;
-    document.querySelector('#chartBtwnBtn').onclick = () => state.chartType = ChartType.DURATION_BETWEEN;
+    document.querySelectorAll('input[name="timeSpan"]')
+        .forEach(elem => (
+            elem.onclick = event => state.timeSpan = Number(event.target.value)));
+    document.querySelectorAll('input[name="chartType"]')
+        .forEach(elem => (
+            elem.onchange = event => state.chartType = Number(event.target.value)));
 };
 
 const handleResponse = response => {
