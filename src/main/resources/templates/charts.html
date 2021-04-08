@@ -4,21 +4,58 @@
 <body>
     <nav th:replace="fragments/nav.html :: nav(page='charts')"></nav>
 
-    <h1>Charts</h1>
+    <main class="sidebar-wrapper">
+        <ul class="sidebar">
+            <li class="sidebar-item">
+                <fieldset>
+                    <legend>Time span</legend>
 
-    <div id="chart-area"></div>
+                    <ul>
+                        <li>
+                            <input type="radio" name="timeSpan" value="1" id="spanWeek" checked />
+                            <label for="spanWeek">Week</label>
+                        </li>
 
-    <button id="prevBtn">&lt;&lt;</button>
-    <button id="nextBtn">&gt;&gt;</button>
+                        <li>
+                            <input type="radio" name="timeSpan" value="2" id="spanMonth" />
+                            <label for="spanMonth">Month</label>
+                        </li>
 
-    <button id="rangeWeekBtn">Week</button>
-    <button id="rangeMonthBtn">Month</button>
-    <button id="rangeYearBtn">Year</button>
+                        <li>
+                            <input type="radio" name="timeSpan" value="3" id="spanYear" />
+                            <label for="spanYear">Year</label>
+                        </li>
+                    </ul>
+                </fieldset>
+            </li>
 
-    <button id="chartConsBtn">Consumption Chart</button>
-    <button id="chartDurBtn">Duration Chart</button>
-    <button id="chartBtwnBtn">Duration Between Chart</button>
+            <li class="sidebar-item">
+                <fieldset>
+                    <legend>What to chart?</legend>
 
-    <script th:src="@{/js/trabacco.js}"></script>
+                    <ul>
+                        <li>
+                            <input type="radio" name="chartType" value="1" id="chartTypeAmount" checked />
+                            <label for="chartTypeAmount">Amount</label>
+                        </li>
+
+                        <li>
+                            <input type="radio" name="chartType" value="2" id="chartTypeDuration" />
+                            <label for="chartTypeDuration">Duration</label>
+                        </li>
+                    </ul>
+                </fieldset>
+            </li>
+        </ul>
+
+        <div class="content">
+            <h1>Charts</h1>
+            <div class="chart-and-buttons">
+                <div id="chart-area"></div>
+                <button id="prevBtn">&lt;&lt;</button>
+                <button id="nextBtn">&gt;&gt;</button>
+            </div>
+        </div>
+    </main>
 </body>
 </html>

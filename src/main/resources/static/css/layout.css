@@ -1,0 +1,33 @@
+.sidebar-wrapper {
+    display: flex;
+    flex-direction: row;
+}
+
+.sidebar-wrapper > .sidebar {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.sidebar-wrapper > .content {
+    flex: 4;
+}
+
+h1 {
+    text-align: center;
+}
+
+.chart-and-buttons {
+    width: 75%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.chart-and-buttons > button {
+    margin-left: 20%;
+    margin-right: 20%;
+}
+
+.chart-and-buttons > button:last-child {
+    float: right;
+}
