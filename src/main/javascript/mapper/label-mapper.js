@@ -5,7 +5,7 @@ const mapXLabel = (chartType, timeSpan, date) => {
     if (chartType === ChartType.CONSUMPTION || chartType === ChartType.DURATION) {
         switch (timeSpan) {
             case TimeSpan.WEEK:
-                return `Days in week ${date.isoWeek()})`;
+                return `Days in week ${date.isoWeek()}`;
             case TimeSpan.MONTH:
                 return `Weeks in ${date.format("MMMM")}, ${date.year()}`;
             case TimeSpan.YEAR:
