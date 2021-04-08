@@ -2,12 +2,19 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <body>
     <nav th:fragment="nav(page)">
-        <ul>
-            <li><a th:href="@{/}" th:class="${#strings.equals(page, 'index') ? 'active' : ''}">Home</a></li>
-            <li><a th:href="@{/record}" th:class="${#strings.equals(page, 'record') ? 'active' : ''}">Record</a></li>
-            <li><a th:href="@{/charts}" th:class="${#strings.equals(page, 'charts') ? 'active' : ''}">Charts</a></li>
-            <li><a th:href="@{/backup-restore}" th:class="${#strings.equals(page, 'backup-restore') ? 'active' : ''}">Backup & Restore</a></li>
-        </ul>
+        <a class="nav-header" th:href="@{/}">Trabacco</a>
+        <a class="nav-link" th:href="@{/}" th:classappend="${#strings.equals(page, 'index') ? 'active' : ''}">Home</a>
+        <a class="nav-link" th:href="@{/record}" th:classappend="${#strings.equals(page, 'record') ? 'active' : ''}">
+            Record
+        </a>
+        <a class="nav-link" th:href="@{/charts}" th:classappend="${#strings.equals(page, 'charts') ? 'active' : ''}">
+            Charts
+        </a>
+        <a class="nav-link" th:href="@{/backup-restore}"
+           th:classappend="${#strings.equals(page, 'backup-restore') ? 'active' : ''}"
+        >
+            Backup & Restore
+        </a>
     </nav>
 </body>
 </html>
