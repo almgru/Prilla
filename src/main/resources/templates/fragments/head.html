@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="${page} + ' — Trabacco'"></title>
-    <link rel="stylesheet" th:href="@{webjars/semantic-ui/dist/semantic.min.css}">
-    <script th:src="@{webjars/semantic-ui/dist/semantic.min.js}" async></script>
+    <link rel="stylesheet" th:href="@{/css/layout.css}">
     <script th:if="${#strings.equals(page, 'Charts')}" th:src="@{/js/trabacco.js}" async></script>
 </head>
 </html>
