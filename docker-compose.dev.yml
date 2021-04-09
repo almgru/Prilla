@@ -1,0 +1,34 @@
+version: "3.9"
+
+services:
+  spring-dev-server:
+    image: openjdk:16-jdk-slim
+    working_dir: /trabacco-server
+    command: /trabacco-server/mvnw spring-boot:run
+    volumes:
+      - ./server:/trabacco-server:ro
+      - /trabacco-server/target
+    ports:
+      - 8080:8080
+
+  chart-dev-server:
+    image: node:current-alpine3.13
+    working_dir: /trabacco-chart
+    command: /bin/sh -c "npm ci && npm run dev"
+    volumes:
+      - ./client/chart-generator:/trabacco-chart:ro
+      - /trabacco-chart/node_modules
+      - /trabacco-chart/out
+    ports:
+      - 8081:8081
+
+  css-dev-server:
+    image: node:current-alpine3.13
+    working_dir: /trabacco-css
+    command: /bin/sh -c "npm ci && npm run dev"
+    volumes:
+      - ./client/css:/trabacco-css:ro
+      - /trabacco-css/node_modules
+      - /trabacco-css/out
+    ports:
+      - 8082:8082

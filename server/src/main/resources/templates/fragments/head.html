@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(page)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${page} + ' — Trabacco'"></title>
+    <link rel="stylesheet" th:href="${@environment.getProperty('trabacco.css.uri')}">
+    <script th:if="${#strings.equals(page, 'Charts')}" th:src="${@environment.getProperty('trabacco.js.uri')}" async></script>
+</head>
+</html>
