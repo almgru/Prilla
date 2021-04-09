@@ -15,12 +15,12 @@
             <label for="appliedDate">Date</label>
             <input type="date" id="appliedDate" name="appliedDate" required th:field="*{appliedDate}" />
 
+            <label for="appliedTime">Time</label>
+            <input type="time" id="appliedTime" name="appliedTime" required th:field="*{appliedTime}" />
+
             <ul th:if='${#fields.hasErrors("appliedDate")}'>
                 <li th:each='err : ${#fields.errors("appliedDate")}' th:text="${err}"></li>
             </ul>
-
-            <label for="appliedTime">Time</label>
-            <input type="time" id="appliedTime" name="appliedTime" required th:field="*{appliedTime}" />
         </fieldset>
 
         <fieldset>
@@ -29,20 +29,16 @@
             <label for="removedDate">Date</label>
             <input type="date" id="removedDate" name="removedDate" required th:field="*{removedDate}" />
 
-            <ul th:if='${#fields.hasErrors("removedDate")}'>
-                <li th:each='err : ${#fields.errors("removedDate")}' th:text="${err}"></li>
-            </ul>
-
             <label for="removedTime">Time</label>
             <input type="time" id="removedTime" name="removedTime" required th:field="*{removedTime}" />
 
-            <ul th:if='${#fields.hasErrors("removedTime")}'>
-                <li th:each='err : ${#fields.errors("removedTime")}' th:text="${err}"></li>
+            <ul th:if='${#fields.hasErrors("removedDate")}'>
+                <li th:each='err : ${#fields.errors("removedDate")}' th:text="${err}"></li>
             </ul>
         </fieldset>
 
         <label for="amount">Amount: </label>
-        <input type="number" id="amount" name="amount" value="1" required th:field="*{amount}" />
+        <input type="number" id="amount" name="amount" min="1" required th:field="*{amount}" />
 
         <ul th:if='${#fields.hasErrors("amount")}'>
             <li th:each='err : ${#fields.errors("amount")}' th:text="${err}"></li>

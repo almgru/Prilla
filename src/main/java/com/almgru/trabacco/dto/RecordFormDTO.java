@@ -2,7 +2,7 @@ package com.almgru.trabacco.dto;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.validation.constraints.PositiveOrZero;
+import javax.validation.constraints.Positive;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -11,7 +11,7 @@ public record RecordFormDTO(
         @DateTimeFormat(pattern = "HH:mm") LocalTime appliedTime,
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate removedDate,
         @DateTimeFormat(pattern = "HH:mm") LocalTime removedTime,
-        @PositiveOrZero Integer amount
+        @Positive Integer amount
 ) {
     public static RecordFormDTO defaultValues() {
         return new RecordFormDTO(null, null, null, null, 1);

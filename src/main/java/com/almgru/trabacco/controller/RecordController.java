@@ -48,9 +48,7 @@ public class RecordController {
         LocalDateTime removed = LocalDateTime.of(dto.removedDate(), dto.removedTime());
         if (removed.isBefore(inserted) || removed.isEqual(inserted)) {
             bindingResult.addError(new FieldError("recordForm", "removedDate",
-                            "Removed date & time must be after appliedAt date & time."));
-            bindingResult.addError(new FieldError("recordForm", "removedTime",
-                    "Removed date & time must be after appliedAt date & time."));
+                            "Must be after 'Applied at' date & time."));
         }
 
         if (bindingResult.hasErrors()) {
