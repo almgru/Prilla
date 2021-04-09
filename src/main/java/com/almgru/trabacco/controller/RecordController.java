@@ -43,12 +43,15 @@ public class RecordController {
     @PostMapping("/record")
     public String record(@Valid @ModelAttribute("recordForm") RecordFormDTO dto, BindingResult bindingResult,
                          RedirectAttributes attr, Locale locale) {
-        // TODO: Add custom validator
         LocalDateTime inserted = LocalDateTime.of(dto.appliedDate(), dto.appliedTime());
         LocalDateTime removed = LocalDateTime.of(dto.removedDate(), dto.removedTime());
-        if (removed.isBefore(inserted) || removed.isEqual(inserted)) {
+        if (removed.isBefore(inserted)) {
+            bindingResult.addError(new FieldError("recordForm", "appliedDate",
+                            "Must be before or equal to 'Removed at' date & time."));
+            bindingResult.addError(new FieldError("recordForm", "appliedTime", ""));
             bindingResult.addError(new FieldError("recordForm", "removedDate",
                             "Must be after 'Applied at' date & time."));
+            bindingResult.addError(new FieldError("recordForm", "removedTime", ""));
         }
 
         if (bindingResult.hasErrors()) {
