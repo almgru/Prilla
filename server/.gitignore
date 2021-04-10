@@ -1,6 +1,8 @@
 .idea/
 *.iml
 
-*.db
+target/*
+!target/.gitkeep
 
-target/
+data/*
+!data/.gitkeep
