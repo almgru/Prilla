@@ -4,47 +4,61 @@
 <body>
     <nav th:replace="fragments/nav.html :: nav(page='record')"></nav>
 
-    <h1>Record</h1>
+    <main>
+        <h1>Record</h1>
 
-    <p th:if="${message != null}" th:text="${message}"></p>
+        <form th:action="@{/record}" method="post" th:object="${recordForm}">
+            <fieldset>
+                <legend>Applied at</legend>
 
-    <form th:action="@{/record}" method="post" th:object="${recordForm}">
-        <fieldset>
-            <legend>Applied at</legend>
+                <p>
+                    <span class="field">
+                        <label for="appliedDate">Date</label>
+                        <input type="date" id="appliedDate" name="appliedDate" required th:field="*{appliedDate}" />
+                    </span>
 
-            <label for="appliedDate">Date</label>
-            <input type="date" id="appliedDate" name="appliedDate" required th:field="*{appliedDate}" />
+                    <span class="field">
+                        <label for="appliedTime">Time</label>
+                        <input type="time" id="appliedTime" name="appliedTime" required th:field="*{appliedTime}" />
+                    </span>
+                </p>
 
-            <label for="appliedTime">Time</label>
-            <input type="time" id="appliedTime" name="appliedTime" required th:field="*{appliedTime}" />
+                <ul th:if='${#fields.hasErrors("appliedDate")}'>
+                    <li th:each='err : ${#fields.errors("appliedDate")}' th:text="${err}"></li>
+                </ul>
+            </fieldset>
 
-            <ul th:if='${#fields.hasErrors("appliedDate")}'>
-                <li th:each='err : ${#fields.errors("appliedDate")}' th:text="${err}"></li>
+            <fieldset>
+                <legend>Removed at</legend>
+
+                <p>
+                    <span class="field">
+                        <label for="removedDate">Date</label>
+                        <input type="date" id="removedDate" name="removedDate" required th:field="*{removedDate}" />
+                    </span>
+
+                    <span class="field">
+                        <label for="removedTime">Time</label>
+                        <input type="time" id="removedTime" name="removedTime" required th:field="*{removedTime}" />
+                    </span>
+                </p>
+
+                <ul th:if='${#fields.hasErrors("removedDate")}'>
+                    <li th:each='err : ${#fields.errors("removedDate")}' th:text="${err}"></li>
+                </ul>
+            </fieldset>
+
+            <p class="field">
+                <label for="amount">Amount</label>
+                <input type="number" id="amount" name="amount" min="1" required th:field="*{amount}" />
+            </p>
+
+            <ul th:if='${#fields.hasErrors("amount")}'>
+                <li th:each='err : ${#fields.errors("amount")}' th:text="${err}"></li>
             </ul>
-        </fieldset>
 
-        <fieldset>
-            <legend>Removed at</legend>
-
-            <label for="removedDate">Date</label>
-            <input type="date" id="removedDate" name="removedDate" required th:field="*{removedDate}" />
-
-            <label for="removedTime">Time</label>
-            <input type="time" id="removedTime" name="removedTime" required th:field="*{removedTime}" />
-
-            <ul th:if='${#fields.hasErrors("removedDate")}'>
-                <li th:each='err : ${#fields.errors("removedDate")}' th:text="${err}"></li>
-            </ul>
-        </fieldset>
-
-        <label for="amount">Amount: </label>
-        <input type="number" id="amount" name="amount" min="1" required th:field="*{amount}" />
-
-        <ul th:if='${#fields.hasErrors("amount")}'>
-            <li th:each='err : ${#fields.errors("amount")}' th:text="${err}"></li>
-        </ul>
-
-        <input type="submit" value="Add" />
-    </form>
+            <input type="submit" value="Add" />
+        </form>
+    </main>
 </body>
 </html>

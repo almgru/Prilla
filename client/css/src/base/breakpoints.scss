@@ -1,0 +1,29 @@
+@mixin small {
+  @media (min-width: "390px") {
+    @content;
+  }
+}
+
+@mixin medium {
+  @media (min-width: "726px") {
+    @content;
+  }
+}
+
+@mixin large {
+  @media (min-width: "970px") {
+    @content;
+  }
+}
+
+@mixin extra-large {
+  @media (min-width: "1400px") {
+    @content;
+  }
+}
+
+@mixin table {
+  @media (max-width: "560px") {
+    @content;
+  }
+}

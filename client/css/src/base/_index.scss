@@ -1,4 +1,5 @@
-@use 'navbar.scss';
+@use 'navbar';
+@use 'breakpoints';
 
 main {
   width: 95%;
@@ -7,5 +8,20 @@ main {
 }
 
 h1 {
+  font-size: xx-large;
   text-align: center;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+@include breakpoints.medium {
+  main {
+    width: 80%;
+  }
+}
+
+@include breakpoints.extra-large {
+  main {
+    width: 60%;
+  }
 }

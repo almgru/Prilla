@@ -1,3 +1,5 @@
+@use '../base/breakpoints';
+
 table {
   margin-left: auto;
   margin-right: auto;
@@ -30,7 +32,7 @@ tr:last-child td {
   border-bottom: none;
 }
 
-@media (max-width: 726px) {
+@include breakpoints.table {
   thead {
     display: none;
   }
@@ -63,11 +65,5 @@ tr:last-child td {
   td:last-child::before,
   td:last-child > span {
     border-bottom: none;
-  }
-}
-
-@media (min-width: 970px) {
-  table {
-    width: 75%;
   }
 }
