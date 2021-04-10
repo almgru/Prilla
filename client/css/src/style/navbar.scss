@@ -1,0 +1,34 @@
+@use 'colors';
+
+nav {
+  background-color: colors.$color-1;
+}
+
+nav > ul > li > a {
+  text-decoration: none;
+  color: colors.$color-2;
+}
+
+nav > ul > li.nav-header > a {
+  font-weight: bolder;
+}
+
+nav > ul > li.nav-header > a:hover {
+  background-color: colors.$color-1;
+  color: colors.$color-2;
+}
+
+nav > ul > li > a:hover {
+  background-color: colors.$color-2;
+  color: colors.$color-1;
+  font-weight: bold;
+}
+
+nav > ul > li > a.active {
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+nav > ul > li > a.active:hover {
+  color: colors.$color-1;
+}

@@ -1,4 +1,4 @@
-@use '../base/breakpoints';
+@use '../breakpoints';
 
 table {
   margin-left: auto;
@@ -11,25 +11,6 @@ table {
 th,
 td {
   padding: 1em;
-  border-bottom: 1px solid black;
-  border-right: 1px solid black;
-}
-
-th {
-  font-weight: bold;
-}
-
-tr:nth-of-type(even) {
-  background: #f0f0f0;
-}
-
-td:last-child,
-th:last-child {
-  border-right: none;
-}
-
-tr:last-child td {
-  border-bottom: none;
 }
 
 @include breakpoints.table {
@@ -48,22 +29,15 @@ tr:last-child td {
 
   td {
     display: table-row;
-    border: none;
   }
 
   td::before {
     content: attr(data-label);
-    font-weight: bold;
   }
 
   td::before,
   td > span {
     display: table-cell;
     padding: 10px;
-  }
-
-  td:last-child::before,
-  td:last-child > span {
-    border-bottom: none;
   }
 }

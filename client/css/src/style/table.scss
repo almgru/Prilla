@@ -1,0 +1,34 @@
+@use '../breakpoints';
+
+th,
+td {
+  border-bottom: 1px solid black;
+  border-right: 1px solid black;
+}
+
+tr:nth-of-type(even) {
+  background: #f0f0f0;
+}
+
+th {
+  font-weight: bold;
+}
+
+td:last-child,
+th:last-child {
+  border-right: none;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+@include breakpoints.table {
+  td {
+    border: none;
+  }
+
+  td::before {
+    font-weight: bold;
+  }
+}

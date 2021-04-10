@@ -1,0 +1,12 @@
+legend {
+  font-weight: bold;
+  font-size: large;
+}
+
+.field > label {
+  text-align: right;
+}
+
+.field > label::after {
+  content: ":";
+}

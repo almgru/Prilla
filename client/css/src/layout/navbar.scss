@@ -1,4 +1,4 @@
-@use 'breakpoints';
+@use '../breakpoints';
 
 nav > ul {
   margin: 0;
@@ -12,9 +12,10 @@ nav > ul {
 
 nav > ul > li {
   text-align: center;
-  width: 60vw;
+  width: 10rem;
   height: 1.5rem;
   line-height: 1.5rem;
+  padding: 0.2rem;
 }
 
 nav > ul > li > a {

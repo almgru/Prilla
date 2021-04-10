@@ -1,5 +1,9 @@
 @use 'navbar';
-@use 'breakpoints';
+@use 'sidebar';
+@use 'table';
+@use 'form';
+
+@use '../breakpoints';
 
 main {
   width: 95%;
