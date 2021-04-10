@@ -1,29 +1,41 @@
-.sidebar-wrapper {
+@use '../base/breakpoints';
+
+.sidebar {
+  margin-left: 1rem;
+  margin-top: 1rem;
   display: flex;
-  flex-direction: row;
+  flex-flow: wrap;
 }
 
-.sidebar-wrapper > .sidebar {
+.sidebar-item {
+  width: 8rem;
+  height: 5rem;
+}
+
+.content {
+  margin-bottom: 1rem;
+}
+
+.buttons {
   display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-
-.sidebar-wrapper > .content {
-  flex: 4;
-}
-
-.chart-and-buttons {
-  width: 75%;
+  justify-content: space-between;
+  width: 90%;
   margin-left: auto;
   margin-right: auto;
 }
 
-.chart-and-buttons > button {
-  margin-left: 20%;
-  margin-right: 20%;
-}
+@include breakpoints.large {
+  .sidebar-wrapper {
+    display: flex;
+    flex-direction: row-reverse;
+  }
 
-.chart-and-buttons > button:last-child {
-  float: right;
+  .sidebar {
+    flex-direction: column;
+    flex: 1;
+  }
+
+  .content {
+    flex: 4;
+  }
 }
