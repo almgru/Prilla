@@ -3,23 +3,25 @@
 <head th:replace="fragments/head :: head('Backup & Restore')"></head>
 <body>
     <nav th:replace="fragments/nav.html :: nav(page='backup-restore')"></nav>
-    <h1>Trabacco</h1>
+    <main>
+        <h1>Backup & Restore</h1>
 
-    <h2>Backup & Restore</h2>
+        <p th:if="${message != null}" th:text="${message}" class="flash"></p>
 
-    <p th:if="${message != null}" th:text="${message}"></p>
+        <h2>Backup</h2>
+        <form th:action="@{/download-backup}" method="get">
+            <input type="submit" value="Download Backup" />
+        </form>
 
-    <h3>Backup</h3>
-    <form th:action="@{/download-backup}" method="get">
-        <input type="submit" value="Download Backup" />
-    </form>
+        <h2>Restore</h2>
+        <form th:action="@{/restore-backup}" method="post" th:object="${restoreForm}" enctype="multipart/form-data">
+            <p class="field">
+                <label for="backupFile">File</label>
+                <input type="file" id="backupFile" name="backupFile" th:field="*{backupFile}" accept="application/json" />
+            </p>
 
-    <h3>Restore</h3>
-    <form th:action="@{/restore-backup}" method="post" th:object="${restoreForm}" enctype="multipart/form-data">
-        <label for="backupFile">Choose a JSON file to restore from</label>
-        <input type="file" id="backupFile" name="backupFile" th:field="*{backupFile}" accept="application/json" />
-
-        <input type="submit" value="Restore" />
-    </form>
+            <input type="submit" value="Restore" />
+        </form>
+    </main>
 </body>
 </html>

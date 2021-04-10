@@ -7,6 +7,8 @@
     <main>
         <h1>Record</h1>
 
+        <p th:if="${message != null}" th:text="${message}" class="flash"></p>
+
         <form th:action="@{/record}" method="post" th:object="${recordForm}">
             <fieldset>
                 <legend>Applied at</legend>
@@ -23,7 +25,7 @@
                     </span>
                 </p>
 
-                <ul th:if='${#fields.hasErrors("appliedDate")}'>
+                <ul th:if='${#fields.hasErrors("appliedDate")}' class="validation-errors">
                     <li th:each='err : ${#fields.errors("appliedDate")}' th:text="${err}"></li>
                 </ul>
             </fieldset>
@@ -43,7 +45,7 @@
                     </span>
                 </p>
 
-                <ul th:if='${#fields.hasErrors("removedDate")}'>
+                <ul th:if='${#fields.hasErrors("removedDate")}' class="validation-errors">
                     <li th:each='err : ${#fields.errors("removedDate")}' th:text="${err}"></li>
                 </ul>
             </fieldset>
@@ -53,7 +55,7 @@
                 <input type="number" id="amount" name="amount" min="1" required th:field="*{amount}" />
             </p>
 
-            <ul th:if='${#fields.hasErrors("amount")}'>
+            <ul th:if='${#fields.hasErrors("amount")}' class="validation-errors">
                 <li th:each='err : ${#fields.errors("amount")}' th:text="${err}"></li>
             </ul>
 

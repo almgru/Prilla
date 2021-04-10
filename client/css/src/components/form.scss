@@ -1,7 +1,6 @@
 @use '../base/breakpoints';
 
 form {
-  border: 1px solid black;
   padding: 1rem;
 }
 
@@ -32,8 +31,12 @@ input[type="number"] {
 
 input[type="submit"] {
   display: block;
-  width: 5rem;
-  height: 2rem;
+  padding: 0.5rem;
+  min-width: 6rem;
+}
+
+fieldset {
+  padding: 0.5rem;
 }
 
 @include breakpoints.small {
