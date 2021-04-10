@@ -48,6 +48,7 @@ tr:last-child td {
 
   td {
     display: table-row;
+    border: none;
   }
 
   td::before {
@@ -58,7 +59,6 @@ tr:last-child td {
   td::before,
   td > span {
     display: table-cell;
-
     padding: 10px;
   }
 
