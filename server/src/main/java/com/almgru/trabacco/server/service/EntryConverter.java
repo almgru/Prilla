@@ -19,7 +19,7 @@ public class EntryConverter {
         var amount = entry.getAmount();
 
         return new ListItemEntryDTO(entry.getAppliedAt().format(formatter),
-                entry.getAppliedAt().format(formatter),
+                entry.getRemovedAt().format(formatter),
                 String.format("%d portion%s", amount, amount > 1 ? "s" : ""));
     }
 
