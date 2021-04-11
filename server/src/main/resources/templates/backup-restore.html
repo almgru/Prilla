@@ -16,12 +16,13 @@
         <h2>Restore</h2>
         <form th:action="@{/restore-backup}" method="post" th:object="${restoreForm}" enctype="multipart/form-data">
             <p class="field">
-                <label for="backupFile">File</label>
+                <label for="backupFile">JSON File</label>
                 <input type="file" id="backupFile" name="backupFile" th:field="*{backupFile}" accept="application/json" />
             </p>
 
             <input type="submit" value="Restore" />
         </form>
     </main>
+    <footer th:replace="fragments/footer.html :: footer"></footer>
 </body>
 </html>

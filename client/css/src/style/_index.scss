@@ -2,3 +2,16 @@
 @use 'form';
 @use 'table';
 @use 'chart';
+@use 'footer';
+
+@use 'colors';
+
+main {
+  background-color: colors.$color-2;
+  border-top: 2px solid colors.$color-1;
+}
+
+body {
+  background: linear-gradient(#d2deee, #ffffff);
+  background-repeat: no-repeat;
+}

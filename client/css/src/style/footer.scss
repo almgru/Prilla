@@ -1,0 +1,6 @@
+@use 'colors';
+
+footer {
+  color: colors.$color-2;
+  background-color: colors.$color-1;
+}

@@ -5,7 +5,7 @@
 }
 
 @mixin medium {
-  @media (min-width: "726px") {
+  @media (min-width: "750px") {
     @content;
   }
 }
