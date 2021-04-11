@@ -1,12 +1,11 @@
 export default {
-    fontSize: '16px',
     canvas: {
         size: {
-            width: 660,
-            height: 400
+            width: 960,
+            height: 640
         },
         margin: {
-            left: 50,
+            left: 70,
             right: 50,
             top: 50,
             bottom: 50
@@ -15,8 +14,5 @@ export default {
             outer: 0.5,
             inner: 0.5
         }
-    },
-    colors: {
-        primary: '#69b3a2'
     }
 };

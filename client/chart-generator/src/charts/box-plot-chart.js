@@ -38,6 +38,7 @@ export default (data, config) => {
         .data(data.summary)
         .enter()
         .append('line')
+            .attr('class', 'range-line')
             .attr('x1', d => x(d.label) + x.bandwidth() / 2)
             .attr('x2', d => x(d.label) + x.bandwidth() / 2)
             .attr('y1', d => y(d.min))
@@ -48,17 +49,19 @@ export default (data, config) => {
         .data(data.summary)
         .enter()
         .append('rect')
+            .attr('class', 'box')
             .attr('x', d => x(d.label))
             .attr('y', d => y(d.q3))
             .attr('width', x.bandwidth())
             .attr('height', d => y(d.q1) - y(d.q3))
-            .attr('stroke', 'black')
-            .attr('fill', config.colors.primary);
+            .attr('fill', 'white')
+            .attr('stroke', 'black');
 
     canvas.selectAll('medianLines')
         .data(data.summary)
         .enter()
         .append('line')
+            .attr('class', 'median-line')
             .attr('x1', d => x(d.label))
             .attr('x2', d => x(d.label) + x.bandwidth())
             .attr('y1', d => y(d.median))
@@ -69,6 +72,7 @@ export default (data, config) => {
         .data(data.summary)
         .enter()
         .append('line')
+            .attr('class', 'min-line')
             .attr('x1', d => x(d.label) + x.bandwidth() / 4)
             .attr('x2', d => x(d.label) + x.bandwidth() * 3 / 4)
             .attr('y1', d => y(d.min))
@@ -79,6 +83,7 @@ export default (data, config) => {
         .data(data.summary)
         .enter()
         .append('line')
+            .attr('class', 'max-line')
             .attr('x1', d => x(d.label) + x.bandwidth() / 4)
             .attr('x2', d => x(d.label) + x.bandwidth() * 3 / 4)
             .attr('y1', d => y(d.max))
@@ -90,11 +95,11 @@ export default (data, config) => {
         .data(data.dots)
         .enter()
         .append('circle')
+            .attr('class', 'dot')
             .attr('cx', d => x(d.label) + x.bandwidth() / 2 - jitterWidth / 2 + Math.random() * jitterWidth)
             .attr('cy', d => y(d.value))
             .attr('r', 2)
             .attr('fill', 'white')
-            .attr('fill-opacity', '0.0')
             .attr('stroke', 'black');
 
     return canvas.node().parentNode;

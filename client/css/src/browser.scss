@@ -1,0 +1,5 @@
+@mixin not-ie11 {
+  @supports not (-ms-high-contrast: none) {
+    @content;
+  }
+}

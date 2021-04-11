@@ -1,0 +1,22 @@
+@use 'colors';
+
+svg text.label {
+  font-size: 1.4rem;
+}
+
+svg .tick text {
+  font-size: 0.9rem;
+}
+
+svg .bar {
+  stroke: none;
+  fill: colors.$color-1;
+}
+
+svg .box {
+  fill: colors.$color-1;
+}
+
+svg .dot {
+  fill-opacity: 0;
+}

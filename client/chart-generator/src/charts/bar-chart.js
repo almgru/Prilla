@@ -1,4 +1,3 @@
-import * as d3Selection from 'd3-selection';
 import * as d3Scale from "d3-scale";
 import * as d3Axis from "d3-axis";
 import * as d3Format from "d3-format";
@@ -40,11 +39,13 @@ export default (data, config) => {
         .data(data)
         .enter()
         .append('rect')
+            .attr('class', 'bar')
             .attr('x', d => x(d.label))
             .attr('y', d => y(d.value))
             .attr('width', x.bandwidth())
             .attr('height', d => HEIGHT_EXCL_MARGIN - y(d.value))
-            .attr('fill', config.colors.primary);
+            .attr('fill', 'white')
+            .attr('stroke', 'black');
 
     return canvas.node().parentNode;
 };
