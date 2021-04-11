@@ -1,13 +1,17 @@
-# Trabacco
+# Snuskoll
 
-Self-hosted tracker for snus.
+Self-hosted web app for recording and visualizing your consumption of Snus.
 
 ## Setup
 
-1. Create `application.properties` with the following content:
+Coming soon. See [Development Setup](#development-setup) for running locally.
+
+## Development Setup
+
+1. Create `server/src/main/resources/application.properties` with the following content:
 
    ```
-   spring.datasource.url = <DATASOURCE URL>
+   spring.datasource.url = jdbc:h2:file/trabacco-server/data/data
    spring.datasource.username = <DATABASE USERNAME>
    spring.datasource.password = <DATABASE PASSWORD>
    spring.datasource.driverClassName = org.h2.Driver
@@ -16,12 +20,14 @@ Self-hosted tracker for snus.
    spring.security.user.name = <DEFAULT USER USERNAME>
    spring.security.user.password = <DEFAULT USER PASSWORD>
    spring.security.user.roles = manager
+   snuskoll.js.uri = http://localhost:8081/snuskoll.js
+   snuskoll.css.uri = http://localhost:8082/snuskoll.css
    ```
 
-   - `<DATASOURCE URL>` is the datasource URL to the database, for
-   example `jdbc:h2:file:data` for a H2 database.
-   - `<DATABASE USERNAME>` is the username of the database user that has
-     access to the database specified with `<DATASOURCE URL>`.
-   - `<DATABASE PASSWORD>` is the password for the database user.
-   - `<DEFAULT USER USERNAME>` is the username for accessing the website.
-   - `<DEFAULT USER PASSWORD>` is the password for accessing the website.
+   - `<DATABASE USERNAME>` -- username to use for the database.
+   - `<DATABASE PASSWORD>` -- password to use for the database.
+   - `<DEFAULT USER USERNAME>` -- username for accessing the website.
+   - `<DEFAULT USER PASSWORD>` -- password for accessing the website.
+
+2. Run `docker-compose -f docker-compose.dev.yml up -d` from the repo root directory.
+3. Wait a minute for everything to build, then access the website at http://localhost:8080 using the username and password specified in `application.properties`.
