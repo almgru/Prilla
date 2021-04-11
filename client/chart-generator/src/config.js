@@ -8,7 +8,7 @@ export default {
             left: 70,
             right: 50,
             top: 50,
-            bottom: 50
+            bottom: 70
         },
         padding: {
             outer: 0.5,
