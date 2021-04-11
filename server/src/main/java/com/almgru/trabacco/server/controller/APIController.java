@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -64,7 +65,7 @@ public class APIController {
     private Function<LocalDate, String> getMapperForTimeSpan(TimeSpan span) {
         return switch (span) {
             case WEEK -> DateTimeFormatter.ISO_DATE::format;
-            case MONTH -> DateTimeFormatter.ofPattern("MM-'W'W")::format;
+            case MONTH -> DateTimeFormatter.ofPattern("MM-'W'W").withLocale(Locale.forLanguageTag("en-SE"))::format;
             case YEAR -> DateTimeFormatter.ofPattern("yy-MM")::format;
         };
     }
