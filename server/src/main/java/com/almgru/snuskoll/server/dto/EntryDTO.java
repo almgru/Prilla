@@ -1,4 +1,4 @@
-package com.almgru.trabacco.server.dto;
+package com.almgru.snuskoll.server.dto;
 
 import java.time.LocalDateTime;
 

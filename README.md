@@ -11,7 +11,7 @@ Coming soon. See [Development Setup](#development-setup) for running locally.
 1. Create `server/src/main/resources/application.properties` with the following content:
 
    ```
-   spring.datasource.url = jdbc:h2:file/trabacco-server/data/data
+   spring.datasource.url = jdbc:h2:file/snuskoll-server/data/data
    spring.datasource.username = <DATABASE USERNAME>
    spring.datasource.password = <DATABASE PASSWORD>
    spring.datasource.driverClassName = org.h2.Driver

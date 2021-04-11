@@ -1,12 +1,12 @@
-package com.almgru.trabacco.server;
+package com.almgru.snuskoll.server;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class TrabaccoApplication {
+public class SnuskollApplication {
     public static void main(String[] args) {
-        SpringApplication.run(TrabaccoApplication.class, args);
+        SpringApplication.run(SnuskollApplication.class, args);
     }
 }
 

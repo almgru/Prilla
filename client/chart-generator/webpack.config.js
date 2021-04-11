@@ -16,7 +16,7 @@ module.exports = {
     entry: path.resolve(__dirname, 'src', 'main.js'),
     output: {
         path: path.resolve(__dirname, 'out'),
-        filename: 'trabacco.js'
+        filename: 'snuskoll.js'
     },
     module: {
         rules: [

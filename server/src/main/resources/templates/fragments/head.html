@@ -3,8 +3,8 @@
 <head th:fragment="head(page)">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title th:text="${page} + ' — Trabacco'"></title>
-    <link rel="stylesheet" th:href="${@environment.getProperty('trabacco.css.uri')}">
-    <script th:if="${#strings.equals(page, 'Charts')}" th:src="${@environment.getProperty('trabacco.js.uri')}" async></script>
+    <title th:text="${page} + ' — Snuskoll'"></title>
+    <link rel="stylesheet" th:href="${@environment.getProperty('snuskoll.css.uri')}">
+    <script th:if="${#strings.equals(page, 'Charts')}" th:src="${@environment.getProperty('snuskoll.js.uri')}" async></script>
 </head>
 </html>

@@ -1,4 +1,4 @@
-package com.almgru.trabacco.server.enums;
+package com.almgru.snuskoll.server.enums;
 
 public enum TimeSpan {
     WEEK,

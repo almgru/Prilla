@@ -3,7 +3,7 @@
 <body>
     <nav th:fragment="nav(page)">
         <ul>
-            <li class="nav-header"><a th:href="@{/}">Trabacco</a></li>
+            <li class="nav-header"><a th:href="@{/}">Snuskoll</a></li>
             <li><a th:href="@{/}" th:classappend="${#strings.equals(page, 'index') ? 'active' : ''}">List</a></li>
             <li>
                 <a th:href="@{/record}" th:classappend="${#strings.equals(page, 'record') ? 'active' : ''}">Record</a>

@@ -3,41 +3,41 @@ version: "3.9"
 services:
   spring-dev-server:
     image: openjdk:16-jdk-slim
-    working_dir: /trabacco-server
-    command: /trabacco-server/mvnw spring-boot:run
+    working_dir: /snuskoll-server
+    command: /snuskoll-server/mvnw spring-boot:run
     volumes:
-      - ./server:/trabacco-server:ro
-      - trabacco-data:/trabacco-server/data
-      - trabacco-server-target:/trabacco-server/target
-      - trabacco-server-m2:/root/.m2
+      - ./server:/snuskoll-server
+      - snuskoll-data:/snuskoll-server/data
+      - snuskoll-server-target:/snuskoll-server/target
+      - snuskoll-server-m2:/root/.m2
     ports:
       - 8080:8080
 
   chart-dev-server:
     image: node:current-alpine3.13
-    working_dir: /trabacco-chart
+    working_dir: /snuskoll-chart
     command: /bin/sh -c "npm ci && npm run dev"
     volumes:
-      - ./client/chart-generator:/trabacco-chart:ro
-      - /trabacco-chart/node_modules
-      - /trabacco-chart/out
+      - ./client/chart-generator:/snuskoll-chart
+      - /snuskoll-chart/node_modules
+      - /snuskoll-chart/out
     ports:
       - 8081:8081
 
   css-dev-server:
     image: node:current-alpine3.13
-    working_dir: /trabacco-css
+    working_dir: /snuskoll-css
     command: /bin/sh -c "npm ci && npm run dev"
     volumes:
-      - ./client/css:/trabacco-css:ro
-      - /trabacco-css/node_modules
-      - /trabacco-css/out
+      - ./client/css:/snuskoll-css
+      - /snuskoll-css/node_modules
+      - /snuskoll-css/out
     ports:
       - 8082:8082
 
 volumes:
-  trabacco-data:
+  snuskoll-data:
   # Volume for storing compiled sources, to speed up restarts
-  trabacco-server-target:
+  snuskoll-server-target:
   # Volume for storing maven dependencies, to speed up restarts
-  trabacco-server-m2:
+  snuskoll-server-m2:

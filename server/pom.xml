@@ -8,11 +8,11 @@
         <version>2.4.4</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.almgru</groupId>
-    <artifactId>trabacco</artifactId>
+    <groupId>com.almgru.snuskoll</groupId>
+    <artifactId>server</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>trabacco</name>
-    <description>Web application for tracking tobacco use</description>
+    <name>snuskoll</name>
+    <description>Web application for tracking snus consumption</description>
     <properties>
         <java.version>16</java.version>
         <jackson-bom.version>2.12.2</jackson-bom.version>

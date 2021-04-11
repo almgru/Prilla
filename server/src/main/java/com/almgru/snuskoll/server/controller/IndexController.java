@@ -1,7 +1,7 @@
-package com.almgru.trabacco.server.controller;
+package com.almgru.snuskoll.server.controller;
 
-import com.almgru.trabacco.server.data.EntryRepository;
-import com.almgru.trabacco.server.service.EntryConverter;
+import com.almgru.snuskoll.server.data.EntryRepository;
+import com.almgru.snuskoll.server.service.EntryConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;

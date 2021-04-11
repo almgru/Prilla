@@ -1,10 +1,10 @@
-package com.almgru.trabacco.server.controller;
+package com.almgru.snuskoll.server.controller;
 
-import com.almgru.trabacco.server.data.EntryRepository;
-import com.almgru.trabacco.server.dto.EntryDTO;
-import com.almgru.trabacco.server.dto.RestoreBackupFormDTO;
-import com.almgru.trabacco.server.entity.Entry;
-import com.almgru.trabacco.server.service.EntryConverter;
+import com.almgru.snuskoll.server.data.EntryRepository;
+import com.almgru.snuskoll.server.dto.EntryDTO;
+import com.almgru.snuskoll.server.dto.RestoreBackupFormDTO;
+import com.almgru.snuskoll.server.entity.Entry;
+import com.almgru.snuskoll.server.service.EntryConverter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

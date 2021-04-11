@@ -6,3 +6,5 @@ target/*
 
 data/*
 !data/.gitkeep
+
+src/main/resources/application.properties

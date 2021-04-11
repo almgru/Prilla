@@ -1,9 +1,9 @@
-package com.almgru.trabacco.server.controller;
+package com.almgru.snuskoll.server.controller;
 
-import com.almgru.trabacco.server.data.EntryRepository;
-import com.almgru.trabacco.server.dto.DataRequestDTO;
-import com.almgru.trabacco.server.enums.TimeSpan;
-import com.almgru.trabacco.server.service.EntryGrouper;
+import com.almgru.snuskoll.server.data.EntryRepository;
+import com.almgru.snuskoll.server.dto.DataRequestDTO;
+import com.almgru.snuskoll.server.enums.TimeSpan;
+import com.almgru.snuskoll.server.service.EntryGrouper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;

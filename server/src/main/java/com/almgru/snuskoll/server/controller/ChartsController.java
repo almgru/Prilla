@@ -1,4 +1,4 @@
-package com.almgru.trabacco.server.controller;
+package com.almgru.snuskoll.server.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
