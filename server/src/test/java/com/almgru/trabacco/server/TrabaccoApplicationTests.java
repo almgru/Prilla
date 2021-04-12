@@ -1,10 +1,10 @@
-package com.almgru.snuskoll.server;
+package com.almgru.snustrack.server;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class SnuskollApplicationTests {
+class snustrackApplicationTests {
 
     @Test
     void contextLoads() {

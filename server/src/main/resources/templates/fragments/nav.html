@@ -1,27 +1,42 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<body>
+  <body>
     <nav th:fragment="nav(page)">
-        <ul>
-            <li class="nav-header"><a th:href="@{/}">Snuskoll</a></li>
-            <li><a th:href="@{/}" th:classappend="${#strings.equals(page, 'index') ? 'active' : ''}">List</a></li>
-            <li>
-                <a th:href="@{/record}" th:classappend="${#strings.equals(page, 'record') ? 'active' : ''}">Record</a>
-            </li>
-            <li>
-                <a th:href="@{/charts}" th:classappend="${#strings.equals(page, 'charts') ? 'active' : ''}">Charts</a>
-            </li>
-            <li>
-                <a th:href="@{/backup-restore}"
-                   th:classappend="${#strings.equals(page, 'backup-restore') ? 'active' : ''}"
-                >
-                    Backup & Restore
-                </a>
-            </li>
-            <li>
-                <a th:href="@{/logout}">Logout</a>
-            </li>
-        </ul>
+      <ul>
+        <li class="nav-header"><a th:href="@{/}">snustrack</a></li>
+        <li>
+          <a
+            th:href="@{/}"
+            th:classappend="${#strings.equals(page, 'index') ? 'active' : ''}"
+            >List</a
+          >
+        </li>
+        <li>
+          <a
+            th:href="@{/record}"
+            th:classappend="${#strings.equals(page, 'record') ? 'active' : ''}"
+            >Record</a
+          >
+        </li>
+        <li>
+          <a
+            th:href="@{/charts}"
+            th:classappend="${#strings.equals(page, 'charts') ? 'active' : ''}"
+            >Charts</a
+          >
+        </li>
+        <li>
+          <a
+            th:href="@{/backup-restore}"
+            th:classappend="${#strings.equals(page, 'backup-restore') ? 'active' : ''}"
+          >
+            Backup & Restore
+          </a>
+        </li>
+        <li>
+          <a th:href="@{/logout}">Logout</a>
+        </li>
+      </ul>
     </nav>
-</body>
+  </body>
 </html>

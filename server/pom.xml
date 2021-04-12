@@ -8,10 +8,10 @@
         <version>2.4.4</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.almgru.snuskoll</groupId>
+    <groupId>com.almgru.snustrack</groupId>
     <artifactId>server</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>snuskoll</name>
+    <name>snustrack</name>
     <description>Web application for tracking snus consumption</description>
     <properties>
         <java.version>16</java.version>

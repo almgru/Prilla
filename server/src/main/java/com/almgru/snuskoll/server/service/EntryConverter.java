@@ -1,9 +1,9 @@
-package com.almgru.snuskoll.server.service;
+package com.almgru.snustrack.server.service;
 
-import com.almgru.snuskoll.server.dto.EntryDTO;
-import com.almgru.snuskoll.server.dto.ListItemEntryDTO;
-import com.almgru.snuskoll.server.dto.RecordFormDTO;
-import com.almgru.snuskoll.server.entity.Entry;
+import com.almgru.snustrack.server.dto.EntryDTO;
+import com.almgru.snustrack.server.dto.ListItemEntryDTO;
+import com.almgru.snustrack.server.dto.RecordFormDTO;
+import com.almgru.snustrack.server.entity.Entry;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;

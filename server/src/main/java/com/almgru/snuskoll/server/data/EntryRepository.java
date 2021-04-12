@@ -1,6 +1,6 @@
-package com.almgru.snuskoll.server.data;
+package com.almgru.snustrack.server.data;
 
-import com.almgru.snuskoll.server.entity.Entry;
+import com.almgru.snustrack.server.entity.Entry;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

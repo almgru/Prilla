@@ -1,10 +1,10 @@
-package com.almgru.snuskoll.server.controller;
+package com.almgru.snustrack.server.controller;
 
-import com.almgru.snuskoll.server.data.EntryRepository;
-import com.almgru.snuskoll.server.dto.RecordFormDTO;
-import com.almgru.snuskoll.server.entity.Entry;
-import com.almgru.snuskoll.server.service.EntryConverter;
-import com.almgru.snuskoll.server.service.TextFormatter;
+import com.almgru.snustrack.server.data.EntryRepository;
+import com.almgru.snustrack.server.dto.RecordFormDTO;
+import com.almgru.snustrack.server.entity.Entry;
+import com.almgru.snustrack.server.service.EntryConverter;
+import com.almgru.snustrack.server.service.TextFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

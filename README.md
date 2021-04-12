@@ -1,4 +1,4 @@
-# Snuskoll
+# snustrack
 
 Self-hosted web app for recording and visualizing your consumption of Snus.
 
@@ -11,7 +11,7 @@ Coming soon. See [Development Setup](#development-setup) for running locally.
 1. Create `server/src/main/resources/application.properties` with the following content:
 
    ```
-   spring.datasource.url = jdbc:h2:file/snuskoll-server/data/data
+   spring.datasource.url = jdbc:h2:file/snustrack-server/data/data
    spring.datasource.username = <DATABASE USERNAME>
    spring.datasource.password = <DATABASE PASSWORD>
    spring.datasource.driverClassName = org.h2.Driver
@@ -20,8 +20,8 @@ Coming soon. See [Development Setup](#development-setup) for running locally.
    spring.security.user.name = <DEFAULT USER USERNAME>
    spring.security.user.password = <DEFAULT USER PASSWORD>
    spring.security.user.roles = manager
-   snuskoll.js.uri = http://localhost:8081/snuskoll.js
-   snuskoll.css.uri = http://localhost:8082/snuskoll.css
+   snustrack.js.uri = http://localhost:8081/snustrack.js
+   snustrack.css.uri = http://localhost:8082/snustrack.css
    ```
 
    - `<DATABASE USERNAME>` -- username to use for the database.

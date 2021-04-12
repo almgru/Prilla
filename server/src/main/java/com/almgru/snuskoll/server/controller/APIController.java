@@ -1,9 +1,9 @@
-package com.almgru.snuskoll.server.controller;
+package com.almgru.snustrack.server.controller;
 
-import com.almgru.snuskoll.server.data.EntryRepository;
-import com.almgru.snuskoll.server.dto.DataRequestDTO;
-import com.almgru.snuskoll.server.enums.TimeSpan;
-import com.almgru.snuskoll.server.service.EntryGrouper;
+import com.almgru.snustrack.server.data.EntryRepository;
+import com.almgru.snustrack.server.dto.DataRequestDTO;
+import com.almgru.snustrack.server.enums.TimeSpan;
+import com.almgru.snustrack.server.service.EntryGrouper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;

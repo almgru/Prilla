@@ -3,41 +3,41 @@ version: "3.9"
 services:
   spring-dev-server:
     image: openjdk:16-jdk-slim
-    working_dir: /snuskoll-server
-    command: /snuskoll-server/mvnw spring-boot:run
+    working_dir: /snustrack-server
+    command: /snustrack-server/mvnw spring-boot:run
     volumes:
-      - ./server:/snuskoll-server
-      - snuskoll-data:/snuskoll-server/data
-      - snuskoll-server-target:/snuskoll-server/target
-      - snuskoll-server-m2:/root/.m2
+      - ./server:/snustrack-server
+      - snustrack-data:/snustrack-server/data
+      - snustrack-server-target:/snustrack-server/target
+      - snustrack-server-m2:/root/.m2
     ports:
       - 8080:8080
 
   chart-dev-server:
     image: node:current-alpine3.13
-    working_dir: /snuskoll-chart
+    working_dir: /snustrack-chart
     command: /bin/sh -c "npm ci && npm run dev"
     volumes:
-      - ./client/chart-generator:/snuskoll-chart
-      - /snuskoll-chart/node_modules
-      - /snuskoll-chart/out
+      - ./client/chart-generator:/snustrack-chart
+      - /snustrack-chart/node_modules
+      - /snustrack-chart/out
     ports:
       - 8081:8081
 
   css-dev-server:
     image: node:current-alpine3.13
-    working_dir: /snuskoll-css
+    working_dir: /snustrack-css
     command: /bin/sh -c "npm ci && npm run dev"
     volumes:
-      - ./client/css:/snuskoll-css
-      - /snuskoll-css/node_modules
-      - /snuskoll-css/out
+      - ./client/css:/snustrack-css
+      - /snustrack-css/node_modules
+      - /snustrack-css/out
     ports:
       - 8082:8082
 
 volumes:
-  snuskoll-data:
+  snustrack-data:
   # Volume for storing compiled sources, to speed up restarts
-  snuskoll-server-target:
+  snustrack-server-target:
   # Volume for storing maven dependencies, to speed up restarts
-  snuskoll-server-m2:
+  snustrack-server-m2:

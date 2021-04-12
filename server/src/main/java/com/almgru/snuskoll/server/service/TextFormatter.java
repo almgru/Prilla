@@ -1,6 +1,6 @@
-package com.almgru.snuskoll.server.service;
+package com.almgru.snustrack.server.service;
 
-import com.almgru.snuskoll.server.entity.Entry;
+import com.almgru.snustrack.server.entity.Entry;
 import org.springframework.stereotype.Service;
 
 import java.time.format.DateTimeFormatter;

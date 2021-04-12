@@ -1,4 +1,4 @@
-package com.almgru.snuskoll.server.entity;
+package com.almgru.snustrack.server.entity;
 
 import org.springframework.data.annotation.Immutable;
 

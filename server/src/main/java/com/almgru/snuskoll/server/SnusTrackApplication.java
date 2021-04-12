@@ -1,12 +1,12 @@
-package com.almgru.snuskoll.server;
+package com.almgru.snustrack.server;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class SnuskollApplication {
+public class SnusTrackApplication {
     public static void main(String[] args) {
-        SpringApplication.run(SnuskollApplication.class, args);
+        SpringApplication.run(SnusTrackApplication.class, args);
     }
 }
 

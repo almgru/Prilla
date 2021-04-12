@@ -1,6 +1,6 @@
-package com.almgru.snuskoll.server.dto;
+package com.almgru.snustrack.server.dto;
 
-import com.almgru.snuskoll.server.enums.TimeSpan;
+import com.almgru.snustrack.server.enums.TimeSpan;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotNull;
