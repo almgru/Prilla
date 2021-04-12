@@ -2,6 +2,12 @@
 
 Self-hosted web app for recording and visualizing your consumption of Snus.
 
+## Screenshots
+
+![Screenshot of amount chart](./screenshots/screenshot-1.JPG)
+
+![Screenshot of duration chart](./screenshots/screenshot-2.JPG)
+
 ## Setup
 
 Coming soon. See [Development Setup](#development-setup) for running locally.
