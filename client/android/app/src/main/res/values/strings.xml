@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Snustrack</string>
+    <string name="server_url">http://10.0.2.2:8080</string>
+    <string name="server_login_success_endpoint">/</string>
+    <string name="server_login_failure_endpoint">/login?error</string>
+    <string name="server_login_endpoint">/login</string>
+    <string name="username_label">Username</string>
+    <string name="username_hint">Snufkin</string>
+    <string name="password_label">Password</string>
+    <string name="password_hint">A unique password</string>
+    <string name="login_button_text">Log in</string>
+</resources>
