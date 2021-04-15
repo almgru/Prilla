@@ -1,6 +1,7 @@
 package com.almgru.snustrack.android.net.auth
 
 import android.content.Context
+import com.almgru.snustrack.android.PersistenceManager
 import com.almgru.snustrack.android.net.CookieStorage
 import com.almgru.snustrack.android.net.CsrfExtractor
 import com.almgru.snustrack.android.R
@@ -29,7 +30,7 @@ class LoginManager(private var context: Context, private var listener: LoginList
     fun login() {
         queue.add(
             StringRequest(Request.Method.GET,
-                "${context.getString(R.string.server_url)}${context.getString(R.string.server_login_success_endpoint)}",
+                "${PersistenceManager.getServerUrl(context)}${context.getString(R.string.server_login_success_endpoint)}",
                 Response.Listener<String> { listener.onLoggedIn() },
                 Response.ErrorListener { onSessionExpired() }
             ))
@@ -39,7 +40,7 @@ class LoginManager(private var context: Context, private var listener: LoginList
         // Start by sending a GET request to the login endpoint in order to extract the CSRF token
         queue.add(
             StringRequest(Request.Method.GET,
-                "${context.getString(R.string.server_url)}${context.getString(R.string.server_login_endpoint)}",
+                "${PersistenceManager.getServerUrl(context)}${context.getString(R.string.server_login_endpoint)}",
                 Response.Listener<String> { response ->
                     onGetLoginResponse(
                         response,
@@ -51,7 +52,7 @@ class LoginManager(private var context: Context, private var listener: LoginList
         )
     }
 
-    fun hasActiveSession() : Boolean {
+    fun hasActiveSession(): Boolean {
         return CookieStorage.hasAuthCookie(context)
     }
 
@@ -61,7 +62,7 @@ class LoginManager(private var context: Context, private var listener: LoginList
         // Send the second request to actually log in
         queue.add(
             LoginRequest(
-                "${context.getString(R.string.server_url)}${context.getString(R.string.server_login_endpoint)}",
+                "${PersistenceManager.getServerUrl(context)}${context.getString(R.string.server_login_endpoint)}",
                 mapOf("username" to username, "password" to password, "_csrf" to csrfToken),
                 this::onRedirectOrError
             )
@@ -74,6 +75,7 @@ class LoginManager(private var context: Context, private var listener: LoginList
         } else if (isBadCredentialsRedirect(error.networkResponse)) {
             listener.onBadCredentials()
         } else if (isLoginSuccessRedirect(error.networkResponse)) {
+            CookieStorage.save(context)
             listener.onLoggedIn()
         }
     }
@@ -85,12 +87,12 @@ class LoginManager(private var context: Context, private var listener: LoginList
 
     private fun isLoginSuccessRedirect(response: NetworkResponse): Boolean {
         return response.headers?.get("Location") ==
-                "${context.getString(R.string.server_url)}${context.getString(R.string.server_login_success_endpoint)}"
+                "${PersistenceManager.getServerUrl(context)}${context.getString(R.string.server_login_success_endpoint)}"
     }
 
     private fun isBadCredentialsRedirect(response: NetworkResponse): Boolean {
         return response.headers?.get("Location") ==
-                "${context.getString(R.string.server_url)}${context.getString(R.string.server_login_failure_endpoint)}"
+                "${PersistenceManager.getServerUrl(context)}${context.getString(R.string.server_login_failure_endpoint)}"
     }
 
 }

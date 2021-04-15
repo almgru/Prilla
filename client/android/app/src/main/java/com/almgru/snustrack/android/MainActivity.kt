@@ -1,6 +1,5 @@
 package com.almgru.snustrack.android
 
-import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -11,7 +10,6 @@ import com.almgru.snustrack.android.net.EntryAddedListener
 import com.almgru.snustrack.android.net.EntrySubmitter
 import com.android.volley.*
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
     EntryAddedListener, View.OnLongClickListener {
@@ -47,7 +45,7 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
     override fun onResume() {
         super.onResume()
 
-        startedDateTime = loadStartedDateTime()
+        startedDateTime = PersistenceManager.getStartedDateTime(this)
 
         if (startedDateTime != null) {
             setUiState(UIState.STARTED)
@@ -56,19 +54,10 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
         }
     }
 
-    override fun onPause() {
-        super.onPause()
-
-        CookieStorage.save(this)
-
-        if (startedDateTime != null) {
-            saveStartedDateTime(startedDateTime!!)
-        }
-    }
-
     fun onStartStopPressed(@Suppress("UNUSED_PARAMETER") view: View) {
         if (startedDateTime == null) {
             startedDateTime = LocalDateTime.now()
+            PersistenceManager.putStartedDateTime(this, startedDateTime!!)
             setUiState(UIState.STARTED)
         } else {
             val stoppedDateTime = LocalDateTime.now()
@@ -88,42 +77,6 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
     }
 
     override fun onStopTrackingTouch(seekBar: SeekBar?) {
-    }
-
-    private fun saveStartedDateTime(dt: LocalDateTime) {
-        val stateStorage = getString(R.string.storage_state)
-        val key = getString(R.string.state_started_key)
-        val prefs = getSharedPreferences(stateStorage, Context.MODE_PRIVATE)
-
-        with(prefs.edit()) {
-            putString(key, DateTimeFormatter.ISO_DATE_TIME.format(dt))
-            apply()
-        }
-    }
-
-    private fun loadStartedDateTime(): LocalDateTime? {
-        val stateStorage = getString(R.string.storage_state)
-        val key = getString(R.string.state_started_key)
-        val prefs = getSharedPreferences(stateStorage, Context.MODE_PRIVATE)
-
-        val date = prefs.getString(key, "")
-
-        if (date.isNullOrEmpty()) {
-            return null
-        }
-
-        return LocalDateTime.parse(date)
-    }
-
-    private fun clearStartedDateTime() {
-        val stateStorage = getString(R.string.storage_state)
-        val key = getString(R.string.state_started_key)
-        val prefs = getSharedPreferences(stateStorage, Context.MODE_PRIVATE)
-
-        with(prefs.edit()) {
-            remove(key)
-            apply()
-        }
     }
 
     private fun setUiState(state : UIState) {
@@ -149,13 +102,14 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
         Toast.makeText(this, "Entry added", Toast.LENGTH_SHORT).show()
         setUiState(UIState.NOT_STARTED)
         startedDateTime = null
+        PersistenceManager.removeStartedDateTime(this)
     }
 
     override fun onEntrySubmitError(error: VolleyError) {
         Toast.makeText(this, "Session expired", Toast.LENGTH_SHORT).show()
         setUiState(UIState.NOT_STARTED)
         startedDateTime = null
-        CookieStorage.setAuthCookieExpired(this)
+        PersistenceManager.removeStartedDateTime(this)
         val intent = Intent(this, LoginActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
         startActivity(intent)
@@ -166,8 +120,7 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
         Toast.makeText(this, "Entry cleared", Toast.LENGTH_SHORT).show()
         setUiState(UIState.NOT_STARTED)
         startedDateTime = null
-        clearStartedDateTime()
-
+        PersistenceManager.removeStartedDateTime(this)
         return true
     }
 }

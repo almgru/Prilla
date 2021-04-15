@@ -9,8 +9,8 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="-16dp">
+        tools:layout_editor_absoluteX="134dp"
+        tools:layout_editor_absoluteY="16dp">
 
         <Button
             android:id="@+id/loginButton"
@@ -39,10 +39,18 @@
             app:layout_constraintBottom_toTopOf="@+id/usernameField"
             app:layout_constraintStart_toStartOf="@+id/usernameField" />
 
-        <EditText
-            android:id="@+id/usernameField"
+        <TextView
+            android:id="@+id/serverLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="@string/server_label"
+            app:layout_constraintBottom_toTopOf="@+id/serverField"
+            app:layout_constraintStart_toStartOf="@+id/serverField" />
+
+        <EditText
+            android:id="@+id/usernameField"
+            android:layout_width="200dp"
+            android:layout_height="45dp"
             android:autofillHints=""
             android:ems="10"
             android:hint="@string/username_hint"
@@ -56,8 +64,8 @@
 
         <EditText
             android:id="@+id/passwordField"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="200dp"
+            android:layout_height="45dp"
             android:layout_marginTop="128dp"
             android:autofillHints=""
             android:ems="10"
@@ -79,6 +87,21 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/passwordField" />
+
+        <EditText
+            android:id="@+id/serverField"
+            android:layout_width="200dp"
+            android:layout_height="45dp"
+            android:layout_marginBottom="184dp"
+            android:ems="10"
+            android:hint="@string/server_hint"
+            android:inputType="textPersonName"
+            android:textSize="16sp"
+            android:importantForAutofill="no"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

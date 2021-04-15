@@ -1,8 +1,10 @@
 package com.almgru.snustrack.android.net
 
 import android.content.Context
+import com.almgru.snustrack.android.PersistenceManager
 import com.almgru.snustrack.android.R
 import com.fasterxml.jackson.databind.ObjectMapper
+import java.lang.IllegalStateException
 import java.net.CookieHandler
 import java.net.CookieManager
 import java.net.HttpCookie
@@ -17,22 +19,18 @@ object CookieStorage {
     }
 
     fun save(context: Context) {
-        val authKey = context.getString(R.string.storage_cookies_auth_key)
+        if (cookieManager.cookieStore.cookies.isEmpty()) {
+            return
+        }
+
+        val uri = PersistenceManager.getServerUrl(context)
+            ?: throw IllegalStateException("Cannot save: Server URL not set")
+
         val authCookieName = context.getString(R.string.auth_cookie_name)
-        val uri = URI(context.getString(R.string.server_url))
-        val prefName = context.getString(R.string.storage_cookies)
 
-        if (cookieManager.cookieStore.cookies.size > 0) {
-            val prefs = context.getSharedPreferences(prefName, Context.MODE_PRIVATE)
-
-            with(prefs.edit()) {
-                cookieManager.cookieStore.get(uri).forEach { cookie ->
-                    if (cookie.name == authCookieName && !cookie.hasExpired()) {
-                        putString(authKey, objectMapper.writeValueAsString(cookie))
-                    }
-                }
-
-                apply()
+        cookieManager.cookieStore.get(URI(uri)).forEach { cookie ->
+            if (cookie.name == authCookieName && !cookie.hasExpired()) {
+                PersistenceManager.putAuthCookie(context, objectMapper.writeValueAsString(cookie))
             }
         }
     }
@@ -42,41 +40,29 @@ object CookieStorage {
             return
         }
 
-        val prefName = context.getString(R.string.storage_cookies)
-        val authKey = context.getString(R.string.storage_cookies_auth_key)
-        val prefs = context.getSharedPreferences(prefName, Context.MODE_PRIVATE)
-        val cookieStr = prefs.getString(authKey, null) ?: return
-        val cookie = objectMapper.readValue(cookieStr, SerializableHttpCookie::class.java)
-            .toHttpCookie()
+        val cookieStr = PersistenceManager.getAuthCookie(context) ?: return
+        val cookie =
+            objectMapper.readValue(cookieStr, SerializableHttpCookie::class.java).toHttpCookie()
 
         if (cookie.hasExpired()) {
-            setAuthCookieExpired(
-                context
-            )
+            setAuthCookieExpired(context)
         } else {
             cookieManager.cookieStore.add(URI(cookie.domain), cookie)
         }
     }
 
     fun hasAuthCookie(context: Context): Boolean {
-        val authCookieName = context.getString(R.string.auth_cookie_name)
-        val uri = URI(context.getString(R.string.server_url))
+        val uri = PersistenceManager.getServerUrl(context) ?: return false
 
-        return cookieManager.cookieStore.get(uri).any { cookie ->
+        val authCookieName = context.getString(R.string.auth_cookie_name)
+
+        return cookieManager.cookieStore.get(URI(uri)).any { cookie ->
             cookie.name == authCookieName && !cookie.hasExpired()
         }
     }
 
     fun setAuthCookieExpired(context: Context) {
-        val authCookieName = context.getString(R.string.auth_cookie_name)
-        val prefName = context.getString(R.string.storage_cookies)
-        val prefs = context.getSharedPreferences(prefName, Context.MODE_PRIVATE)
-
-        with(prefs.edit()) {
-            remove(authCookieName)
-            apply()
-        }
-
+        PersistenceManager.removeAuthCookie(context)
         cookieManager.cookieStore.removeAll()
     }
 
@@ -94,7 +80,7 @@ object CookieStorage {
         var version: Int = -1
         var httpOnly: Boolean = false
 
-        fun toHttpCookie() : HttpCookie {
+        fun toHttpCookie(): HttpCookie {
             val cookie = HttpCookie(name, value)
 
             cookie.comment = comment

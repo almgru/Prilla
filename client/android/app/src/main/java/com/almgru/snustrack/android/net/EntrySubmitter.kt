@@ -1,11 +1,13 @@
 package com.almgru.snustrack.android.net
 
 import android.content.Context
+import com.almgru.snustrack.android.PersistenceManager
 import com.almgru.snustrack.android.R
 import com.almgru.snustrack.android.net.request.FormPostRequest
 import com.android.volley.Request.Method.GET
 import com.android.volley.RequestQueue
 import com.android.volley.Response
+import com.android.volley.VolleyError
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
 import java.time.LocalDateTime
@@ -20,7 +22,7 @@ class EntrySubmitter(private var context: Context, private var listener: EntryAd
     }
 
     fun submit(appliedAt: LocalDateTime, removedAt: LocalDateTime, amount: Int) {
-        val serverUrl = context.getString(R.string.server_url)
+        val serverUrl = PersistenceManager.getServerUrl(context)
         val endpoint = context.getString(R.string.server_add_entry_endpoint)
         val url = "${serverUrl}${endpoint}"
 
@@ -29,7 +31,7 @@ class EntrySubmitter(private var context: Context, private var listener: EntryAd
                 GET, url, Response.Listener<String> { response ->
                     onGetAddEntryFormResponse(response, appliedAt, removedAt, amount)
                 },
-                Response.ErrorListener(listener::onEntrySubmitError)
+                Response.ErrorListener(this::onError)
             )
         )
     }
@@ -41,7 +43,7 @@ class EntrySubmitter(private var context: Context, private var listener: EntryAd
         stopped: LocalDateTime,
         amount: Int
     ) {
-        val serverUrl = context.getString(R.string.server_url)
+        val serverUrl = PersistenceManager.getServerUrl(context)
         val endpoint = context.getString(R.string.server_add_entry_endpoint)
         val url = "${serverUrl}${endpoint}"
         val csrfToken = CsrfExtractor.extractCsrfToken(response)
@@ -59,12 +61,17 @@ class EntrySubmitter(private var context: Context, private var listener: EntryAd
                     "removedTime" to removedAtTime,
                     "amount" to amount.toString(),
                     "_csrf" to csrfToken
-                ), this::onSuccess, listener::onEntrySubmitError
+                ), this::onSuccess, this::onError
             )
         )
     }
 
     private fun onSuccess(response : String) {
         listener.onEntryAdded()
+    }
+
+    private fun onError(error : VolleyError) {
+        CookieStorage.setAuthCookieExpired(context)
+        listener.onEntrySubmitError(error)
     }
 }

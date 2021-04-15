@@ -14,15 +14,17 @@ import com.almgru.snustrack.android.net.auth.LoginManager
 class LoginActivity : AppCompatActivity(), LoginListener {
     private lateinit var loginManager: LoginManager
 
-    private lateinit var passwordField : EditText
-    private lateinit var usernameField : EditText
+    private lateinit var serverField: EditText
+    private lateinit var passwordField: EditText
+    private lateinit var usernameField: EditText
     private lateinit var loginButton: Button
-    private lateinit var progressBar : ProgressBar
+    private lateinit var progressBar: ProgressBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
+        serverField = findViewById(R.id.serverField)
         passwordField = findViewById(R.id.passwordField)
         usernameField = findViewById(R.id.usernameField)
         loginButton = findViewById(R.id.loginButton)
@@ -33,12 +35,19 @@ class LoginActivity : AppCompatActivity(), LoginListener {
         if (loginManager.hasActiveSession()) {
             setLoadingState(true)
             loginManager.login()
+        } else {
+            serverField.setText(PersistenceManager.getServerUrl(this) ?: "")
         }
     }
 
-    fun onLoginPressed(@Suppress("UNUSED_PARAMETER") view : View) {
-        setLoadingState(true)
-        loginManager.login(usernameField.text.toString(), passwordField.text.toString())
+    fun onLoginPressed(@Suppress("UNUSED_PARAMETER") view: View) {
+        if (isValidUrl(serverField.text.toString())) {
+            setLoadingState(true)
+            PersistenceManager.putServerUrl(this, serverField.text.toString())
+            loginManager.login(usernameField.text.toString(), passwordField.text.toString())
+        } else {
+            serverField.error = getString(R.string.server_url_validation_error_message)
+        }
     }
 
     override fun onLoggedIn() {
@@ -64,7 +73,7 @@ class LoginActivity : AppCompatActivity(), LoginListener {
         Toast.makeText(this, "Network Error", Toast.LENGTH_SHORT).show()
     }
 
-    private fun setLoadingState(loading : Boolean) {
+    private fun setLoadingState(loading: Boolean) {
         if (loading) {
             loginButton.visibility = View.GONE
             progressBar.visibility = View.VISIBLE
@@ -72,5 +81,17 @@ class LoginActivity : AppCompatActivity(), LoginListener {
             loginButton.visibility = View.VISIBLE
             progressBar.visibility = View.GONE
         }
+    }
+
+    private fun isValidUrl(url : String) : Boolean {
+        if (!(url.startsWith("http://") || url.startsWith("https://"))) {
+            return false
+        }
+
+        if (url == "https://" || url == "https://") {
+            return false
+        }
+
+        return true
     }
 }
