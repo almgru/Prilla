@@ -1,12 +1,24 @@
 <resources>
     <string name="app_name">Snustrack</string>
+
+    <string name="storage_cookies">com.almgru.snustrack.data.cookies</string>
+    <string name="storage_cookies_auth_key">authCookie</string>
+    <string name="storage_state">com.almgru.snustrack.data.state</string>
+    <string name="state_started_key">started</string>
+
     <string name="server_url">http://10.0.2.2:8080</string>
     <string name="server_login_success_endpoint">/</string>
     <string name="server_login_failure_endpoint">/login?error</string>
     <string name="server_login_endpoint">/login</string>
+    <string name="server_add_entry_endpoint">/record</string>
+    <string name="auth_cookie_name">JSESSIONID</string>
+
     <string name="username_label">Username</string>
     <string name="username_hint">Snufkin</string>
     <string name="password_label">Password</string>
     <string name="password_hint">A unique password</string>
     <string name="login_button_text">Log in</string>
+    <string name="amount_label">Amount: %d</string>
+    <string name="start_stop_button_start_text">Start</string>
+    <string name="start_stop_button_stop_text">Stop (Hold to clear)</string>
 </resources>
