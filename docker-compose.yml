@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+  server:
+    build: .
+    image: snustrack-server:latest
+    volumes:
+      - snustrack-data:/app/data
+    ports:
+      - 8080:8080
+
+volumes:
+  snustrack-data:
