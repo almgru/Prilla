@@ -47,10 +47,10 @@ Coming soon. See [Development Setup](#development-setup) for running locally.
 
 The project is divided into four components:
 
-- server, written in Java 16 with Spring Boot
-- chart generator used in /charts, written in Javascript
-- styling for the client side, written in SCSS
-- an Android app for recording snus consumption on the go, written in Kotlin. 
+- server, located under `server/`, written in Java 16 with Spring Boot
+- chart generator, located under `client/chart-generator/`, written in Javascript
+- styling for the client side, located under `client/css`, written in SCSS
+- an Android app for recording snus consumption on the go, located under `client/android/`, written in Kotlin. 
 
 ## Troubleshooting
 
