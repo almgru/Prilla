@@ -1,6 +1,9 @@
 # snustrack
 
-Self-hosted web app for recording and visualizing your consumption of Snus.
+Self-hosted web app for recording and visualizing your consumption of Snus + Android app for effortless recording.
+
+`snustrack` aims to help anyone who wishes to reduce their consumption of Snus, or just wants to gain insight into how much they consume. It provides an Android app where you simply press a button when you start snusing and press it again when you stop, and the consumption data is automatically sent to a server which you control.
+When you want to get some insight into how much snus you've used and for how long, you just log in to the web app where you can see visualizations of consumption and duration.
 
 ## Screenshots
 
@@ -39,6 +42,15 @@ Coming soon. See [Development Setup](#development-setup) for running locally.
 
 2. Run `docker-compose -f docker-compose.dev.yml up -d` from the repo root directory.
 3. Wait a minute for everything to build, then access the website at http://localhost:8080 using the username and password specified in `application.properties`.
+
+## Project Structure
+
+The project is divided into four components:
+
+- server, written in Java 16 with Spring Boot
+- chart generator used in /charts, written in Javascript
+- styling for the client side, written in SCSS
+- an Android app for recording snus consumption on the go, written in Kotlin. 
 
 ## Troubleshooting
 
