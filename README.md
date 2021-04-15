@@ -26,6 +26,8 @@ Coming soon. See [Development Setup](#development-setup) for running locally.
    spring.security.user.name = <DEFAULT USER USERNAME>
    spring.security.user.password = <DEFAULT USER PASSWORD>
    spring.security.user.roles = manager
+   server.servlet.session.timeout=30d
+   server.servlet.session.cookie.max-age=30d
    snustrack.js.uri = http://localhost:8081/snustrack.js
    snustrack.css.uri = http://localhost:8082/snustrack.css
    ```
