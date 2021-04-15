@@ -39,3 +39,36 @@ Coming soon. See [Development Setup](#development-setup) for running locally.
 
 2. Run `docker-compose -f docker-compose.dev.yml up -d` from the repo root directory.
 3. Wait a minute for everything to build, then access the website at http://localhost:8080 using the username and password specified in `application.properties`.
+
+## Troubleshooting
+
+### Does not work behind a reverse proxy or gives Mixed Content Warning
+
+Add the following to application.properties
+
+```
+server.forward-headers-strategy = FRAMEWORK
+```
+
+And make sure your reverse proxy forwards the following headers:
+
+- Host
+- X-Forwarded-Proto
+- X-Real-IP
+- X-Forwarded-For
+
+With nginx this can be done with:
+
+```
+server {
+    ...
+
+    location / {
+        proxy_set_header        Host              $host;
+        proxy_set_header        X-Forwarded-Proto $scheme;
+        proxy_set_header        X-Real-IP         $remote_addr;
+        proxy_set_header        X-Forwarded-For   $proxy_add_x_forwarded_for;
+
+        proxy_pass              http://<upstream target>;
+    }
+```
