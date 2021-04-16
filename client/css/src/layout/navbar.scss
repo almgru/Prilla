@@ -31,11 +31,12 @@ nav > ul > li > a {
 }
 
 .nav-header > a > span {
-  margin-left: 0.5rem;
+  margin-left: 0.25rem;
 }
 
 .nav-header > a > svg {
-  height: 60%;
+  width: auto;
+  height: 80%;
 }
 
 @include breakpoints.medium {
@@ -44,9 +45,14 @@ nav > ul > li > a {
     justify-content: space-evenly;
   }
 
+  .nav-header {
+    height: 3rem;
+    line-height: 3rem;
+  }
+
   nav > ul > li {
-    height: 2.5rem;
-    line-height: 2.5rem;
+    height: 3rem;
+    line-height: 3rem;
   }
 }
 

@@ -14,9 +14,14 @@ nav > ul > li > a {
   color: colors.$navbar-fg;
 }
 
-nav > ul > li.nav-header > a {
-  font-size: large;
+.nav-header > a > span {
+  font-size: x-large;
+  font-family: "Alegreya Sans SC", sans-serif;
   font-weight: bolder;
+}
+
+.nav-header > a > svg > #inner {
+  fill: colors.$secondary;
 }
 
 nav > ul > :not(li.nav-header) > a:hover {
