@@ -3,14 +3,14 @@
   <head th:fragment="head(page)">
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title th:text="${page} + ' — snustrack'"></title>
+    <title th:text="${page} + ' — Prilla'"></title>
     <link
       rel="stylesheet"
-      th:href="${@environment.getProperty('snustrack.css.uri')}"
+      th:href="${@environment.getProperty('prilla.css.uri')}"
     />
     <script
       th:if="${#strings.equals(page, 'Charts')}"
-      th:src="${@environment.getProperty('snustrack.js.uri')}"
+      th:src="${@environment.getProperty('prilla.js.uri')}"
       async
     ></script>
   </head>

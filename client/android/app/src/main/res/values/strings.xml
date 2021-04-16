@@ -1,11 +1,11 @@
 <resources>
-    <string name="app_name">Snustrack</string>
+    <string name="app_name">Prilla</string>
 
-    <string name="storage_cookies">com.almgru.snustrack.data.cookies</string>
+    <string name="storage_cookies">com.almgru.prilla.data.cookies</string>
     <string name="storage_cookies_auth_key">authCookie</string>
-    <string name="storage_state">com.almgru.snustrack.data.state</string>
+    <string name="storage_state">com.almgru.prilla.data.state</string>
     <string name="storage_state_started_key">started</string>
-    <string name="storage_prefs">com.almgru.snustrack.data.preferences</string>
+    <string name="storage_prefs">com.almgru.prilla.data.preferences</string>
     <string name="storage_prefs_server_url_key">serverUrl</string>
 
     <string name="server_login_success_endpoint">/</string>

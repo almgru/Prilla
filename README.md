@@ -1,15 +1,13 @@
-# snustrack
+# Prilla
 
 Self-hosted web app for recording and visualizing your consumption of Snus + Android app for effortless recording.
 
-`snustrack` aims to help anyone who wishes to reduce their consumption of Snus, or just wants to gain insight into how much they consume. It provides an Android app where you simply press a button when you start snusing and press it again when you stop, and the consumption data is automatically sent to a server which you control.
+`prilla` aims to help anyone who wishes to reduce their consumption of Snus, or just wants to gain insight into how much they consume. It provides an Android app where you simply press a button when you start snusing and press it again when you stop, and the consumption data is automatically sent to a server which you control.
 When you want to get some insight into how much snus you've used and for how long, you just log in to the web app where you can see visualizations of consumption and duration.
 
 ## Screenshots
 
-![Screenshot of amount chart](./screenshots/screenshot-1.JPG)
-
-![Screenshot of duration chart](./screenshots/screenshot-2.JPG)
+Coming soon.
 
 ## Setup
 

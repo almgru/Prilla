@@ -8,7 +8,7 @@ spring.datasource.password = <DB PASSWORD>
 spring.security.user.name = <WEB USERNAME>
 spring.security.user.password = <WEB PASSWORD>
 
-# Uncomment this if you intend to run snustrack from behind a reverse proxy
+# Uncomment this if you intend to run prilla from behind a reverse proxy
 #server.forward-headers-strategy = FRAMEWORK
 
 # Comment these lines out if you do not intend on using the Android app
@@ -20,5 +20,5 @@ spring.datasource.driverClassName = org.h2.Driver
 spring.jpa.database-platform = org.hibernate.dialect.H2Dialect
 spring.jpa.hibernate.ddl-auto = update
 spring.security.user.roles = manager
-snustrack.js.uri = /js/snustrack.js
-snustrack.css.uri = /css/snustrack.css
+prilla.js.uri = /js/prilla.js
+prilla.css.uri = /css/prilla.css

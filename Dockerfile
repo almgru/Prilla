@@ -13,8 +13,8 @@ RUN npm run build
 FROM openjdk:16-jdk-slim AS serverbuild
 WORKDIR /server
 COPY ./server/ .
-COPY --from=jsbuild /js/out/snustrack.js ./src/main/resources/static/js/snustrack.js
-COPY --from=cssbuild /css/out/snustrack.css ./src/main/resources/static/css/snustrack.css
+COPY --from=jsbuild /js/out/prilla.js ./src/main/resources/static/js/prilla.js
+COPY --from=cssbuild /css/out/prilla.css ./src/main/resources/static/css/prilla.css
 RUN ./mvnw package
 
 FROM openjdk:16-jdk-slim

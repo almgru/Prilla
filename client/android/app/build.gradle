@@ -8,7 +8,7 @@ android {
     buildToolsVersion "30.0.3"
 
     defaultConfig {
-        applicationId "com.almgru.snustrack.android"
+        applicationId "com.almgru.prilla.android"
         multiDexEnabled true
         minSdkVersion 16
         targetSdkVersion 30
