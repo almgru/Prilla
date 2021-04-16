@@ -3,11 +3,12 @@ version: "3.9"
 services:
   server:
     build: .
-    image: snustrack-server:latest
+    image: server:latest
     volumes:
-      - snustrack-data:/app/data
+      - data:/app/data
+      - ./config:/app/config
     ports:
       - 8080:8080
 
 volumes:
-  snustrack-data:
+  data:
