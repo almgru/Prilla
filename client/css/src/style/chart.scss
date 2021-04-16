@@ -10,11 +10,11 @@ svg .tick text {
 
 svg .bar {
   stroke: none;
-  fill: colors.$color-1;
+  fill: colors.$chart-bars-fill;
 }
 
 svg .box {
-  fill: colors.$color-1;
+  fill: colors.$chart-boxplot-box-fill;
 }
 
 svg .dot {

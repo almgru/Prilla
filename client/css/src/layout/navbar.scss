@@ -25,6 +25,19 @@ nav > ul > li > a {
   line-height: 2.5rem;
 }
 
+.nav-header > a {
+  display: flex;
+  align-items: center;
+}
+
+.nav-header > a > span {
+  margin-left: 0.5rem;
+}
+
+.nav-header > a > svg {
+  height: 60%;
+}
+
 @include breakpoints.medium {
   nav > ul {
     flex-direction: row;

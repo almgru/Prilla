@@ -1,13 +1,17 @@
 @use 'colors';
 
 nav {
-  background-color: colors.$color-1;
-  border-bottom: 2px solid colors.$color-2;
+  background: colors.$navbar-bg;
+  border-bottom: 2px solid colors.$navbar-fg;
+}
+
+nav > ul > li.nav-header > a > svg {
+  fill: colors.$contrast;
 }
 
 nav > ul > li > a {
   text-decoration: none;
-  color: colors.$color-2;
+  color: colors.$navbar-fg;
 }
 
 nav > ul > li.nav-header > a {
@@ -15,14 +19,9 @@ nav > ul > li.nav-header > a {
   font-weight: bolder;
 }
 
-nav > ul > li.nav-header > a:hover {
-  background-color: colors.$color-1;
-  color: colors.$color-2;
-}
-
-nav > ul > li > a:hover {
-  background-color: colors.$color-2;
-  color: colors.$color-1;
+nav > ul > :not(li.nav-header) > a:hover {
+  background-color: colors.$navbar-item-hover-bg;
+  color: colors.$navbar-item-hover-fg;
 }
 
 nav > ul > li > a.active {
@@ -30,5 +29,5 @@ nav > ul > li > a.active {
 }
 
 nav > ul > li > a.active:hover {
-  color: colors.$color-1;
+  color: colors.$navbar-item-hover-fg;
 }
