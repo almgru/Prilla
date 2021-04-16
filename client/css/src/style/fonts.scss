@@ -1,0 +1,22 @@
+.nav-header > a > span {
+  font-size: x-large;
+  font-family: "Mate SC", serif;
+  font-weight: bolder;
+}
+
+nav > ul > li > a {
+  font-family: "Lato", sans-serif;
+  font-size: large;
+}
+
+h1, h2, h3, h4, h5, h6,
+th, td,
+p,
+fieldset, label,
+svg text {
+  font-family: "Open Sans", sans-serif;
+}
+
+input[type="date"], input[type="time"], input[type="number"] {
+  font-family: monospace;
+}

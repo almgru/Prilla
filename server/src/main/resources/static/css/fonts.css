@@ -1,0 +1,38 @@
+@font-face {
+    font-family: 'Mate SC';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/mate-sc/v11-latin-regular.eot');
+    src: local(''),
+         url('/fonts/mate-sc/v11-latin-regular.eot?#iefix') format('embedded-opentype'),
+         url('/fonts/mate-sc/v11-latin-regular.woff2') format('woff2'),
+         url('/fonts/mate-sc/v11-latin-regular.woff') format('woff'),
+         url('/fonts/mate-sc/v11-latin-regular.ttf') format('truetype'),
+         url('/fonts/mate-sc/v11-latin-regular.svg#MateSC') format('svg');
+}
+
+@font-face {
+    font-family: "Open Sans";
+    font-style: normal;
+    font-weight: 400;
+    src: url("/fonts/open-sans-v18-latin-regular.eot");
+    src: local(""),
+         url("/fonts/open-sans/v18-latin-regular.eot?#iefix") format("embedded-opentype"),
+         url("/fonts/open-sans/v18-latin-regular.woff2") format("woff2"),
+         url("/fonts/open-sans/v18-latin-regular.woff") format("woff"),
+         url("/fonts/open-sans/v18-latin-regular.ttf") format("truetype"),
+         url("/fonts/open-sans/v18-latin-regular.svg#OpenSans") format("svg");
+}
+
+@font-face {
+    font-family: 'Lato';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/lato/v17-latin-regular.eot');
+    src: local(''),
+         url('/fonts/lato/v17-latin-regular.eot?#iefix') format('embedded-opentype'),
+         url('/fonts/lato/v17-latin-regular.woff2') format('woff2'),
+         url('/fonts/lato/v17-latin-regular.woff') format('woff'),
+         url('/fonts/lato/v17-latin-regular.ttf') format('truetype'),
+         url('/fonts/lato/v17-latin-regular.svg#Lato') format('svg');
+}

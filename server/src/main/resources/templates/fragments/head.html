@@ -4,15 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title th:text="${page} + ' — Prilla'"></title>
-    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Alegreya%20Sans%20SC&subset=latin">
-    <link
-      rel="stylesheet"
-      th:href="${@environment.getProperty('prilla.css.uri')}"
-    />
-    <script
-      th:if="${#strings.equals(page, 'Charts')}"
-      th:src="${@environment.getProperty('prilla.js.uri')}"
-      async
-    ></script>
+    <link rel="stylesheet" th:href="@{/css/fonts.css}">
+    <link rel="stylesheet" th:href="${@environment.getProperty('prilla.css.uri')}" />
+    <script th:if="${#strings.equals(page, 'Charts')}" th:src="${@environment.getProperty('prilla.js.uri')}" async></script>
   </head>
 </html>
