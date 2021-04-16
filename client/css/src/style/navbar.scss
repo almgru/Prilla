@@ -2,7 +2,7 @@
 
 nav {
   background: colors.$navbar-bg;
-  border-bottom: 2px solid colors.$navbar-fg;
+  border-bottom: 2px solid colors.$secondary;
 }
 
 nav > ul > li.nav-header > a > svg {
@@ -19,14 +19,10 @@ nav > ul > li > a {
 }
 
 nav > ul > :not(li.nav-header) > a:hover {
-  background-color: colors.$navbar-item-hover-bg;
-  color: colors.$navbar-item-hover-fg;
-}
-
-nav > ul > li > a.active {
   text-decoration: underline;
 }
 
-nav > ul > li > a.active:hover {
+nav > ul > li > a.active {
+  background-color: colors.$navbar-item-hover-bg;
   color: colors.$navbar-item-hover-fg;
 }
