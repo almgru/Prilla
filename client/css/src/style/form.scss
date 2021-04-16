@@ -1,3 +1,5 @@
+@use 'colors';
+
 legend {
   font-weight: bold;
   font-size: large;
@@ -9,4 +11,28 @@ legend {
 
 .field > label::after {
   content: ":";
+}
+
+
+input[type="file"]::file-selector-button,
+input[type="submit"],
+button {
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0.1em 0.1em 0.1em rgba(0, 0, 0, 150);
+  background-color: colors.$contrast;
+  color: colors.$primary;
+  border: 2px solid colors.$primary;
+}
+
+input[type="file"]::file-selector-button:hover,
+input[type="submit"]:hover,
+button:hover {
+  background-color: colors.$primary;
+  color: colors.$contrast;
+}
+
+input[type="file"]::file-selector-button:active,
+input[type="submit"]:active,
+button:active {
+  box-shadow: none;
 }
