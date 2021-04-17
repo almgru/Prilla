@@ -1,5 +1,14 @@
 @use '../browser';
 
+li > fieldset {
+  padding: 0.5rem;
+}
+
+button {
+  padding: 0.25rem;
+  width: 4rem;
+}
+
 #chart-area svg {
   width: 100%;
 }

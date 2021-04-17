@@ -1,6 +1,7 @@
 @use '../breakpoints';
 
-form {
+main > form,
+main > .form-container {
   padding: 1rem;
 }
 
@@ -12,8 +13,7 @@ form {
 
 .field {
   display: block;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
+  margin: 1rem 0;
 }
 
 input[type="number"] {
@@ -24,14 +24,6 @@ input[type="submit"] {
   display: block;
   padding: 0.4rem;
   min-width: 6rem;
-}
-
-button {
-  padding: 0.25rem;
-}
-
-fieldset {
-  padding: 0.5rem;
 }
 
 @supports selector(::-webkit-file-upload-button) {
