@@ -6,7 +6,7 @@ services:
     image: server:latest
     volumes:
       - data:/app/data
-      - ./config:/app/config
+      - ./config/application.properties:/app/application.properties
     ports:
       - 8080:8080
 

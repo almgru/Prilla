@@ -7,9 +7,10 @@ services:
     command: /prilla-server/mvnw spring-boot:run
     volumes:
       - ./server:/prilla-server
-      - prilla-data:/prilla-server/data
-      - prilla-server-target:/prilla-server/target
-      - prilla-server-m2:/root/.m2
+      - ./config/dev-application.properties:/prilla-server/application.properties
+      - server-target:/prilla-server/target
+      - server-m2:/root/.m2
+      - /prilla-server/data
     ports:
       - 8080:8080
 
@@ -36,8 +37,7 @@ services:
       - 8082:8082
 
 volumes:
-  prilla-data:
   # Volume for storing compiled sources, to speed up restarts
-  prilla-server-target:
+  server-target:
   # Volume for storing maven dependencies, to speed up restarts
-  prilla-server-m2:
+  server-m2:
