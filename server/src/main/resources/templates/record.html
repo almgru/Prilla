@@ -16,12 +16,14 @@
                 <p>
                     <span class="field">
                         <label for="appliedDate">Date</label>
-                        <input type="date" id="appliedDate" name="appliedDate" required th:field="*{appliedDate}" />
+                        <input type="date" id="appliedDate" name="appliedDate" required pattern="\d{4}-\d{2}-\d{2}"
+                               title="yyyy-mm-dd" th:field="*{appliedDate}" />
                     </span>
 
                     <span class="field">
                         <label for="appliedTime">Time</label>
-                        <input type="time" id="appliedTime" name="appliedTime" required th:field="*{appliedTime}" />
+                        <input type="time" id="appliedTime" name="appliedTime" required pattern="\d{2}:\d{2}"
+                               title="hh:mm" th:field="*{appliedTime}" />
                     </span>
                 </p>
 
@@ -36,12 +38,14 @@
                 <p>
                     <span class="field">
                         <label for="removedDate">Date</label>
-                        <input type="date" id="removedDate" name="removedDate" required th:field="*{removedDate}" />
+                        <input type="date" id="removedDate" name="removedDate" required pattern="\d{4}-\d{2}-\d{2}"
+                               title="yyyy-mm-dd" th:field="*{removedDate}" />
                     </span>
 
                     <span class="field">
                         <label for="removedTime">Time</label>
-                        <input type="time" id="removedTime" name="removedTime" required th:field="*{removedTime}" />
+                        <input type="time" id="removedTime" name="removedTime" required pattern="\d{2}:\d{2}"
+                               title="hh:mm" th:field="*{removedTime}" />
                     </span>
                 </p>
 
