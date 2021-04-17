@@ -22,7 +22,11 @@
 
             <input type="submit" value="Restore" />
         </form>
+
     </main>
     <footer th:replace="fragments/footer.html :: footer"></footer>
+
+    <!-- Prevents Chrome from triggering CSS transitions on page load. See https://stackoverflow.com/a/42969608 -->
+    <script> </script>
 </body>
 </html>

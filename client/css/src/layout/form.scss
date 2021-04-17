@@ -22,12 +22,30 @@ input[type="number"] {
 
 input[type="submit"] {
   display: block;
-  padding: 0.5rem;
+  padding: 0.4rem;
   min-width: 6rem;
+}
+
+button {
+  padding: 0.25rem;
 }
 
 fieldset {
   padding: 0.5rem;
+}
+
+@supports selector(::-webkit-file-upload-button) {
+  input[type="file"]::-webkit-file-upload-button {
+    padding: 0.4rem;
+    margin: 0.2rem;
+  }
+}
+
+@supports (not selector(::-webkit-file-upload-button)) and (selector(::file-selector-button)) {
+  input[type="file"]::file-selector-button {
+    padding: 0.4rem;
+    margin: 0.2rem;
+  }
 }
 
 @include breakpoints.small {

@@ -1,11 +1,11 @@
 @use '../browser';
 
-svg {
+#chart-area svg {
   width: 100%;
 }
 
 @include browser.not-ie11 {
-  svg {
+  #chart-area svg {
     height: 100%;
   }
 }

@@ -13,26 +13,62 @@ legend {
   content: ":";
 }
 
-
-input[type="file"]::file-selector-button,
-input[type="submit"],
-button {
+@mixin button {
   transition: all 0.2s ease-in-out;
   box-shadow: 0.1em 0.1em 0.1em rgba(0, 0, 0, 150);
-  background-color: colors.$contrast;
-  color: colors.$primary;
+  background-color: colors.$primary;
+  color: colors.$contrast;
   border: 2px solid colors.$primary;
 }
 
-input[type="file"]::file-selector-button:hover,
-input[type="submit"]:hover,
-button:hover {
-  background-color: colors.$primary;
-  color: colors.$contrast;
+@mixin button-hover {
+  background-color: colors.$contrast;
+  color: colors.$primary;
 }
 
-input[type="file"]::file-selector-button:active,
-input[type="submit"]:active,
-button:active {
+@mixin button-active {
   box-shadow: none;
+}
+
+button,
+input[type="submit"] {
+  @include button;
+}
+
+button:hover,
+input[type="submit"]:hover {
+  @include button-hover;
+}
+
+button:active,
+input[type="submit"]:active {
+  @include button-active;
+}
+
+@supports selector(::-webkit-file-upload-button) {
+  input[type="file"]::-webkit-file-upload-button {
+    @include button;
+  }
+
+  input[type="file"]::-webkit-file-upload-button:hover {
+    @include button-hover;
+  }
+
+  input[type="file"]::-webkit-file-upload-button:active {
+    @include button-active;
+  }
+}
+
+@supports (not selector(::-webkit-file-upload-button)) and (selector(::file-selector-button)) {
+  input[type="file"]::file-selector-button {
+    @include button;
+  }
+
+  input[type="file"]::file-selector-button:hover {
+    @include button-hover;
+  }
+
+  input[type="file"]::file-selector-button:active {
+    @include button-active;
+  }
 }
