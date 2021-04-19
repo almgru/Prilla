@@ -13,6 +13,14 @@ td {
   padding: 1em;
 }
 
+td form input[type="submit"] {
+  display: block;
+  padding: 0;
+  min-width: 3rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 @include breakpoints.table {
   thead {
     display: none;
@@ -29,10 +37,16 @@ td {
 
   td {
     display: table-row;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
   }
 
   td::before {
     content: attr(data-label);
+  }
+
+  td form input[type="submit"] {
+    display: inline;
   }
 
   td::before,

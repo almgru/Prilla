@@ -23,12 +23,11 @@ Changes to SCSS, javascript as well as template resources triggers automatic rel
 
 ## Java development Setup
 
-Since Spring Dev Tools does not trigger restarts for updated Java files when run from a container, I recommend stopping the spring dev server and running it locally through IntelliJ instead.
+Since Spring Dev Tools does not trigger restarts for updated Java files when run from a container, I recommend only running chart-dev-server and css-dev-server and running spring-dev-server and locally through IntelliJ instead.
 
-1. `docker-compose -f docker-compose.dev.yml up -d`
-2. `docker-compose -f docker-compose.dev.yml stop spring-dev-server`
-3. Copy `config/dev-application.properties` to `server/application.properties`
-4. Start server project in IntelliJ
+1. `docker-compose -f docker-compose.dev.yml up -d chart-dev-server css-dev-server`
+2. Copy `config/dev-application.properties` to `server/application.properties`
+3. Start server project in IntelliJ
 
 ### Automatically restart Spring server when Java code is changed
 

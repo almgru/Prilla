@@ -10,3 +10,13 @@
 body {
   background-color: colors.$main-bg;
 }
+
+.flash {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  background-color: colors.$secondary;
+  color: white;
+  padding: 1rem;
+  border-radius: 0.25rem;
+}
