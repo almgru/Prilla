@@ -6,12 +6,15 @@
     <main>
         <h1>List</h1>
 
+        <p th:if="${message != null}" th:text="${message}"></p>
+
         <table>
             <thead>
                 <tr>
                     <th>Applied at</th>
                     <th>Removed at</th>
                     <th>Amount</th>
+                    <th>Delete</th>
                 </tr>
             </thead>
             <tbody>
@@ -19,6 +22,12 @@
                     <td data-label="Applied at" th:text="${entry.appliedAt()}"><span th:text="${entry.appliedAt()}"></span></td>
                     <td data-label="Removed at" th:text="${entry.removedAt()}"><span th:text="${entry.removedAt()}"></span></td>
                     <td data-label="Amount" th:text="${entry.amount()}"><span th:text="${entry.amount()}"></span></td>
+                    <td>
+                        <form method="POST" th:action="@{/delete}">
+                            <input type="hidden" name="id" th:value="${entry.id()}" />
+                            <input type="submit" value="x" />
+                        </form>
+                    </td>
                 </tr>
             </tbody>
         </table>

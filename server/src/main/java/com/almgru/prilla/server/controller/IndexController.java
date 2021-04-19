@@ -37,4 +37,18 @@ public class IndexController {
 
         return "index";
     }
+
+    @PostMapping("/delete")
+    public String delete(@RequestParam("id") Integer id, RedirectAttributes attr) {
+        var entry = repository.findById(id);
+
+        if (entry.isPresent()) {
+            repository.deleteById(id.get());
+            attr.addFlashAttribute("message", String.format("Entry (%s) deleted!"));
+        } else {
+            attr.addFlashAttribute("message", String.format("No entry with id %d exists."));
+        }
+
+        return "redirect:/";
+    }
 }

@@ -20,7 +20,8 @@ public class EntryConverter {
 
         return new ListItemEntryDTO(entry.getAppliedAt().format(formatter),
                 entry.getRemovedAt().format(formatter),
-                String.format("%d portion%s", amount, amount > 1 ? "s" : ""));
+                String.format("%d portion%s", amount, amount > 1 ? "s" : ""),
+                entry.getId());
     }
 
     public Entry formDTOToEntry(RecordFormDTO formDTO) {
