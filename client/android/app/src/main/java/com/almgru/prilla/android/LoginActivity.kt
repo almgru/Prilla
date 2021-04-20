@@ -10,6 +10,7 @@ import android.widget.ProgressBar
 import android.widget.Toast
 import com.almgru.prilla.android.net.auth.LoginListener
 import com.almgru.prilla.android.net.auth.LoginManager
+import java.time.Period
 
 class LoginActivity : AppCompatActivity(), LoginListener {
     private lateinit var loginManager: LoginManager
@@ -37,6 +38,13 @@ class LoginActivity : AppCompatActivity(), LoginListener {
             loginManager.login()
         } else {
             serverField.setText(PersistenceManager.getServerUrl(this) ?: "")
+        }
+
+        if (PersistenceManager.getUpdateInterval(this) == null) {
+            PersistenceManager.putUpdateInterval(
+                this,
+                Period.parse(getString(R.string.default_preference_update_interval))
+            )
         }
     }
 
@@ -83,7 +91,7 @@ class LoginActivity : AppCompatActivity(), LoginListener {
         }
     }
 
-    private fun isValidUrl(url : String) : Boolean {
+    private fun isValidUrl(url: String): Boolean {
         if (!(url.startsWith("http://") || url.startsWith("https://"))) {
             return false
         }

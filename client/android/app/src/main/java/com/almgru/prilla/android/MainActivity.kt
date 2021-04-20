@@ -21,6 +21,7 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
     }
 
     private lateinit var submitter: EntrySubmitter
+    private lateinit var backupper: DataBackupManager
 
     private var startedDateTime: LocalDateTime? = null
 
@@ -51,6 +52,7 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
         amountSlider.setOnSeekBarChangeListener(this)
 
         submitter = EntrySubmitter(this, this)
+        backupper = DataBackupManager(this)
     }
 
     override fun onResume() {
@@ -63,6 +65,8 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
         } else {
             setUiState(UIState.NOT_STARTED)
         }
+
+        backupper.backup()
     }
 
     fun onStartStopPressed(@Suppress("UNUSED_PARAMETER") view: View) {

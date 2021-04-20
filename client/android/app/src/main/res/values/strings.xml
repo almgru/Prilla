@@ -1,17 +1,22 @@
 <resources>
     <string name="app_name">Prilla</string>
 
-    <string name="storage_cookies">com.almgru.prilla.data.cookies</string>
-    <string name="storage_cookies_auth_key">authCookie</string>
-    <string name="storage_state">com.almgru.prilla.data.state</string>
-    <string name="storage_state_started_key">started</string>
-    <string name="storage_prefs">com.almgru.prilla.data.preferences</string>
-    <string name="storage_prefs_server_url_key">serverUrl</string>
+    <string name="shared_prefs">com.almgru.snustrack.data.shared_preferences</string>
+    <string name="shared_prefs_cookie_auth_key">authCookie</string>
+    <string name="shared_prefs_started_key">started</string>
+    <string name="shared_prefs_server_url_key">serverUrl</string>
+    <string name="shared_prefs_last_backup_timestamp">lastBackupTimestamp</string>
+    <string name="shared_prefs_update_interval">updateInterval</string>
+
+    <string name="file_storage_backup">backup</string>
+
+    <string name="default_preference_update_interval">P1D</string>
 
     <string name="server_login_success_endpoint">/</string>
     <string name="server_login_failure_endpoint">/login?error</string>
     <string name="server_login_endpoint">/login</string>
     <string name="server_add_entry_endpoint">/record</string>
+    <string name="server_backup_endpoint">/download-backup</string>
     <string name="auth_cookie_name">JSESSIONID</string>
 
     <string name="server_label">Server URL</string>
