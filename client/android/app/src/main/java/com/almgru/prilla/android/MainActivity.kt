@@ -5,15 +5,19 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.*
+import com.almgru.prilla.android.fragment.DatePickerFragment
+import com.almgru.prilla.android.fragment.TimePickerFragment
 import com.almgru.prilla.android.net.EntryAddedListener
 import com.almgru.prilla.android.net.EntrySubmitter
 import com.android.volley.*
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 
 class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
     EntryAddedListener, View.OnLongClickListener {
     private enum class UIState {
-        NOT_STARTED, STARTED, SUBMITTED,
+        NOT_STARTED, STARTED, SUBMITTED, SELECTING_DATETIME
     }
 
     private lateinit var submitter: EntrySubmitter
@@ -24,6 +28,10 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
     private lateinit var amountSlider: SeekBar
     private lateinit var amountLabel: TextView
     private lateinit var submitProgressIndicator : ProgressBar
+    private lateinit var forgotLink : TextView
+
+    private lateinit var datePicker : DatePickerFragment
+    private lateinit var timePicker : TimePickerFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,6 +41,10 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
         amountSlider = findViewById(R.id.amountSlider)
         amountLabel = findViewById(R.id.amountLabel)
         submitProgressIndicator = findViewById(R.id.submitProgressIndicator)
+        forgotLink = findViewById(R.id.forgotLink)
+
+        datePicker = DatePickerFragment(this::onDatePicked, this::onDateTimeDialogCancelled)
+        timePicker = TimePickerFragment(this::onTimePicked, this::onDateTimeDialogCancelled)
 
         startStopButton.setOnLongClickListener(this)
         amountLabel.text = getString(R.string.amount_label).format(amountSlider.progress)
@@ -84,15 +96,23 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
                 submitProgressIndicator.visibility = View.GONE
                 startStopButton.visibility = View.VISIBLE
                 startStopButton.text = getText(R.string.start_stop_button_start_text)
+                forgotLink.visibility = View.VISIBLE
             }
             UIState.STARTED -> {
                 submitProgressIndicator.visibility = View.GONE
                 startStopButton.visibility = View.VISIBLE
                 startStopButton.text = getText(R.string.start_stop_button_stop_text)
+                forgotLink.visibility = View.GONE
             }
             UIState.SUBMITTED -> {
                 submitProgressIndicator.visibility = View.VISIBLE
                 startStopButton.visibility = View.GONE
+                forgotLink.visibility = View.GONE
+            }
+            UIState.SELECTING_DATETIME -> {
+                submitProgressIndicator.visibility = View.VISIBLE
+                startStopButton.visibility = View.GONE
+                forgotLink.visibility = View.GONE
             }
         }
     }
@@ -121,5 +141,25 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
         startedDateTime = null
         PersistenceManager.removeStartedDateTime(this)
         return true
+    }
+
+    fun onForgotLinkPressed(@Suppress("UNUSED_PARAMETER") v : View) {
+        setUiState(UIState.SELECTING_DATETIME)
+        datePicker.show(supportFragmentManager, "datePicker")
+    }
+
+    private fun onDatePicked(date : LocalDate) {
+        startedDateTime = LocalDateTime.of(date, LocalTime.of(0, 0, 0))
+        timePicker.show(supportFragmentManager, "timePicker")
+    }
+
+    private fun onTimePicked(time : LocalTime) {
+        startedDateTime = LocalDateTime.of(startedDateTime!!.toLocalDate(), time)
+        PersistenceManager.putStartedDateTime(this, startedDateTime!!)
+        setUiState(UIState.STARTED)
+    }
+
+    private fun onDateTimeDialogCancelled() {
+        setUiState(UIState.NOT_STARTED)
     }
 }

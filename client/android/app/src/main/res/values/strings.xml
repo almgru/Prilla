@@ -24,6 +24,10 @@
     <string name="amount_label">Amount: %d</string>
     <string name="start_stop_button_start_text">Start</string>
     <string name="start_stop_button_stop_text">Stop (Hold to clear)</string>
+    <string name="forgot_link_text">I forgot to start</string>
+    <string name="forgot_button_15_text">15 min ago</string>
+    <string name="forgot_button_30_text">30 min ago</string>
+    <string name="forgot_button_60_text">1 hour ago</string>
 
     <string name="server_url_validation_error_message">Must start with http(s)://</string>
 </resources>
