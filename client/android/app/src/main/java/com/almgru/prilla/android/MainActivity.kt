@@ -131,8 +131,6 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
     override fun onEntrySubmitError(error: VolleyError) {
         Toast.makeText(this, "Session expired", Toast.LENGTH_SHORT).show()
         setUiState(UIState.NOT_STARTED)
-        startedDateTime = null
-        PersistenceManager.removeStartedDateTime(this)
         val intent = Intent(this, LoginActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
         startActivity(intent)
