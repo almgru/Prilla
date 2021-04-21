@@ -28,11 +28,9 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
     private lateinit var startStopButton: Button
     private lateinit var amountSlider: SeekBar
     private lateinit var amountLabel: TextView
-    private lateinit var submitProgressIndicator : ProgressBar
-    private lateinit var forgotLink : TextView
-
-    private lateinit var datePicker : DatePickerFragment
-    private lateinit var timePicker : TimePickerFragment
+    private lateinit var submitProgressIndicator: ProgressBar
+    private lateinit var forgotToStartLink: TextView
+    private lateinit var forgotToStopLink: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,10 +40,8 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
         amountSlider = findViewById(R.id.amountSlider)
         amountLabel = findViewById(R.id.amountLabel)
         submitProgressIndicator = findViewById(R.id.submitProgressIndicator)
-        forgotLink = findViewById(R.id.forgotLink)
-
-        datePicker = DatePickerFragment(this::onDatePicked, this::onDateTimeDialogCancelled)
-        timePicker = TimePickerFragment(this::onTimePicked, this::onDateTimeDialogCancelled)
+        forgotToStartLink = findViewById(R.id.forgotToStartLink)
+        forgotToStopLink = findViewById(R.id.forgotToStopLink)
 
         startStopButton.setOnLongClickListener(this)
         amountLabel.text = getString(R.string.amount_label).format(amountSlider.progress)
@@ -94,29 +90,33 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
     override fun onStopTrackingTouch(seekBar: SeekBar?) {
     }
 
-    private fun setUiState(state : UIState) {
+    private fun setUiState(state: UIState) {
         when (state) {
             UIState.NOT_STARTED -> {
                 submitProgressIndicator.visibility = View.GONE
                 startStopButton.visibility = View.VISIBLE
                 startStopButton.text = getText(R.string.start_stop_button_start_text)
-                forgotLink.visibility = View.VISIBLE
+                forgotToStartLink.visibility = View.VISIBLE
+                forgotToStopLink.visibility = View.GONE
             }
             UIState.STARTED -> {
                 submitProgressIndicator.visibility = View.GONE
                 startStopButton.visibility = View.VISIBLE
                 startStopButton.text = getText(R.string.start_stop_button_stop_text)
-                forgotLink.visibility = View.GONE
+                forgotToStartLink.visibility = View.GONE
+                forgotToStopLink.visibility = View.VISIBLE
             }
             UIState.SUBMITTED -> {
                 submitProgressIndicator.visibility = View.VISIBLE
                 startStopButton.visibility = View.GONE
-                forgotLink.visibility = View.GONE
+                forgotToStartLink.visibility = View.GONE
+                forgotToStopLink.visibility = View.GONE
             }
             UIState.SELECTING_DATETIME -> {
                 submitProgressIndicator.visibility = View.VISIBLE
                 startStopButton.visibility = View.GONE
-                forgotLink.visibility = View.GONE
+                forgotToStartLink.visibility = View.GONE
+                forgotToStopLink.visibility = View.GONE
             }
         }
     }
@@ -145,23 +145,33 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
         return true
     }
 
-    fun onForgotLinkPressed(@Suppress("UNUSED_PARAMETER") v : View) {
+    fun onForgotToStartPressed(@Suppress("UNUSED_PARAMETER") v: View) {
         setUiState(UIState.SELECTING_DATETIME)
-        datePicker.show(supportFragmentManager, "datePicker")
+        DatePickerFragment({ date ->
+            TimePickerFragment({ time ->
+                startedDateTime = LocalDateTime.of(date, time)
+                PersistenceManager.putStartedDateTime(this, startedDateTime!!)
+                setUiState(UIState.STARTED)
+            }, {
+                setUiState(UIState.NOT_STARTED)
+            }).show(supportFragmentManager, "timePicker")
+        }, {
+            setUiState(UIState.NOT_STARTED)
+        }).show(supportFragmentManager, "datePicker")
     }
 
-    private fun onDatePicked(date : LocalDate) {
-        startedDateTime = LocalDateTime.of(date, LocalTime.of(0, 0, 0))
-        timePicker.show(supportFragmentManager, "timePicker")
-    }
-
-    private fun onTimePicked(time : LocalTime) {
-        startedDateTime = LocalDateTime.of(startedDateTime!!.toLocalDate(), time)
-        PersistenceManager.putStartedDateTime(this, startedDateTime!!)
-        setUiState(UIState.STARTED)
-    }
-
-    private fun onDateTimeDialogCancelled() {
-        setUiState(UIState.NOT_STARTED)
+    fun onForgotToStopPressed(@Suppress("UNUSED_PARAMETER") v: View) {
+        setUiState(UIState.SELECTING_DATETIME)
+        DatePickerFragment({ date ->
+            TimePickerFragment({ time ->
+                val amount = amountSlider.progress
+                setUiState(UIState.SUBMITTED)
+                submitter.submit(startedDateTime!!, LocalDateTime.of(date, time), amount)
+            }, {
+                setUiState(UIState.STARTED)
+            }).show(supportFragmentManager, "timePicker")
+        }, {
+            setUiState(UIState.STARTED)
+        }).show(supportFragmentManager, "datePicker")
     }
 }
