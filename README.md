@@ -7,7 +7,8 @@ When you want to get some insight into how much snus you've used and for how lon
 
 ## Screenshots
 
-Coming soon.
+![Chart view (weekly amount consumed)](screenshots/prilla-chart-amount.png "Chart view (weekly amount consumed)")
+![Chart view (monthly duration)](screenshots/prilla-chart-duration.png "Chart view (monthly duration)")
 
 ## Setup
 
