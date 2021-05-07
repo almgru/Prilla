@@ -107,14 +107,19 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
                 customStartedLink.visibility = View.VISIBLE
                 customStoppedLink.visibility = View.GONE
                 startedAtText.visibility = View.GONE
-                lastEntryText.visibility = if (lastEntry != null) View.VISIBLE else View.GONE
-                lastEntryText.text = getString(
-                    R.string.last_entry_text,
-                    DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
-                        .format(lastEntry?.started),
-                    DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
-                        .format(lastEntry?.stopped)
-                )
+
+                if (lastEntry != null) {
+                    lastEntryText.visibility = View.VISIBLE
+                    lastEntryText.text = getString(
+                        R.string.last_entry_text,
+                        DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
+                            .format(lastEntry!!.started),
+                        DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
+                            .format(lastEntry!!.stopped)
+                    )
+                } else {
+                    lastEntryText.visibility = View.GONE
+                }
             }
             UIState.STARTED -> {
                 submitProgressIndicator.visibility = View.GONE
