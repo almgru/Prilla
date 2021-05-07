@@ -2,6 +2,11 @@ package com.almgru.prilla.android
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.almgru.prilla.android.model.Entry
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.KotlinModule
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import java.lang.Exception
 import java.time.LocalDateTime
 import java.time.Period
@@ -65,6 +70,17 @@ object PersistenceManager {
 
     fun putUpdateInterval(context: Context, updateInterval: Period) {
         writeString(context, R.string.shared_prefs_update_interval, updateInterval.toString())
+    }
+
+    fun putLastEntry(context: Context, entry : Entry) {
+        val mapper = ObjectMapper().registerModule(KotlinModule()).registerModule(JavaTimeModule())
+        writeString(context, R.string.shared_prefs_last_entry, mapper.writeValueAsString(entry))
+    }
+
+    fun getLastEntry(context: Context) : Entry? {
+        val raw = readString(context, R.string.shared_prefs_last_entry) ?: return null
+        val mapper = ObjectMapper().registerModule(KotlinModule()).registerModule(JavaTimeModule())
+        return mapper.readValue(raw, Entry::class.java)
     }
 
     private fun writeString(context: Context, keyId: Int, value: String) {

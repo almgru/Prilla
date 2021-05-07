@@ -7,12 +7,13 @@ import android.view.View
 import android.widget.*
 import com.almgru.prilla.android.fragment.DatePickerFragment
 import com.almgru.prilla.android.fragment.TimePickerFragment
+import com.almgru.prilla.android.model.Entry
 import com.almgru.prilla.android.net.EntryAddedListener
 import com.almgru.prilla.android.net.EntrySubmitter
 import com.android.volley.*
-import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
 class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
     EntryAddedListener, View.OnLongClickListener {
@@ -24,13 +25,16 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
     private lateinit var backupper: DataBackupManager
 
     private var startedDateTime: LocalDateTime? = null
+    private var lastEntry: Entry? = null
 
     private lateinit var startStopButton: Button
     private lateinit var amountSlider: SeekBar
     private lateinit var amountLabel: TextView
     private lateinit var submitProgressIndicator: ProgressBar
-    private lateinit var forgotToStartLink: TextView
-    private lateinit var forgotToStopLink: TextView
+    private lateinit var customStartedLink: TextView
+    private lateinit var customStoppedLink: TextView
+    private lateinit var lastEntryText: TextView
+    private lateinit var startedAtText: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,8 +44,10 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
         amountSlider = findViewById(R.id.amountSlider)
         amountLabel = findViewById(R.id.amountLabel)
         submitProgressIndicator = findViewById(R.id.submitProgressIndicator)
-        forgotToStartLink = findViewById(R.id.forgotToStartLink)
-        forgotToStopLink = findViewById(R.id.forgotToStopLink)
+        customStartedLink = findViewById(R.id.forgotToStartLink)
+        customStoppedLink = findViewById(R.id.forgotToStopLink)
+        lastEntryText = findViewById(R.id.lastEntryText)
+        startedAtText = findViewById(R.id.startedAtText)
 
         startStopButton.setOnLongClickListener(this)
         amountLabel.text = getString(R.string.amount_label).format(amountSlider.progress)
@@ -49,6 +55,7 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
 
         submitter = EntrySubmitter(this, this)
         backupper = DataBackupManager(this)
+        lastEntry = PersistenceManager.getLastEntry(this)
     }
 
     override fun onResume() {
@@ -74,9 +81,10 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
             val stoppedDateTime = LocalDateTime.now()
             val amount = amountSlider.progress
 
-            setUiState(UIState.SUBMITTED)
-
+            lastEntry = Entry(startedDateTime!!, stoppedDateTime, amount)
             submitter.submit(startedDateTime!!, stoppedDateTime, amount)
+
+            setUiState(UIState.SUBMITTED)
         }
     }
 
@@ -96,36 +104,56 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
                 submitProgressIndicator.visibility = View.GONE
                 startStopButton.visibility = View.VISIBLE
                 startStopButton.text = getText(R.string.start_stop_button_start_text)
-                forgotToStartLink.visibility = View.VISIBLE
-                forgotToStopLink.visibility = View.GONE
+                customStartedLink.visibility = View.VISIBLE
+                customStoppedLink.visibility = View.GONE
+                startedAtText.visibility = View.GONE
+                lastEntryText.visibility = if (lastEntry != null) View.VISIBLE else View.GONE
+                lastEntryText.text = getString(
+                    R.string.last_entry_text,
+                    DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
+                        .format(lastEntry?.started),
+                    DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
+                        .format(lastEntry?.stopped)
+                )
             }
             UIState.STARTED -> {
                 submitProgressIndicator.visibility = View.GONE
                 startStopButton.visibility = View.VISIBLE
                 startStopButton.text = getText(R.string.start_stop_button_stop_text)
-                forgotToStartLink.visibility = View.GONE
-                forgotToStopLink.visibility = View.VISIBLE
+                customStartedLink.visibility = View.GONE
+                customStoppedLink.visibility = View.VISIBLE
+                startedAtText.visibility = View.VISIBLE
+                startedAtText.text = getString(
+                    R.string.started_at_text,
+                    DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).format(startedDateTime)
+                )
+                lastEntryText.visibility = View.GONE
             }
             UIState.SUBMITTED -> {
                 submitProgressIndicator.visibility = View.VISIBLE
                 startStopButton.visibility = View.GONE
-                forgotToStartLink.visibility = View.GONE
-                forgotToStopLink.visibility = View.GONE
+                customStartedLink.visibility = View.GONE
+                customStoppedLink.visibility = View.GONE
+                startedAtText.visibility = View.GONE
+                lastEntryText.visibility = View.GONE
             }
             UIState.SELECTING_DATETIME -> {
                 submitProgressIndicator.visibility = View.VISIBLE
                 startStopButton.visibility = View.GONE
-                forgotToStartLink.visibility = View.GONE
-                forgotToStopLink.visibility = View.GONE
+                customStartedLink.visibility = View.GONE
+                customStoppedLink.visibility = View.GONE
+                startedAtText.visibility = View.GONE
+                lastEntryText.visibility = View.GONE
             }
         }
     }
 
     override fun onEntryAdded() {
         Toast.makeText(this, "Entry added", Toast.LENGTH_SHORT).show()
-        setUiState(UIState.NOT_STARTED)
+        PersistenceManager.putLastEntry(this, lastEntry!!)
         startedDateTime = null
         PersistenceManager.removeStartedDateTime(this)
+        setUiState(UIState.NOT_STARTED)
     }
 
     override fun onEntrySubmitError(error: VolleyError) {

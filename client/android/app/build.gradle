@@ -44,6 +44,8 @@ dependencies {
     implementation 'com.android.volley:volley:1.2.0'
     implementation 'org.jsoup:jsoup:1.13.1'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.12.3'
+    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin:2.12.3'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.3'
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'

@@ -79,4 +79,26 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/startStopButton" />
 
+    <TextView
+        android:id="@+id/lastEntryText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/last_entry_text"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/startStopButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/amountSlider" />
+
+    <TextView
+        android:id="@+id/startedAtText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/started_at_text"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/startStopButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/amountSlider" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
