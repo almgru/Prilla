@@ -145,7 +145,7 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
         return true
     }
 
-    fun onForgotToStartPressed(@Suppress("UNUSED_PARAMETER") v: View) {
+    fun onCustomStartedPressed(@Suppress("UNUSED_PARAMETER") v: View) {
         setUiState(UIState.SELECTING_DATETIME)
         DatePickerFragment({ date ->
             TimePickerFragment({ time ->
@@ -160,7 +160,7 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
         }).show(supportFragmentManager, "datePicker")
     }
 
-    fun onForgotToStopPressed(@Suppress("UNUSED_PARAMETER") v: View) {
+    fun onCustomStoppedPressed(@Suppress("UNUSED_PARAMETER") v: View) {
         setUiState(UIState.SELECTING_DATETIME)
         DatePickerFragment({ date ->
             TimePickerFragment({ time ->
