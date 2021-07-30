@@ -5,6 +5,7 @@ import com.almgru.prilla.server.dto.DataRequestDTO;
 import com.almgru.prilla.server.enums.TimeSpan;
 import com.almgru.prilla.server.service.EntryGrouper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,9 +16,9 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 
 @RestController
@@ -42,11 +43,21 @@ public class APIController {
     }
 
     @GetMapping("duration-data")
-    public Map<String, Set<Long>> durationData(@Valid @ModelAttribute DataRequestDTO request) {
+    public Map<String, List<Long>> durationData(@Valid @ModelAttribute DataRequestDTO request) {
         return entryGrouper.groupDurationSetByDate(
                 repository.findByAppliedDateIsBetween(
                         request.start(),
                         getEndDateForRequest(request)),
+                getMapperForTimeSpan(request.span()));
+    }
+
+    @GetMapping("duration-between-data")
+    public Map<String, List<Long>> durationBetweenData(@Valid @ModelAttribute DataRequestDTO request) {
+        return entryGrouper.groupDurationBetweenSetByDate(
+                repository.findByAppliedDateIsBetween(
+                        request.start(),
+                        getEndDateForRequest(request),
+                        Sort.by("appliedDate").ascending().and(Sort.by("appliedTime").ascending())),
                 getMapperForTimeSpan(request.span()));
     }
 
