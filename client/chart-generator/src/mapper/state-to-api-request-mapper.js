@@ -4,7 +4,7 @@ import ChartType from "../data-structures/enum/chart-type";
 const endPointTable = {
     [ChartType.CONSUMPTION]: '/api/amount-data',
     [ChartType.DURATION]: '/api/duration-data',
-    [ChartType.DURATION_BETWEEN]: '/api/duration-between'
+    [ChartType.DURATION_BETWEEN]: '/api/duration-between-data'
 };
 
 const params = state => (

@@ -2,7 +2,7 @@ import ChartType from '../data-structures/enum/chart-type';
 import TimeSpan from '../data-structures/enum/time-span';
 
 const mapXLabel = (chartType, timeSpan, date) => {
-    if (chartType === ChartType.CONSUMPTION || chartType === ChartType.DURATION) {
+    if (chartType === ChartType.CONSUMPTION || chartType === ChartType.DURATION || chartType == ChartType.DURATION_BETWEEN) {
         switch (timeSpan) {
             case TimeSpan.WEEK:
                 return `Days in week ${date.isoWeek()}`;
@@ -13,8 +13,6 @@ const mapXLabel = (chartType, timeSpan, date) => {
             default:
                 throw new Error('Invalid time span');
         }
-    } else if (chartType === ChartType.DURATION_BETWEEN) {
-        throw new Error('Not implemented.');
     } else {
         throw new Error('Invalid chart type.');
     }
@@ -26,7 +24,7 @@ const mapYLabel = (chartType, timeSpan, date) => {
     } else if (chartType === ChartType.DURATION) {
         return 'Duration (minutes)'
     } else if (chartType === ChartType.DURATION_BETWEEN) {
-        throw new Error('Not implemented.');
+        return 'Duration between (minutes)'
     } else {
         throw new Error('Invalid chart type.');
     }

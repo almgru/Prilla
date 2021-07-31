@@ -129,21 +129,16 @@ const groupIndividualDurationDataPointsByLabel = data => (
     )
 );
 
-const transformationTable = {
-    [ChartType.CONSUMPTION]: transformAmountData,
-    [ChartType.DURATION]: transformDurationData,
-    [ChartType.DURATION_BETWEEN]: transformDurationData
-};
-
 export default (state, data) => {
     switch (state.chartType) {
         case ChartType.CONSUMPTION:
             return transformAmountData(state, data);
 
         case ChartType.DURATION:
+        case ChartType.DURATION_BETWEEN:
             return transformDurationData(state, data);
 
         default:
-            throw new Error('Not implemented');
+            throw new Error('Unknown chart type.');
     }
 };
