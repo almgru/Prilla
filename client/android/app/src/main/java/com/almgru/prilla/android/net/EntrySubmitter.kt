@@ -66,7 +66,7 @@ class EntrySubmitter(private var context: Context, private var listener: EntryAd
         )
     }
 
-    private fun onSuccess(response : String) {
+    private fun onSuccess(@Suppress("UNUSED_PARAMETER") response : String) {
         listener.onEntryAdded()
     }
 

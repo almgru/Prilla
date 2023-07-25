@@ -96,7 +96,7 @@ class LoginActivity : AppCompatActivity(), LoginListener {
             return false
         }
 
-        if (url == "https://" || url == "https://") {
+        if (url == "http://" || url == "https://") {
             return false
         }
 
