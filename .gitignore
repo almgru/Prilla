@@ -1,1 +1,3 @@
 config/application.properties
+client/web/.direnv
+server/.direnv
