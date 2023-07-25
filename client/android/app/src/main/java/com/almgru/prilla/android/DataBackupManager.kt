@@ -43,9 +43,9 @@ class DataBackupManager(private val context: Context) {
         val dir = context.getExternalFilesDir(context.getString(R.string.file_storage_backup))
         val filename = "backup-${appendix}.json"
 
-        Thread(Runnable {
+        Thread {
             File(dir, filename).writeText(response.toString(2))
-        }).start()
+        }.start()
 
         PersistenceManager.putLastUpdateTimestamp(context, now)
     }
