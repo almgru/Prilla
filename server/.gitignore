@@ -8,3 +8,7 @@ data/*
 !data/.gitkeep
 
 application.properties
+.classpath
+.metadata/
+.project
+.settings/
