@@ -41,7 +41,7 @@ runs:
       username: ${{ inputs.registry_username }}
       password: ${{ inputs.registry_token }}
       
-  - uses: 'docker/build-and-push-action@v3'
+  - uses: 'docker/build-push-action@v3'
     with:
       context: .
       file: Dockerfile
