@@ -17,6 +17,10 @@ inputs:
     description: 'Comma-separated list of platforms to build for'
     required: false
     default_value: 'linux/amd64'
+outputs:
+  docker_tag:
+    description: 'Main tag of built Docker image'
+    value: ${{ steps.meta.outputs.version }}
 
 runs:
   using: 'composite'
