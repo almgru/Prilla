@@ -3,7 +3,7 @@ version: "3.9"
 services:
   server:
     build: .
-    image: almgru/prilla:"$DOCKER_TAG"
+    image: almgru/prilla:$DOCKER_TAG
     container_name: prilla
     volumes:
       - data:/app/data
