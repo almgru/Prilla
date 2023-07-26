@@ -1,5 +1,5 @@
-name: 'Deploy server image to runner'
-description: 'Deploys the server Docker image to the Github Actions runner running this action'
+name: 'Deploy docker image to runner'
+description: 'Deploys the Docker image to the Github Actions runner running this action'
 inputs:
   docker_tag:
     description: 'Docker tag for image'
