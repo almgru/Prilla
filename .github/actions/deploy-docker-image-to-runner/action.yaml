@@ -1,0 +1,47 @@
+name: 'Deploy docker image to runner'
+description: 'Deploys the Docker image to the Github Actions runner running this action'
+inputs:
+  docker_tag:
+    description: 'Docker tag for image'
+    default: 'edge'
+
+  db_username:
+    description: 'Username for H2 server database'
+    default: 'prilla'
+
+  db_password:
+    description: 'Password for the H2 server database'
+    required: true
+
+  web_username:
+    description: 'Username for logging into web site'
+    default: 'prilla'
+
+  web_password:
+    description: 'Password for logging into web site'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+  - name: 'Configure'
+    env:
+      PRILLA_PORT: '8080'
+      PRILLA_DB_USERNAME: ${{ inputs.db_username }}
+      PRILLA_DB_PASSWORD: ${{ inputs.db_password }}
+      PRILLA_WEB_USERNAME: ${{ inputs.web_username }}
+      PRILLA_WEB_PASSWORD: ${{ inputs.web_password }}
+    shell: bash
+    run: envsubst < ./config/template-application.properties > ./config/application.properties
+
+  - name: 'Start Docker services'
+    env:
+      DOCKER_TAG: ${{ inputs.docker_tag }}
+    shell: bash
+    run: |
+      docker compose -p prilla pull
+      docker compose -p prilla up --detach
+
+  - name: 'Restart reverse proxy'
+    shell: bash
+    run: docker restart reverse-proxy
