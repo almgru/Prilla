@@ -1,0 +1,41 @@
+name: 'Build and deploy'
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+
+jobs:
+  changes:
+    name: 'Determine jobs to run'
+    runs-on: 'ubuntu-latest'
+    outputs:
+      server: ${{ steps.changes.outputs.server }}
+      android: ${{ steps.changes.outputs.android }}
+    steps:
+    - uses: 'actions/checkout@v3'
+    - uses: 'dorny/paths-filter@v2'
+      id: changes
+      with:
+        token: ${{ secrets.PATH_PATHS_FILTER_READ_REPO_PULL_REQUESTS }}
+        filters: |
+          server:
+            - 'server/**/*'
+            - 'client/web/**/*'
+          android:
+            - 'client/android/**/*'
+
+  server:
+    name: 'Build and deploy server'
+    runs-on: 'ubuntu-latest'
+    needs: 'changes'
+    if: ${{ needs.changes.outputs.server == 'true' }}
+    steps:
+    - uses: 'actions/checkout@v3'
+    - uses: './.github/actions/build-and-publish-docker-image'
+      name: 'Build and publish docker image'
+      with:
+        docker_repository: '${{ secrets.DOCKER_HUB_USERNAME }}/calri-server'
+        registry_username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        registry_token: ${{ secrets.DOCKER_HUB_TOKEN }}
+        platforms: 'linux/amd64,linux/arm64'

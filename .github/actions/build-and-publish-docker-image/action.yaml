@@ -1,0 +1,51 @@
+name: 'Build and publish a Docker image'
+description: 'Builds a Docker image and publish it to a container registry'
+inputs:
+  docker_repository:
+    description: 'Name of repository to store the image at in the container registry'
+    required: true
+
+  registry_username:
+    description: 'Username to authenticate with the container registry with'
+    required: true
+
+  registry_token:
+    description: 'Access token to authenticate with the container registry with'
+    required: true
+
+  platforms:
+    description: 'Comma-separated list of platforms to build for'
+    required: false
+    default_value: 'linux/amd64'
+
+runs:
+  using: 'composite'
+  steps:
+  - uses: 'docker/metadata-action@v4'
+    id: meta
+    with:
+      images: ${{ inputs.docker_repository }}
+      tags: |
+        type=edge,branch=main
+        type=semver,pattern={{version}}
+        type=semver,pattern={{major}}.{{minor}}
+        type=semver,pattern={{major}}
+        type=ref,event=pr
+
+  - uses: 'docker/setup-qemu-action@v2'
+
+  - uses: 'docker/setup-buildx-action@v2'
+
+  - uses: 'docker/login-action@v2'
+    with:
+      username: ${{ inputs.registry_username }}
+      password: ${{ inputs.registry_token }}
+      
+  - uses: 'docker/build-and-push-action@v3'
+    with:
+      context: .
+      file: Dockerfile
+      push: true
+      tags: ${{ steps.meta.outputs.tags }}
+      labels: ${{ steps.meta.outputs.labels }}
+      platforms: ${{ inputs.platforms }}
