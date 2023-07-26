@@ -15,6 +15,7 @@ class TimePickerFragment(
     TimePickerDialog.OnTimeSetListener {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val now = LocalTime.now()
+
         return TimePickerDialog(
             activity,
             this,
@@ -30,6 +31,7 @@ class TimePickerFragment(
 
     override fun onCancel(dialog: DialogInterface) {
         super.onCancel(dialog)
+
         cancelCallback()
     }
 }

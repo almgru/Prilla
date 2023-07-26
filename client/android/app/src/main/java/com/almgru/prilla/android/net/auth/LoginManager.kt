@@ -31,8 +31,8 @@ class LoginManager(private var context: Context, private var listener: LoginList
         queue.add(
             StringRequest(Request.Method.GET,
                 "${PersistenceManager.getServerUrl(context)}${context.getString(R.string.server_login_success_endpoint)}",
-                Response.Listener<String> { listener.onLoggedIn() },
-                Response.ErrorListener { onSessionExpired() }
+                { listener.onLoggedIn() },
+                { onSessionExpired() }
             ))
     }
 
@@ -41,14 +41,14 @@ class LoginManager(private var context: Context, private var listener: LoginList
         queue.add(
             StringRequest(Request.Method.GET,
                 "${PersistenceManager.getServerUrl(context)}${context.getString(R.string.server_login_endpoint)}",
-                Response.Listener<String> { response ->
+                { response ->
                     onGetLoginResponse(
                         response,
                         username,
                         password
                     )
                 },
-                Response.ErrorListener { error -> onRedirectOrError(error) })
+                { error -> onRedirectOrError(error) })
         )
     }
 

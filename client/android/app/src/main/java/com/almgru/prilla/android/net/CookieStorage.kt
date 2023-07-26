@@ -1,6 +1,8 @@
 package com.almgru.prilla.android.net
 
 import android.content.Context
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.almgru.prilla.android.PersistenceManager
 import com.almgru.prilla.android.R
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -92,6 +94,9 @@ object CookieStorage {
             cookie.portlist = portlist
             cookie.secure = secure
             cookie.version = version
+
+            @RequiresApi(Build.VERSION_CODES.N)
+            cookie.isHttpOnly = httpOnly
 
             return cookie
         }
