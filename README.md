@@ -12,12 +12,6 @@ When you want to get some insight into how much snus you've used and for how lon
 <img src="screenshots/android-1.png" width=300>
 <img src="screenshots/android-2.png" width=300>
 
-## Demo
-
-A demo is available [here](https://demo.prilla.almgru.com).
-
-Username and password is "demo".
-
 ## Setup
 
 1. Copy `config/application.properties.template` to `config/application.properties` and update values as needed.
@@ -47,8 +41,8 @@ Make sure `compile.automake.allow.when.app.running` is enabled in the IntelliJ r
 The project is divided into four components:
 
 - server, located under `server/`, written in Java 16 with Spring Boot
-- chart generator, located under `client/chart-generator/`, written in Javascript
-- styling for the client side, located under `client/css`, written in SCSS
+- chart generator, located under `client/web/chart-generator/`, written in Javascript
+- styling for the client side, located under `client/web/css`, written in SCSS
 - an Android app for recording snus consumption on the go, located under `client/android/`, written in Kotlin.
 
 ## Troubleshooting
@@ -76,7 +70,7 @@ server {
 
     location / {
         proxy_set_header        Host              $host;
-        proxy_set_header        X-Forwarded-Proto $scheme;
+        proxy_set_header        X-Forwarded-Proto $http_x_forwarded_proto;
         proxy_set_header        X-Real-IP         $remote_addr;
         proxy_set_header        X-Forwarded-For   $proxy_add_x_forwarded_for;
 
