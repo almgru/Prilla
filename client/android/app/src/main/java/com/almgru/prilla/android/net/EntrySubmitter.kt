@@ -36,7 +36,6 @@ class EntrySubmitter(private var context: Context, private var listener: EntryAd
         )
     }
 
-
     private fun onGetAddEntryFormResponse(
         response: String,
         started: LocalDateTime,

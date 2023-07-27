@@ -18,7 +18,11 @@ open class FormPostRequest(
     Response.ErrorListener(errorCallback)
 ) {
     init {
-        retryPolicy = DefaultRetryPolicy(0, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT)
+        retryPolicy = DefaultRetryPolicy(
+            0,
+            DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+            DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+        )
     }
 
     override fun getBodyContentType(): String {

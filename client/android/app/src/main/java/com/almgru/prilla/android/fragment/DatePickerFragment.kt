@@ -15,7 +15,12 @@ class DatePickerFragment(
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val now = LocalDate.now();
 
-        return DatePickerDialog(activity!!, this, now.year, now.month.value - 1, now.dayOfMonth);
+        return DatePickerDialog(
+            requireActivity(),
+            this,
+            now.year,
+            now.month.value - 1,
+            now.dayOfMonth);
     }
 
     override fun onDateSet(view: DatePicker?, year: Int, month: Int, dayOfMonth: Int) {
@@ -24,6 +29,7 @@ class DatePickerFragment(
 
     override fun onCancel(dialog: DialogInterface) {
         super.onCancel(dialog)
+
         cancelCallback()
     }
 }
