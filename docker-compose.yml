@@ -4,10 +4,10 @@ services:
   server:
     build: .
     image: almgru/prilla:$DOCKER_TAG
-    container_name: prilla
+    container_name: prilla-${PRILLA_ENV}
     volumes:
       - data:/app/data
-      - ./config/application.properties:/app/application.properties
+      - ./config/application-${PRILLA_ENV}.properties:/app/application.properties
     networks:
     - reverse-proxy-net
     restart: unless-stopped
