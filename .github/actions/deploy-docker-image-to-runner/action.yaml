@@ -1,6 +1,10 @@
 name: 'Deploy docker image to runner'
 description: 'Deploys the Docker image to the Github Actions runner running this action'
 inputs:
+  environment:
+    description: 'Environment to deploy to'
+    required: true
+
   docker_tag:
     description: 'Docker tag for image'
     default: 'edge'
@@ -32,15 +36,16 @@ runs:
       PRILLA_WEB_USERNAME: ${{ inputs.web_username }}
       PRILLA_WEB_PASSWORD: ${{ inputs.web_password }}
     shell: bash
-    run: envsubst < ./config/template-application.properties > ./config/application.properties
+    run: envsubst < ./config/template-application.properties > ./config/application-${{ inputs.environment }}.properties
 
   - name: 'Start Docker services'
     env:
       DOCKER_TAG: ${{ inputs.docker_tag }}
+      PRILLA_ENV: ${{ inputs.environment }}
     shell: bash
     run: |
-      docker compose -p prilla pull
-      docker compose -p prilla up --detach
+      docker compose -p prilla-$PRILLA_ENV pull
+      docker compose -p prilla-$PRILLA_ENV up --detach
 
   - name: 'Restart reverse proxy'
     shell: bash

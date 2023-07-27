@@ -3,8 +3,14 @@ on:
   push:
     branches:
     - main
+
   pull_request:
+
   workflow_dispatch:
+    inputs:
+      environment:
+        type: environment
+        description: 'Select the environment'
 
 jobs:
   changes:
@@ -46,18 +52,25 @@ jobs:
         registry_token: ${{ secrets.DOCKER_HUB_TOKEN }}
         platforms: 'linux/amd64,linux/arm64'
 
-
   deploy:
     name: 'Deploy to runner'
     runs-on: 'self-hosted'
     needs: 'build'
+    environment:
+      name: >-
+        ${{
+          github.event_name == 'workflow_dispatch' && github.event.inputs.environment ||
+          (github.event_name == 'push' && 'production') ||
+          'staging'
+        }}
     steps:
     - uses: 'actions/checkout@v3'
 
     - uses: './.github/actions/deploy-docker-image-to-runner'
       with:
+        environment: ${{ vars.ENV_NAME }}
         docker_tag: ${{ needs.build.outputs.docker_tag }}
-        db_username: ${{ secrets.DB_USERNAME }}
+        db_username: ${{ vars.DB_USERNAME }}
         db_password: ${{ secrets.DB_PASSWORD }}
-        web_username: ${{ secrets.WEB_USERNAME }}
+        web_username: ${{ vars.WEB_USERNAME }}
         web_password: ${{ secrets.WEB_PASSWORD }}
