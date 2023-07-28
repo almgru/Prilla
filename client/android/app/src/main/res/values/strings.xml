@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Prilla</string>
 
-    <string name="shared_prefs">com.almgru.snustrack.data.shared_preferences</string>
+    <string name="shared_prefs">com.almgru.prilla.data.shared_preferences</string>
     <string name="shared_prefs_cookie_auth_key">authCookie</string>
     <string name="shared_prefs_started_key">started</string>
     <string name="shared_prefs_server_url_key">serverUrl</string>
@@ -23,9 +23,9 @@
     <string name="server_label">Server URL</string>
     <string name="server_hint">https://example.com:1234</string>
     <string name="username_label">Username</string>
-    <string name="username_hint">Snufkin</string>
+    <string name="username_hint">The web username</string>
     <string name="password_label">Password</string>
-    <string name="password_hint">A unique password</string>
+    <string name="password_hint">The web password</string>
     <string name="login_button_text">Log in</string>
     <string name="amount_label">Amount: %d</string>
     <string name="start_stop_button_start_text">Start</string>
