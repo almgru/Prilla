@@ -3,7 +3,6 @@ package com.almgru.prilla.android.net.cookie
 import android.content.Context
 import com.almgru.prilla.android.PersistenceManager
 import com.almgru.prilla.android.R
-import com.fasterxml.jackson.databind.ObjectMapper
 import java.lang.IllegalStateException
 import java.net.CookieHandler
 import java.net.CookieManager
@@ -11,7 +10,6 @@ import java.net.URI
 
 object CookieStorage {
     private val cookieManager: CookieManager = CookieManager()
-    private val objectMapper: ObjectMapper = ObjectMapper()
 
     init {
         CookieHandler.setDefault(cookieManager)

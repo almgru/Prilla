@@ -1,7 +1,9 @@
 package com.almgru.prilla.android.net.cookie;
 
+import kotlinx.serialization.Serializable
 import java.net.HttpCookie
 
+@Serializable
 data class SerializableHttpCookie(
     val comment: String?,
     val commentURL: String?,
