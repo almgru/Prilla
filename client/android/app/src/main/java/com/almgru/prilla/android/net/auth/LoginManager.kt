@@ -2,11 +2,14 @@ package com.almgru.prilla.android.net.auth
 
 import android.content.Context
 import com.almgru.prilla.android.PersistenceManager
-import com.almgru.prilla.android.net.CookieStorage
+import com.almgru.prilla.android.net.cookie.CookieStorage
 import com.almgru.prilla.android.net.CsrfExtractor
 import com.almgru.prilla.android.R
 import com.almgru.prilla.android.net.request.LoginRequest
-import com.android.volley.*
+import com.android.volley.NetworkResponse
+import com.android.volley.Request
+import com.android.volley.RequestQueue
+import com.android.volley.VolleyError
 import com.android.volley.toolbox.HurlStack
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
@@ -29,7 +32,8 @@ class LoginManager(private var context: Context, private var listener: LoginList
 
     fun login() {
         queue.add(
-            StringRequest(Request.Method.GET,
+            StringRequest(
+                Request.Method.GET,
                 "${PersistenceManager.getServerUrl(context)}${context.getString(R.string.server_login_success_endpoint)}",
                 { listener.onLoggedIn() },
                 { onSessionExpired() }
@@ -39,7 +43,8 @@ class LoginManager(private var context: Context, private var listener: LoginList
     fun login(username: String, password: String) {
         // Start by sending a GET request to the login endpoint in order to extract the CSRF token
         queue.add(
-            StringRequest(Request.Method.GET,
+            StringRequest(
+                Request.Method.GET,
                 "${PersistenceManager.getServerUrl(context)}${context.getString(R.string.server_login_endpoint)}",
                 { response ->
                     onGetLoginResponse(

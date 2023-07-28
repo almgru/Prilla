@@ -3,6 +3,7 @@ package com.almgru.prilla.android.net
 import android.content.Context
 import com.almgru.prilla.android.PersistenceManager
 import com.almgru.prilla.android.R
+import com.almgru.prilla.android.net.cookie.CookieStorage
 import com.almgru.prilla.android.net.request.FormPostRequest
 import com.android.volley.Request.Method.GET
 import com.android.volley.RequestQueue

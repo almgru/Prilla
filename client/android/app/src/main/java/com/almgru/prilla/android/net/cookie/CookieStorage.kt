@@ -1,15 +1,12 @@
-package com.almgru.prilla.android.net
+package com.almgru.prilla.android.net.cookie
 
 import android.content.Context
-import android.os.Build
-import androidx.annotation.RequiresApi
 import com.almgru.prilla.android.PersistenceManager
 import com.almgru.prilla.android.R
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.lang.IllegalStateException
 import java.net.CookieHandler
 import java.net.CookieManager
-import java.net.HttpCookie
 import java.net.URI
 
 object CookieStorage {
@@ -32,7 +29,7 @@ object CookieStorage {
 
         cookieManager.cookieStore.get(URI(uri)).forEach { cookie ->
             if (cookie.name == authCookieName && !cookie.hasExpired()) {
-                PersistenceManager.putAuthCookie(context, objectMapper.writeValueAsString(cookie))
+                PersistenceManager.putAuthCookie(context, cookie)
             }
         }
     }
@@ -42,9 +39,7 @@ object CookieStorage {
             return
         }
 
-        val cookieStr = PersistenceManager.getAuthCookie(context) ?: return
-        val cookie =
-            objectMapper.readValue(cookieStr, SerializableHttpCookie::class.java).toHttpCookie()
+        val cookie = PersistenceManager.getAuthCookie(context) ?: return
 
         if (cookie.hasExpired()) {
             setAuthCookieExpired(context)
@@ -66,39 +61,5 @@ object CookieStorage {
     fun setAuthCookieExpired(context: Context) {
         PersistenceManager.removeAuthCookie(context)
         cookieManager.cookieStore.removeAll()
-    }
-
-    private class SerializableHttpCookie {
-        var comment: String? = null
-        var commentURL: String? = null
-        var discard: Boolean = false
-        var domain: String = ""
-        var maxAge: Long = -1
-        var name: String = ""
-        var path: String = ""
-        var portlist: String? = null
-        var secure: Boolean = false
-        var value: String = ""
-        var version: Int = -1
-        var httpOnly: Boolean = false
-
-        fun toHttpCookie(): HttpCookie {
-            val cookie = HttpCookie(name, value)
-
-            cookie.comment = comment
-            cookie.commentURL = commentURL
-            cookie.discard = discard
-            cookie.domain = domain
-            cookie.maxAge = maxAge
-            cookie.path = path
-            cookie.portlist = portlist
-            cookie.secure = secure
-            cookie.version = version
-
-            @RequiresApi(Build.VERSION_CODES.N)
-            cookie.isHttpOnly = httpOnly
-
-            return cookie
-        }
     }
 }
