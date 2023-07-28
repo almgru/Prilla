@@ -30,11 +30,11 @@ android {
     namespace = "com.almgru.prilla.android"
 
     compileSdk = 34
-    buildToolsVersion("34.0.0")
+    buildToolsVersion = "34.0.0"
 
     defaultConfig {
         applicationId = "com.almgru.prilla.android"
-        minSdk = 16
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -69,6 +69,7 @@ android {
 
         getByName("release") {
             isMinifyEnabled = true
+            isShrinkResources = true
             isDebuggable = false
             
             proguardFiles(
@@ -88,17 +89,19 @@ android {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.8.22")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.0")
     implementation("androidx.core:core-ktx:1.10.1")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.9.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("com.android.volley:volley:1.2.1")
-    implementation("org.jsoup:jsoup:1.13.1")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.12.3")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.12.3")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.3")
-    implementation("androidx.core:core-ktx:1.10.1")
+    implementation("org.jsoup:jsoup:1.16.1")
+    //noinspection GradleDependency (Higher versions do not work with JDK 17)
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.14.3")
+    //noinspection GradleDependency (Higher versions do not work with JDK 17)
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.3")
+    //noinspection GradleDependency (Higher versions do not work with JDK 17)
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.3")
 
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
 }

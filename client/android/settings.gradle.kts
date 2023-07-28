@@ -17,6 +17,7 @@ pluginManagement {
         mavenCentral()
     }
 }
+
 dependencyResolutionManagement {
 
     /**
@@ -36,5 +37,7 @@ dependencyResolutionManagement {
       mavenCentral()
   }
 }
+
 rootProject.name = "Prilla"
+
 include(":app")
