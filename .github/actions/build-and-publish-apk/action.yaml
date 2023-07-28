@@ -34,14 +34,17 @@ runs:
 
   - name: 'Import signing key'
     if: inputs.build_type == 'release'
+    shell: bash
     run: echo ${{ inputs.signing_key }} | base64 -di > client/android/prilla-apk-signing-key.jks
 
   - name: 'Build debug'
     if: inputs.build_type == 'debug'
+    shell: bash
     run: ./gradlew --no-daemon assembleDebug
 
   - name: 'Build release'
     if: inputs.build_type == 'release'
+    shell: bash
     env:
       APK_SIGNING_KEY_PASSWORD: ${{ inputs.signing_key_password }}
       APK_SIGNING_KEY_ALIAS: ${{ inputs.signing_key_alias }}
