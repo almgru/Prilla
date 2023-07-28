@@ -55,16 +55,14 @@ runs:
 
   - name: 'Upload debug'
     if: inputs.build_type == 'debug'
-    working-directory: client/android
     uses: 'actions/upload-artifact@v3'
     with:
       name: ${{ inputs.artifact_name }}
-      path: app/build/outputs/apk/debug/prilla-1.0.apk
+      path: client/android/app/build/outputs/apk/debug/prilla-1.0.apk
 
   - name: 'Upload release'
     if: inputs.build_type == 'release'
-    working-directory: client/android
     uses: 'actions/upload-artifact@v3'
     with:
       name: ${{ inputs.artifact_name }}
-      path: app/build/outputs/apk/release/prilla-1.0.apk
+      path: client/android/app/build/outputs/apk/release/prilla-1.0.apk
