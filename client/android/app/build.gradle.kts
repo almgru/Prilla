@@ -47,10 +47,6 @@ android {
             val root = project.getRootDir()
             val keyStore = File(root, "prilla-apk-signing-key.jks")
 
-            if (!keyStore.exists()) {
-                throw GradleException("Missing keystore!")
-            }
-
             storeFile = keyStore
             storePassword = System.getenv("APK_SIGNING_KEY_PASSWORD")
             keyPassword = System.getenv("APK_SIGNING_KEY_PASSWORD")
