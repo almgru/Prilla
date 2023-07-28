@@ -19,6 +19,7 @@ jobs:
     outputs:
       web: ${{ steps.changes.outputs.web_any_modified }}
       android: ${{ steps.changes.outputs.android_any_modified }}
+      github_actions: ${{ steps.changes.outputs.github_actions_any_modified }}
     steps:
     - uses: 'actions/checkout@v3'
       with:
@@ -28,6 +29,8 @@ jobs:
       id: changes
       with:
         files_yaml: |
+          github_actions:
+            - '.github/**/*'
           web:
             - 'server/**/*'
             - 'client/web/**/*'
@@ -38,7 +41,9 @@ jobs:
     name: 'Build and publish'
     runs-on: 'ubuntu-latest'
     needs: 'changes'
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' || needs.changes.outputs.web == 'true'
+    if: |
+      github.event_name == 'workflow_dispatch' || github.event_name == 'push' ||
+      needs.changes.outputs.web == 'true' || needs.changes.outputs.github_actions == 'true'
     outputs:
       docker_tag: ${{ steps.build_and_publish.outputs.docker_tag }}
     steps:
@@ -57,7 +62,9 @@ jobs:
     name: 'Build Android APK'
     runs-on: 'ubuntu-latest'
     needs: 'changes'
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' || needs.changes.outputs.android == 'true'
+    if: |
+      github.event_name == 'workflow_dispatch' || github.event_name == 'push' ||
+      needs.changes.outputs.android == 'true' || needs.changes.outputs.github_actions == 'true'
     environment:
       name: >-
         ${{
