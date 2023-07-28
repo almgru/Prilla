@@ -17,16 +17,17 @@ jobs:
     name: 'Determine jobs to run'
     runs-on: 'ubuntu-latest'
     outputs:
-      web: ${{ steps.changes.outputs.web }}
-      android: ${{ steps.changes.outputs.android }}
+      web: ${{ steps.changes.outputs.web_any_changed }}
+      android: ${{ steps.changes.outputs.android_any_changed }}
     steps:
     - uses: 'actions/checkout@v3'
+      with:
+        fetch-depth: 0
 
-    - uses: 'dorny/paths-filter@v2'
+    - uses: 'tj-actions/changed-files@v37'
       id: changes
       with:
-        token: ${{ secrets.PATH_PATHS_FILTER_READ_REPO_PULL_REQUESTS }}
-        filters: |
+        files_yaml: |
           web:
             - 'server/**/*'
             - 'client/web/**/*'
