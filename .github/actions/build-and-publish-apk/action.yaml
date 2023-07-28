@@ -32,10 +32,14 @@ runs:
 
   - uses: 'android-actions/setup-android@v2'
 
+  - name: 'Change directory'
+    shell: bash
+    run: cd client/android
+
   - name: 'Import signing key'
     if: inputs.build_type == 'release'
     shell: bash
-    run: echo ${{ inputs.signing_key }} | base64 -di > client/android/prilla-apk-signing-key.jks
+    run: echo ${{ inputs.signing_key }} | base64 -di > prilla-apk-signing-key.jks
 
   - name: 'Build debug'
     if: inputs.build_type == 'debug'

@@ -19,13 +19,14 @@ jobs:
     outputs:
       web: ${{ steps.changes.outputs.web }}
       android: ${{ steps.changes.outputs.android }}
+    permissions:
+      pull_requests: 'read'
     steps:
     - uses: 'actions/checkout@v3'
 
     - uses: 'dorny/paths-filter@v2'
       id: changes
       with:
-        base: ${{ github.ref }}
         token: ${{ secrets.PATH_PATHS_FILTER_READ_REPO_PULL_REQUESTS }}
         filters: |
           web:
@@ -65,9 +66,6 @@ jobs:
           (github.event_name == 'push' && 'production') ||
           'staging'
         }}
-    defaults:
-      run:
-        working-directory: client/android
     steps:
     - uses: 'actions/checkout@v3'
 
