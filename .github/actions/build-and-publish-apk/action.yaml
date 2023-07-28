@@ -32,23 +32,22 @@ runs:
 
   - uses: 'android-actions/setup-android@v2'
 
-  - name: 'Change directory'
-    shell: bash
-    run: cd client/android
-
   - name: 'Import signing key'
     if: inputs.build_type == 'release'
     shell: bash
+    working-directory: client/android
     run: echo ${{ inputs.signing_key }} | base64 -di > prilla-apk-signing-key.jks
 
   - name: 'Build debug'
     if: inputs.build_type == 'debug'
     shell: bash
+    working-directory: client/android
     run: ./gradlew --no-daemon assembleDebug
 
   - name: 'Build release'
     if: inputs.build_type == 'release'
     shell: bash
+    working-directory: client/android
     env:
       APK_SIGNING_KEY_PASSWORD: ${{ inputs.signing_key_password }}
       APK_SIGNING_KEY_ALIAS: ${{ inputs.signing_key_alias }}
@@ -56,6 +55,7 @@ runs:
 
   - name: 'Upload debug'
     if: inputs.build_type == 'debug'
+    working-directory: client/android
     uses: 'actions/upload-artifact@v3'
     with:
       name: ${{ inputs.artifact_name }}
@@ -63,6 +63,7 @@ runs:
 
   - name: 'Upload release'
     if: inputs.build_type == 'release'
+    working-directory: client/android
     uses: 'actions/upload-artifact@v3'
     with:
       name: ${{ inputs.artifact_name }}
