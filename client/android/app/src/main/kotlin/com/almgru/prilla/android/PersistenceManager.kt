@@ -4,9 +4,8 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.almgru.prilla.android.model.Entry
 import com.almgru.prilla.android.net.cookie.SerializableHttpCookie
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.lang.Exception
 import java.net.HttpCookie
 import java.time.LocalDateTime
@@ -24,9 +23,8 @@ object PersistenceManager {
 
     fun getAuthCookie(context: Context): HttpCookie? {
         val raw = readString(context, R.string.shared_prefs_cookie_auth_key) ?: return null
-        val mapper = ObjectMapper().registerKotlinModule()
 
-        return mapper.readValue(raw, SerializableHttpCookie::class.java).toHttpCookie()
+        return Json.decodeFromString<SerializableHttpCookie>(raw).toHttpCookie()
     }
 
     fun putAuthCookie(context: Context, cookie: HttpCookie) {
@@ -34,9 +32,8 @@ object PersistenceManager {
             cookie.comment, cookie.commentURL, cookie.discard, cookie.domain, cookie.maxAge,
             cookie.name, cookie.path, cookie.portlist, cookie.secure, cookie.value, cookie.version,
             cookie.isHttpOnly)
-        val mapper = ObjectMapper().registerKotlinModule()
 
-        writeString(context, R.string.shared_prefs_cookie_auth_key, mapper.writeValueAsString(serializable))
+        writeString(context, R.string.shared_prefs_cookie_auth_key, Json.encodeToString(serializable))
     }
 
     fun removeAuthCookie(context: Context) {
@@ -83,20 +80,13 @@ object PersistenceManager {
     }
 
     fun putLastEntry(context: Context, entry : Entry) {
-        val mapper = ObjectMapper()
-            .registerKotlinModule()
-            .registerModule(JavaTimeModule())
-
-        writeString(context, R.string.shared_prefs_last_entry, mapper.writeValueAsString(entry))
+        writeString(context, R.string.shared_prefs_last_entry, Json.encodeToString(entry))
     }
 
     fun getLastEntry(context: Context) : Entry? {
         val raw = readString(context, R.string.shared_prefs_last_entry) ?: return null
-        val mapper = ObjectMapper()
-            .registerKotlinModule()
-            .registerModule(JavaTimeModule())
 
-        return mapper.readValue(raw, Entry::class.java)
+        return Json.decodeFromString(raw)
     }
 
     private fun writeString(context: Context, keyId: Int, value: String) {

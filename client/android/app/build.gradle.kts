@@ -8,6 +8,7 @@ import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.plugin.serialization")
 }
 
 /**
@@ -58,12 +59,6 @@ android {
         getByName("debug") {
             isMinifyEnabled = false
             isDebuggable = true
-
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-
             signingConfig = signingConfigs.getByName("debug")
         }
 
@@ -77,7 +72,7 @@ android {
                 "proguard-rules.pro"
             )
 
-            signingConfig = signingConfigs.getByName("release")
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
 
@@ -96,12 +91,7 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("com.android.volley:volley:1.2.1")
     implementation("org.jsoup:jsoup:1.16.1")
-    //noinspection GradleDependency (Higher versions do not work with JDK 17)
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.14.3")
-    //noinspection GradleDependency (Higher versions do not work with JDK 17)
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.14.3")
-    //noinspection GradleDependency (Higher versions do not work with JDK 17)
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
 
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
 }
