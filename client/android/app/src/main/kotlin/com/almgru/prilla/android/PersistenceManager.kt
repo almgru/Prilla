@@ -2,6 +2,7 @@ package com.almgru.prilla.android
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.Build
 import com.almgru.prilla.android.model.Entry
 import com.almgru.prilla.android.net.cookie.SerializableHttpCookie
 import kotlinx.serialization.encodeToString
@@ -28,10 +29,16 @@ object PersistenceManager {
     }
 
     fun putAuthCookie(context: Context, cookie: HttpCookie) {
+        val httpOnly = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+            cookie.isHttpOnly
+        else
+            false
+
         val serializable = SerializableHttpCookie(
             cookie.comment, cookie.commentURL, cookie.discard, cookie.domain, cookie.maxAge,
             cookie.name, cookie.path, cookie.portlist, cookie.secure, cookie.value, cookie.version,
-            cookie.isHttpOnly)
+            httpOnly
+        )
 
         writeString(context, R.string.shared_prefs_cookie_auth_key, Json.encodeToString(serializable))
     }

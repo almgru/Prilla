@@ -29,9 +29,9 @@ class EntrySubmitter(private var context: Context, private var listener: EntryAd
 
         queue.add(
             StringRequest(
-                GET, url, Response.Listener<String> { response ->
-                    onGetAddEntryFormResponse(response, appliedAt, removedAt, amount)
-                },
+                GET,
+                url,
+                { response ->  onGetAddEntryFormResponse(response, appliedAt, removedAt, amount) },
                 Response.ErrorListener(this::onError)
             )
         )
@@ -54,14 +54,17 @@ class EntrySubmitter(private var context: Context, private var listener: EntryAd
 
         queue.add(
             FormPostRequest(
-                url, mapOf(
+                url,
+                mapOf(
                     "appliedDate" to appliedAtDate,
                     "appliedTime" to appliedAtTime,
                     "removedDate" to removedAtDate,
                     "removedTime" to removedAtTime,
                     "amount" to amount.toString(),
                     "_csrf" to csrfToken
-                ), this::onSuccess, this::onError
+                ),
+                this::onSuccess,
+                this::onError
             )
         )
     }

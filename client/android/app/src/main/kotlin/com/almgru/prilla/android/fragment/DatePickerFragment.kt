@@ -24,7 +24,7 @@ class DatePickerFragment(
     }
 
     override fun onDateSet(view: DatePicker?, year: Int, month: Int, dayOfMonth: Int) {
-        callback(LocalDate.of(year, month + 1, dayOfMonth));
+        callback(LocalDate.of(year, month, dayOfMonth));
     }
 
     override fun onCancel(dialog: DialogInterface) {

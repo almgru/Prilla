@@ -15,6 +15,8 @@ import com.almgru.prilla.android.model.Entry
 import com.almgru.prilla.android.net.EntryAddedListener
 import com.almgru.prilla.android.net.EntrySubmitter
 import com.android.volley.VolleyError
+import kotlinx.datetime.toJavaLocalDateTime
+import kotlinx.datetime.toKotlinLocalDateTime
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -85,7 +87,11 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
             val stoppedDateTime = LocalDateTime.now()
             val amount = amountSlider.progress
 
-            lastEntry = Entry(startedDateTime!!, stoppedDateTime, amount)
+            lastEntry = Entry(
+                startedDateTime!!.toKotlinLocalDateTime(),
+                stoppedDateTime.toKotlinLocalDateTime(),
+                amount
+            )
             submitter.submit(startedDateTime!!, stoppedDateTime, amount)
 
             setUiState(UIState.SUBMITTED)
@@ -117,9 +123,9 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
                     lastEntryText.text = getString(
                         R.string.last_entry_text,
                         DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
-                            .format(lastEntry!!.started),
+                            .format(lastEntry!!.started.toJavaLocalDateTime()),
                         DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
-                            .format(lastEntry!!.stopped)
+                            .format(lastEntry!!.stopped.toJavaLocalDateTime())
                     )
                 } else {
                     lastEntryText.visibility = View.GONE

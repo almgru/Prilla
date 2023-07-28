@@ -35,7 +35,7 @@ android {
 
     defaultConfig {
         applicationId = "com.almgru.prilla.android"
-        minSdk = 26
+        minSdk = 16
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -81,17 +81,29 @@ android {
             (this as BaseVariantOutputImpl).outputFileName = "prilla-$versionName.apk"
         }
     }
+
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+
+    compileOptions {
+        isCoreLibraryDesugaringEnabled = true
+
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.0")
+    implementation("com.android.volley:volley:1.2.1")
+    implementation("com.google.android.material:material:1.9.0")
     implementation("androidx.core:core-ktx:1.10.1")
     implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("com.google.android.material:material:1.9.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation("com.android.volley:volley:1.2.1")
-    implementation("org.jsoup:jsoup:1.16.1")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
+    implementation("org.jsoup:jsoup:1.16.1")
 
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
 }

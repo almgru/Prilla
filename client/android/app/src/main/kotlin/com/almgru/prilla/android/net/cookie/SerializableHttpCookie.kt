@@ -1,5 +1,6 @@
 package com.almgru.prilla.android.net.cookie;
 
+import android.os.Build
 import kotlinx.serialization.Serializable
 import java.net.HttpCookie
 
@@ -30,7 +31,10 @@ data class SerializableHttpCookie(
         cookie.portlist = portlist
         cookie.secure = secure
         cookie.version = version
-        cookie.isHttpOnly = httpOnly
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            cookie.isHttpOnly = httpOnly
+        }
 
         return cookie
     }
