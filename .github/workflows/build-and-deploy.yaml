@@ -21,13 +21,9 @@ jobs:
       android: ${{ steps.changes.outputs.android }}
     steps:
     - uses: 'actions/checkout@v3'
-      with:
-        fetch-depth: 2
 
     - uses: 'dorny/paths-filter@v2'
       id: changes
-      permissions:
-        pull-requests: 'read'
       with:
         token: ${{ secrets.PATH_PATHS_FILTER_READ_REPO_PULL_REQUESTS }}
         filters: |
