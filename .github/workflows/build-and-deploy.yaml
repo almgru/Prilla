@@ -19,8 +19,6 @@ jobs:
     outputs:
       web: ${{ steps.changes.outputs.web }}
       android: ${{ steps.changes.outputs.android }}
-    permissions:
-      pull-requests: 'read'
     steps:
     - uses: 'actions/checkout@v3'
       with:
@@ -28,6 +26,8 @@ jobs:
 
     - uses: 'dorny/paths-filter@v2'
       id: changes
+      permissions:
+        pull-requests: 'read'
       with:
         token: ${{ secrets.PATH_PATHS_FILTER_READ_REPO_PULL_REQUESTS }}
         filters: |
