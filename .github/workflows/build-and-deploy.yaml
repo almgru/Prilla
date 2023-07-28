@@ -17,8 +17,8 @@ jobs:
     name: 'Determine jobs to run'
     runs-on: 'ubuntu-latest'
     outputs:
-      web: ${{ steps.changes.outputs.web_any_changed }}
-      android: ${{ steps.changes.outputs.android_any_changed }}
+      web: ${{ steps.changes.outputs.web_any_modified }}
+      android: ${{ steps.changes.outputs.android_any_modified }}
     steps:
     - uses: 'actions/checkout@v3'
       with:
