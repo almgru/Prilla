@@ -20,7 +20,7 @@ jobs:
       web: ${{ steps.changes.outputs.web }}
       android: ${{ steps.changes.outputs.android }}
     permissions:
-      pull_requests: 'read'
+      pull-requests: 'read'
     steps:
     - uses: 'actions/checkout@v3'
 
