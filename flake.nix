@@ -20,6 +20,7 @@
 
                 client-android = pkgs.mkShell {
                     buildInputs = [
+                        pkgs.jdk17
                     ];
                 };
             };

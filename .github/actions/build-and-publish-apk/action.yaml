@@ -1,0 +1,68 @@
+name: 'Build and publish APK'
+description: 'Builds, signs and uploads the Android app APK as an artifact'
+inputs:
+  build_type:
+    description: 'Build type (debug or release)'
+    default: 'debug'
+
+  artifact_name:
+    description: 'Name of artifact'
+    default: 'prilla'
+
+  signing_key:
+    description: 'Signing key to use for signing APK'
+    required: true
+
+  signing_key_password:
+    description: 'Password to unlock the signing key'
+    required: true
+
+  signing_key_alias:
+    description: 'Alias of signing key'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+  - uses: 'actions/setup-java@v3'
+    with:
+      distribution: 'temurin'
+      java-version: '17'
+      java-package: 'jdk'
+
+  - uses: 'android-actions/setup-android@v2'
+
+  - name: 'Import signing key'
+    if: inputs.build_type == 'release'
+    shell: bash
+    working-directory: client/android
+    run: echo ${{ inputs.signing_key }} | base64 -di > prilla-apk-signing-key.jks
+
+  - name: 'Build debug'
+    if: inputs.build_type == 'debug'
+    shell: bash
+    working-directory: client/android
+    run: ./gradlew --no-daemon assembleDebug
+
+  - name: 'Build release'
+    if: inputs.build_type == 'release'
+    shell: bash
+    working-directory: client/android
+    env:
+      APK_SIGNING_KEY_PASSWORD: ${{ inputs.signing_key_password }}
+      APK_SIGNING_KEY_ALIAS: ${{ inputs.signing_key_alias }}
+    run: ./gradlew --no-daemon assembleRelease
+
+  - name: 'Upload debug'
+    if: inputs.build_type == 'debug'
+    uses: 'actions/upload-artifact@v3'
+    with:
+      name: ${{ inputs.artifact_name }}
+      path: client/android/app/build/outputs/apk/debug/prilla-1.0.apk
+
+  - name: 'Upload release'
+    if: inputs.build_type == 'release'
+    uses: 'actions/upload-artifact@v3'
+    with:
+      name: ${{ inputs.artifact_name }}
+      path: client/android/app/build/outputs/apk/release/prilla-1.0.apk

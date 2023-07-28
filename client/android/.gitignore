@@ -8,3 +8,6 @@ captures/
 .externalNativeBuild
 .cxx
 local.properties
+.direnv/
+*.jks
+android-sdk/

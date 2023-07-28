@@ -33,7 +33,7 @@ jobs:
           android:
             - 'client/android/**/*'
 
-  build:
+  build_web:
     name: 'Build and publish'
     runs-on: 'ubuntu-latest'
     needs: 'changes'
@@ -52,10 +52,33 @@ jobs:
         registry_token: ${{ secrets.DOCKER_HUB_TOKEN }}
         platforms: 'linux/amd64,linux/arm64'
 
+  build_android:
+    name: 'Build Android APK'
+    runs-on: 'ubuntu-latest'
+    needs: 'changes'
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' || needs.changes.outputs.android == 'true'
+    environment:
+      name: >-
+        ${{
+          github.event_name == 'workflow_dispatch' && github.event.inputs.environment ||
+          (github.event_name == 'push' && 'production') ||
+          'staging'
+        }}
+    steps:
+    - uses: 'actions/checkout@v3'
+
+    - name: 'Build, sign and upload APK artifact'
+      uses: './.github/actions/build-and-publish-apk'
+      with:
+        build_type: ${{ vars.ENV_NAME == 'production' && 'release' || 'debug' }}
+        signing_key: ${{ secrets.APK_SIGNING_KEYSTORE }}
+        signing_key_password: ${{ secrets.APK_SIGNING_KEY_PASSWORD }}
+        signing_key_alias: ${{ vars.APK_SIGNING_KEY_ALIAS }}
+
   deploy:
     name: 'Deploy to runner'
     runs-on: 'self-hosted'
-    needs: 'build'
+    needs: 'build_web'
     environment:
       name: >-
         ${{
@@ -69,7 +92,7 @@ jobs:
     - uses: './.github/actions/deploy-docker-image-to-runner'
       with:
         environment: ${{ vars.ENV_NAME }}
-        docker_tag: ${{ needs.build.outputs.docker_tag }}
+        docker_tag: ${{ needs.build_web.outputs.docker_tag }}
         db_username: ${{ vars.DB_USERNAME }}
         db_password: ${{ secrets.DB_PASSWORD }}
         web_username: ${{ vars.WEB_USERNAME }}
