@@ -1,2 +1,4 @@
 -dontobfuscate
 -keep public class com.fasterxml.jackson.module.kotlin.*
+-dontwarn javax.annotation.Nullable
+-dontwarn javax.annotation.ParametersAreNonnullByDefault
