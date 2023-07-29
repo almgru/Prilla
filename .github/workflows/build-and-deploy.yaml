@@ -38,7 +38,7 @@ jobs:
             - 'client/android/**/*'
 
   build_web:
-    name: 'Build and publish'
+    name: 'Build and publish web'
     runs-on: 'ubuntu-latest'
     needs: 'changes'
     if: |
