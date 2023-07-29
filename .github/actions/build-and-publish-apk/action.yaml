@@ -58,11 +58,11 @@ runs:
     uses: 'actions/upload-artifact@v3'
     with:
       name: ${{ inputs.artifact_name }}
-      path: client/android/app/build/outputs/apk/debug/prilla-1.0.apk
+      path: client/android/app/build/outputs/apk/debug/prilla-*.apk
 
   - name: 'Upload release'
     if: inputs.build_type == 'release'
     uses: 'actions/upload-artifact@v3'
     with:
       name: ${{ inputs.artifact_name }}
-      path: client/android/app/build/outputs/apk/release/prilla-1.0.apk
+      path: client/android/app/build/outputs/apk/release/prilla-*.apk
