@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.almgru.prilla</groupId>
     <artifactId>server</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.1.0</version>
     <name>prilla</name>
     <description>Web application for tracking snus consumption</description>
     <properties>
