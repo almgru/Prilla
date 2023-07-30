@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/head :: head('Backup & Restore')"></head>
+<head th:replace="~{fragments/head :: head('Backup & Restore')}"></head>
 <body>
-    <nav th:replace="fragments/nav.html :: nav(page='backup-restore')"></nav>
+    <nav th:replace="~{fragments/nav.html :: nav(page='backup-restore')}"></nav>
     <main>
         <h1>Backup & Restore</h1>
 
@@ -33,7 +33,7 @@
         </div>
 
     </main>
-    <footer th:replace="fragments/footer.html :: footer"></footer>
+    <footer th:replace="~{fragments/footer.html :: footer}"></footer>
 
     <!-- Prevents Chrome from triggering CSS transitions on page load. See https://stackoverflow.com/a/42969608 -->
     <script> </script>

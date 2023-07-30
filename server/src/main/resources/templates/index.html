@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/head :: head('List')"></head>
+<head th:replace="~{fragments/head :: head('List')}"></head>
 <body>
-    <nav th:replace="fragments/nav.html :: nav(page='index')"></nav>
+    <nav th:replace="~{fragments/nav.html :: nav(page='index')}"></nav>
     <main>
         <h1>List</h1>
 
@@ -32,6 +32,6 @@
             </tbody>
         </table>
     </main>
-    <footer th:replace="fragments/footer.html :: footer"></footer>
+    <footer th:replace="~{fragments/footer.html :: footer}"></footer>
 </body>
 </html>
