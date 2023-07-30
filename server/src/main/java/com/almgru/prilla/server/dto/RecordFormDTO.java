@@ -1,10 +1,11 @@
 package com.almgru.prilla.server.dto;
 
-import org.springframework.format.annotation.DateTimeFormat;
-
-import jakarta.validation.constraints.Positive;
 import java.time.LocalDate;
 import java.time.LocalTime;
+
+import jakarta.validation.constraints.Positive;
+
+import org.springframework.format.annotation.DateTimeFormat;
 
 public record RecordFormDTO(
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate appliedDate,
@@ -17,8 +18,8 @@ public record RecordFormDTO(
         return new RecordFormDTO(null, null, null, null, 1);
     }
 
-    public static RecordFormDTO keepDates(RecordFormDTO original) {
-        RecordFormDTO defaultValues = RecordFormDTO.defaultValues();
+    public static RecordFormDTO keepDates(final RecordFormDTO original) {
+        final var defaultValues = RecordFormDTO.defaultValues();
 
         return new RecordFormDTO(
                 original.appliedDate(), defaultValues.appliedTime(), original.removedDate(),

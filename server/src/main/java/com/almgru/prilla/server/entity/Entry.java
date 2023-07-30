@@ -1,15 +1,16 @@
 package com.almgru.prilla.server.entity;
 
-import org.springframework.data.annotation.Immutable;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Objects;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.Objects;
+
+import org.springframework.data.annotation.Immutable;
 
 @Entity
 @Immutable
@@ -27,7 +28,7 @@ public class Entry {
 
     public Entry() { }
 
-    public Entry(LocalDateTime appliedAt, LocalDateTime removedAt, int amount) {
+    public Entry(final LocalDateTime appliedAt, final LocalDateTime removedAt, final int amount) {
         this.appliedDate = appliedAt.toLocalDate();
         this.appliedTime = appliedAt.toLocalTime();
         this.removedDate = removedAt.toLocalDate();
@@ -52,11 +53,19 @@ public class Entry {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Entry entry = (Entry) o;
-        return amount == entry.amount && Objects.equals(id, entry.id) && Objects.equals(appliedDate, entry.appliedDate) && Objects.equals(appliedTime, entry.appliedTime) && Objects.equals(removedDate, entry.removedDate) && Objects.equals(removedTime, entry.removedTime);
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+
+        if (other == null || getClass() != other.getClass()) {
+            return false;
+        }
+
+        final var entry = (Entry)other;
+
+        return amount == entry.amount && Objects.equals(id, entry.id) && Objects.equals(appliedDate, entry.appliedDate) &&
+            Objects.equals(appliedTime, entry.appliedTime) && Objects.equals(removedDate, entry.removedDate) && Objects.equals(removedTime, entry.removedTime);
     }
 
     @Override

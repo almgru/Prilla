@@ -6,11 +6,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Statistics {
-    public static <T extends Number & Comparable<T>> double median(List<T> population) {
-        if (population.isEmpty()) throw new IllegalArgumentException("Median is undefined for an empty collection.");
-        if (population.size() == 1) return population.get(0).doubleValue();
+    public static <T extends Number & Comparable<T>> double median(final List<T> population) {
+        if (population.isEmpty()) {
+            throw new IllegalArgumentException("Median is undefined for an empty collection.");
+        }
 
-        var copy = new ArrayList<>(population);
+        if (population.size() == 1) {
+            return population.get(0).doubleValue();
+        }
+
+        final var copy = new ArrayList<>(population);
         Collections.sort(copy);
 
         if (population.size() % 2 == 1) {
@@ -20,19 +25,24 @@ public class Statistics {
         }
     }
 
-    public static double medianAbsoluteDeviation(List<Long> population) {
-        if (population.isEmpty()) throw new IllegalArgumentException("MAD is undefined for an empty collection.");
-        if (population.size() == 1) return population.get(0);
+    public static double medianAbsoluteDeviation(final List<Long> population) {
+        if (population.isEmpty()) {
+            throw new IllegalArgumentException("Median absolute deviation is undefined for an empty collection.");
+        }
 
-        var median = Statistics.median(population);
-        var absoluteDeviations = population.stream()
-                .map(dp -> Math.abs(dp - median))
+        if (population.size() == 1) {
+            return population.get(0);
+        }
+
+        final var median = Statistics.median(population);
+        final var absoluteDeviations = population.stream()
+                .map(dataPoint -> Math.abs(dataPoint - median))
                 .collect(Collectors.toList());
 
         return Statistics.median(absoluteDeviations);
     }
 
-    public static boolean isSmallSampleOutlier(Long dataPoint, double median, double mad) {
+    public static boolean isSmallSampleOutlier(final Long dataPoint, final double median, final double mad) {
         // https://stats.stackexchange.com/a/78617
         return ((0.6745 * (dataPoint - median)) / mad) > 3.5;
     }
