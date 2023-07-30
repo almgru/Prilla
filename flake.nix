@@ -7,7 +7,7 @@
             devShell.x86_64-linux = {
                 server = pkgs.mkShell {
                     buildInputs = [
-                        pkgs.jdk17
+                        pkgs.jdk20
                         pkgs.jdt-language-server
                     ];
                 };
