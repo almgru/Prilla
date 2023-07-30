@@ -9,5 +9,4 @@ class PrillaApplicationTests {
     @Test
     void contextLoads() {
     }
-
 }

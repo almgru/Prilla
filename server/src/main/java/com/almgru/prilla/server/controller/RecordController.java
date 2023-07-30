@@ -1,10 +1,10 @@
 package com.almgru.prilla.server.controller;
 
-import com.almgru.prilla.server.service.TextFormatter;
-import com.almgru.prilla.server.data.EntryRepository;
-import com.almgru.prilla.server.dto.RecordFormDTO;
-import com.almgru.prilla.server.entity.Entry;
-import com.almgru.prilla.server.service.EntryConverter;
+import java.time.LocalDateTime;
+import java.util.Locale;
+
+import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,9 +15,10 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import jakarta.validation.Valid;
-import java.time.LocalDateTime;
-import java.util.Locale;
+import com.almgru.prilla.server.service.TextFormatter;
+import com.almgru.prilla.server.data.EntryRepository;
+import com.almgru.prilla.server.dto.RecordFormDTO;
+import com.almgru.prilla.server.service.EntryConverter;
 
 @Controller
 public class RecordController {
@@ -26,14 +27,14 @@ public class RecordController {
     private final TextFormatter formatter;
 
     @Autowired
-    public RecordController(EntryRepository repository, EntryConverter entryConverter, TextFormatter formatter) {
+    public RecordController(final EntryRepository repository, final EntryConverter entryConverter, final TextFormatter formatter) {
         this.repository = repository;
         this.entryConverter = entryConverter;
         this.formatter = formatter;
     }
 
     @GetMapping("/record")
-    public String record(Model model) {
+    public String record(final Model model) {
         if (model.getAttribute("recordForm") == null) {
             model.addAttribute("recordForm", RecordFormDTO.defaultValues());
         }
@@ -41,10 +42,15 @@ public class RecordController {
     }
 
     @PostMapping("/record")
-    public String record(@Valid @ModelAttribute("recordForm") RecordFormDTO dto, BindingResult bindingResult,
-                         RedirectAttributes attr, Locale locale) {
-        LocalDateTime inserted = LocalDateTime.of(dto.appliedDate(), dto.appliedTime());
-        LocalDateTime removed = LocalDateTime.of(dto.removedDate(), dto.removedTime());
+    public String record(
+        @Valid @ModelAttribute("recordForm") final RecordFormDTO dto,
+        final BindingResult bindingResult,
+        final RedirectAttributes attr,
+        final Locale locale
+    ) {
+        final var inserted = LocalDateTime.of(dto.appliedDate(), dto.appliedTime());
+        final var removed = LocalDateTime.of(dto.removedDate(), dto.removedTime());
+
         if (removed.isBefore(inserted)) {
             bindingResult.addError(new FieldError("recordForm", "appliedDate",
                             "Must be before or equal to 'Removed at' date & time."));
@@ -58,7 +64,7 @@ public class RecordController {
             return "/record";
         }
 
-        Entry entry = entryConverter.formDTOToEntry(dto);
+        final var entry = entryConverter.formDTOToEntry(dto);
         repository.save(entry);
 
         attr.addFlashAttribute("recordForm", RecordFormDTO.keepDates(dto));
@@ -67,7 +73,6 @@ public class RecordController {
                 String.format("Entry (%s) recorded!", formatter.entry(entry, locale))
         );
 
-        //noinspection SpringMVCViewInspection
         return "redirect:/record";
     }
 }

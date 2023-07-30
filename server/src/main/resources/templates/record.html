@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="fragments/head :: head('Record')"></head>
+<head th:replace="~{fragments/head :: head('Record')}"></head>
 <body>
-    <nav th:replace="fragments/nav.html :: nav(page='record')"></nav>
+    <nav th:replace="~{fragments/nav.html :: nav(page='record')}"></nav>
 
     <main>
         <h1>Record</h1>
@@ -66,7 +66,7 @@
             <input type="submit" value="Add" />
         </form>
     </main>
-    <footer th:replace="fragments/footer.html :: footer"></footer>
+    <footer th:replace="~{fragments/footer.html :: footer}"></footer>
 
     <!-- Prevents Chrome from triggering CSS transitions on page load. See https://stackoverflow.com/a/42969608 -->
     <script> </script>
