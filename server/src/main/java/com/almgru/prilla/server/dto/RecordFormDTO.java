@@ -2,7 +2,7 @@ package com.almgru.prilla.server.dto;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.validation.constraints.Positive;
+import jakarta.validation.constraints.Positive;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
