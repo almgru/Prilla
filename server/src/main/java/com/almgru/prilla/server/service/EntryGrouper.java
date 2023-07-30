@@ -1,20 +1,23 @@
 package com.almgru.prilla.server.service;
 
-import com.almgru.prilla.server.entity.Entry;
-import com.almgru.prilla.server.utility.OrderedPair;
-import com.almgru.prilla.server.utility.Statistics;
-import org.springframework.stereotype.Service;
-
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.Map;
+import java.util.Collection;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.almgru.prilla.server.entity.Entry;
+import com.almgru.prilla.server.utility.OrderedPair;
+import com.almgru.prilla.server.utility.Statistics;
 
 @Service
 public class EntryGrouper {
-    public Map<String, Integer> groupAmountByDate(Collection<Entry> entries, Function<LocalDate, String> mapper) {
+    public Map<String, Integer> groupAmountByDate(final Collection<Entry> entries, final Function<LocalDate, String> mapper) {
         return entries
                 .stream()
                 .collect(Collectors.groupingBy(entry -> mapper.apply(entry.getAppliedAt().toLocalDate()),
@@ -22,7 +25,7 @@ public class EntryGrouper {
 
     }
 
-    public Map<String, List<Long>> groupDurationSetByDate(Collection<Entry> entries, Function<LocalDate, String> mapper) {
+    public Map<String, List<Long>> groupDurationSetByDate(final Collection<Entry> entries, final Function<LocalDate, String> mapper) {
         return entries
                 .stream()
                 .collect(Collectors.groupingBy(
@@ -32,10 +35,10 @@ public class EntryGrouper {
                                 Collectors.toList())));
     }
 
-    public Map<String, List<Long>> groupDurationBetweenSetByDate(List<Entry> entries, Function<LocalDate, String> mapper) {
+    public Map<String, List<Long>> groupDurationBetweenSetByDate(final List<Entry> entries, final Function<LocalDate, String> mapper) {
         return removeOutliers(IntStream
                 .range(1, entries.size())
-                .mapToObj(i -> new OrderedPair<>(entries.get(i -1), entries.get(i)))
+                .mapToObj(index -> new OrderedPair<>(entries.get(index - 1), entries.get(index)))
                 .collect(Collectors.groupingBy(
                         pair -> mapper.apply(pair.left().getRemovedAt().toLocalDate()),
                         Collectors.mapping(
@@ -46,18 +49,20 @@ public class EntryGrouper {
                 )));
     }
 
-    private Map<String, List<Long>> removeOutliers(Map<String, List<Long>> data) {
-        List<Long> allDataPoints = data.keySet().stream()
+    private Map<String, List<Long>> removeOutliers(final Map<String, List<Long>> data) {
+        final var allDataPoints = data.keySet().stream()
                 .map(data::get)
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
 
-        if (allDataPoints.isEmpty()) return data;
+        if (allDataPoints.isEmpty()) {
+            return data;
+        }
 
-        double median = Statistics.median(allDataPoints);
-        double mad = Statistics.medianAbsoluteDeviation(allDataPoints);
+        final var median = Statistics.median(allDataPoints);
+        final var mad = Statistics.medianAbsoluteDeviation(allDataPoints);
 
-        data.keySet().forEach(key -> data.get(key).removeIf(dp -> Statistics.isSmallSampleOutlier(dp, median, mad)));
+        data.keySet().forEach(key -> data.get(key).removeIf(dataPoint -> Statistics.isSmallSampleOutlier(dataPoint, median, mad)));
 
         return data;
     }
