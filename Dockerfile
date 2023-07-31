@@ -19,5 +19,5 @@ RUN ./mvnw -q package
 
 FROM eclipse-temurin:20-jre
 WORKDIR /app
-COPY --from=serverbuild /server/target/server-0.1.0.jar .
-CMD [ "java", "-jar", "server-0.1.0.jar" ]
+COPY --from=serverbuild /server/target/server-0.1.1.jar .
+CMD [ "java", "-jar", "server-0.1.1.jar" ]
