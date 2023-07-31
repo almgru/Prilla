@@ -45,7 +45,7 @@ android {
 
     signingConfigs {
         create("release") {
-            val root = project.getRootDir()
+            val root = project.rootDir
             val keyStore = File(root, "prilla-apk-signing-key.jks")
 
             storeFile = keyStore
@@ -72,7 +72,7 @@ android {
                 "proguard-rules.pro"
             )
 
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 

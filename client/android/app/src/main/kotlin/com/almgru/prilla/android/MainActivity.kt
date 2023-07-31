@@ -80,21 +80,9 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
 
     fun onStartStopPressed(@Suppress("UNUSED_PARAMETER") view: View) {
         if (startedDateTime == null) {
-            startedDateTime = LocalDateTime.now()
-            PersistenceManager.putStartedDateTime(this, startedDateTime!!)
-            setUiState(UIState.STARTED)
+            startNewEntry()
         } else {
-            val stoppedDateTime = LocalDateTime.now()
-            val amount = amountSlider.progress
-
-            lastEntry = Entry(
-                startedDateTime!!.toKotlinLocalDateTime(),
-                stoppedDateTime.toKotlinLocalDateTime(),
-                amount
-            )
-            submitter.submit(startedDateTime!!, stoppedDateTime, amount)
-
-            setUiState(UIState.SUBMITTED)
+            finalizeEntry()
         }
     }
 
@@ -190,11 +178,10 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
 
     fun onCustomStartedPressed(@Suppress("UNUSED_PARAMETER") v: View) {
         setUiState(UIState.SELECTING_DATETIME)
+
         DatePickerFragment({ date ->
             TimePickerFragment({ time ->
-                startedDateTime = LocalDateTime.of(date, time)
-                PersistenceManager.putStartedDateTime(this, startedDateTime!!)
-                setUiState(UIState.STARTED)
+                startNewEntry(LocalDateTime.of(date, time))
             }, {
                 setUiState(UIState.NOT_STARTED)
             }).show(supportFragmentManager, "timePicker")
@@ -205,16 +192,34 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
 
     fun onCustomStoppedPressed(@Suppress("UNUSED_PARAMETER") v: View) {
         setUiState(UIState.SELECTING_DATETIME)
+
         DatePickerFragment({ date ->
             TimePickerFragment({ time ->
-                val amount = amountSlider.progress
-                setUiState(UIState.SUBMITTED)
-                submitter.submit(startedDateTime!!, LocalDateTime.of(date, time), amount)
+                finalizeEntry(LocalDateTime.of(date, time))
             }, {
                 setUiState(UIState.STARTED)
             }).show(supportFragmentManager, "timePicker")
         }, {
             setUiState(UIState.STARTED)
         }).show(supportFragmentManager, "datePicker")
+    }
+
+    private fun startNewEntry(start: LocalDateTime = LocalDateTime.now()) {
+        startedDateTime = start
+        PersistenceManager.putStartedDateTime(this, startedDateTime!!)
+        setUiState(UIState.STARTED)
+    }
+
+    private fun finalizeEntry(stoppedDateTime: LocalDateTime = LocalDateTime.now()) {
+        val amount = amountSlider.progress
+
+        lastEntry = Entry(
+            startedDateTime!!.toKotlinLocalDateTime(),
+            stoppedDateTime.toKotlinLocalDateTime(),
+            amount
+        )
+        submitter.submit(startedDateTime!!, stoppedDateTime, amount)
+
+        setUiState(UIState.SUBMITTED)
     }
 }
