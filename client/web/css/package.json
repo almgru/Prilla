@@ -1,6 +1,6 @@
 {
   "name": "prilla-frontend-css",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Styling and layout for prilla frontend",
   "scripts": {
     "build": "sass --load-path ./node_modules/reset-css/ ./src/entry.scss:./out/prilla.css",
