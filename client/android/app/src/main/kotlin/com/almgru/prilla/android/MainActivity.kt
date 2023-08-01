@@ -135,21 +135,21 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
         } ?: run { handleClear() }
     }
 
-    private fun handleStart(start: LocalDateTime = LocalDateTime.now()) {
-        PersistenceManager.putStartedDateTime(this, start)
-        startedDateTime = start
+    private fun handleStart(started: LocalDateTime = LocalDateTime.now()) {
+        PersistenceManager.putStartedDateTime(this, started)
+        startedDateTime = started
         setUiState(UIState.STARTED)
     }
 
-    private fun handleStop(start: LocalDateTime, stopped: LocalDateTime = LocalDateTime.now()) {
+    private fun handleStop(started: LocalDateTime, stopped: LocalDateTime = LocalDateTime.now()) {
         val amount = amountSlider.progress
 
         lastEntry = Entry(
-            start.toKotlinLocalDateTime(),
+            started.toKotlinLocalDateTime(),
             stopped.toKotlinLocalDateTime(),
             amount
         )
-        submitter.submit(start, stopped, amount)
+        submitter.submit(started, stopped, amount)
 
         setUiState(UIState.SUBMITTED)
     }
