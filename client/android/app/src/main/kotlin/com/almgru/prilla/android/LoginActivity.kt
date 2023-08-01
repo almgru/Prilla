@@ -31,6 +31,8 @@ class LoginActivity : AppCompatActivity(), LoginListener {
         loginButton = findViewById(R.id.loginButton)
         progressBar = findViewById(R.id.loginProgressBar)
 
+        loginButton.setOnClickListener(::onLoginPressed)
+
         loginManager = LoginManager(this, this)
 
         if (loginManager.hasActiveSession()) {
@@ -45,16 +47,6 @@ class LoginActivity : AppCompatActivity(), LoginListener {
                 this,
                 Period.parse(getString(R.string.default_preference_update_interval))
             )
-        }
-    }
-
-    fun onLoginPressed(@Suppress("UNUSED_PARAMETER") view: View) {
-        if (isValidUrl(serverField.text.toString())) {
-            setLoadingState(true)
-            PersistenceManager.putServerUrl(this, serverField.text.toString())
-            loginManager.login(usernameField.text.toString(), passwordField.text.toString())
-        } else {
-            serverField.error = getString(R.string.server_url_validation_error_message)
         }
     }
 
@@ -79,6 +71,16 @@ class LoginActivity : AppCompatActivity(), LoginListener {
     override fun onNetworkError() {
         setLoadingState(false)
         Toast.makeText(this, "Network Error", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun onLoginPressed(@Suppress("UNUSED_PARAMETER") view: View) {
+        if (isValidUrl(serverField.text.toString())) {
+            setLoadingState(true)
+            PersistenceManager.putServerUrl(this, serverField.text.toString())
+            loginManager.login(usernameField.text.toString(), passwordField.text.toString())
+        } else {
+            serverField.error = getString(R.string.server_url_validation_error_message)
+        }
     }
 
     private fun setLoadingState(loading: Boolean) {

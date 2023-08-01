@@ -16,7 +16,6 @@
             android:id="@+id/loginButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="onLoginPressed"
             android:text="@string/login_button_text"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -49,8 +48,8 @@
 
         <EditText
             android:id="@+id/usernameField"
-            android:layout_width="200dp"
-            android:layout_height="45dp"
+            android:layout_width="220dp"
+            android:layout_height="48dp"
             android:autofillHints=""
             android:ems="10"
             android:hint="@string/username_hint"
@@ -64,8 +63,8 @@
 
         <EditText
             android:id="@+id/passwordField"
-            android:layout_width="200dp"
-            android:layout_height="45dp"
+            android:layout_width="220dp"
+            android:layout_height="48dp"
             android:layout_marginTop="128dp"
             android:autofillHints=""
             android:ems="10"
@@ -90,14 +89,14 @@
 
         <EditText
             android:id="@+id/serverField"
-            android:layout_width="200dp"
-            android:layout_height="45dp"
+            android:layout_width="220dp"
+            android:layout_height="48dp"
             android:layout_marginBottom="184dp"
             android:ems="10"
             android:hint="@string/server_hint"
+            android:importantForAutofill="no"
             android:inputType="textPersonName"
             android:textSize="16sp"
-            android:importantForAutofill="no"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

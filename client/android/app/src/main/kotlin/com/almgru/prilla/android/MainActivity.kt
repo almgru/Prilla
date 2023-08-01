@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.SeekBar
+import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
 import android.widget.Toast
 import com.almgru.prilla.android.fragment.DatePickerFragment
@@ -21,8 +22,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
-class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
-    EntryAddedListener, View.OnLongClickListener {
+class MainActivity : AppCompatActivity(), EntryAddedListener {
     private enum class UIState {
         NOT_STARTED, STARTED, SUBMITTED, SELECTING_DATETIME
     }
@@ -55,9 +55,21 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
         lastEntryText = findViewById(R.id.lastEntryText)
         startedAtText = findViewById(R.id.startedAtText)
 
-        startStopButton.setOnLongClickListener(this)
+        startStopButton.setOnClickListener(::onStartStopPressed)
+        startStopButton.setOnLongClickListener(::onStartStopLongPressed)
+
+        amountSlider.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
+                onAmountChanged(progress = p1)
+            }
+            override fun onStartTrackingTouch(p0: SeekBar?) = Unit
+            override fun onStopTrackingTouch(p0: SeekBar?) = Unit
+        })
+
+        customStartedLink.setOnClickListener(::onCustomStartedPressed)
+        customStoppedLink.setOnClickListener(::onCustomStoppedPressed)
+
         amountLabel.text = getString(R.string.amount_label).format(amountSlider.progress)
-        amountSlider.setOnSeekBarChangeListener(this)
 
         submitter = EntrySubmitter(this, this)
         backupper = DataBackupManager(this)
@@ -71,14 +83,6 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
         setUiState(if (startedDateTime != null) { UIState.STARTED } else { UIState.NOT_STARTED })
 
         backupper.backup()
-    }
-
-    fun onStartStopPressed(@Suppress("UNUSED_PARAMETER") view: View) {
-        startedDateTime?.let { handleStop(it) } ?: run { handleStart() }
-    }
-
-    override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-        amountLabel.text = getString(R.string.amount_label).format(progress)
     }
 
     override fun onEntryAdded() {
@@ -99,13 +103,21 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
         finish()
     }
 
-    override fun onLongClick(v: View?): Boolean {
+    private fun onStartStopPressed(@Suppress("UNUSED_PARAMETER") view: View) {
+        startedDateTime?.let { handleStop(it) } ?: run { handleStart() }
+    }
+
+    private fun onAmountChanged(progress: Int) {
+        amountLabel.text = getString(R.string.amount_label).format(progress)
+    }
+
+    private fun onStartStopLongPressed(@Suppress("UNUSED_PARAMETER") v: View?): Boolean {
         Toast.makeText(this, "Entry cleared", Toast.LENGTH_SHORT).show()
         handleClear()
         return true
     }
 
-    fun onCustomStartedPressed(@Suppress("UNUSED_PARAMETER") v: View) {
+    private fun onCustomStartedPressed(@Suppress("UNUSED_PARAMETER") v: View) {
         setUiState(UIState.SELECTING_DATETIME)
 
         DatePickerFragment({ date ->
@@ -119,7 +131,7 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
         }).show(supportFragmentManager, "datePicker")
     }
 
-    fun onCustomStoppedPressed(@Suppress("UNUSED_PARAMETER") v: View) {
+    private fun onCustomStoppedPressed(@Suppress("UNUSED_PARAMETER") v: View) {
         startedDateTime?.let { start ->
             setUiState(UIState.SELECTING_DATETIME)
 
@@ -211,7 +223,4 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
             }
         }
     }
-
-    override fun onStartTrackingTouch(p0: SeekBar?) = Unit
-    override fun onStopTrackingTouch(p0: SeekBar?) = Unit
 }
