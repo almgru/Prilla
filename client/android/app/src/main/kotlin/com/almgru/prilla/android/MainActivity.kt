@@ -136,8 +136,8 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
     }
 
     private fun handleStart(start: LocalDateTime = LocalDateTime.now()) {
+        PersistenceManager.putStartedDateTime(this, start)
         startedDateTime = start
-        PersistenceManager.putStartedDateTime(this, startedDateTime!!)
         setUiState(UIState.STARTED)
     }
 
