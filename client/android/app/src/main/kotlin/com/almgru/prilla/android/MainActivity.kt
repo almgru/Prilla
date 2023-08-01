@@ -1,226 +1,217 @@
 package com.almgru.prilla.android
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
-import android.widget.ProgressBar
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
-import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
+import com.almgru.prilla.android.databinding.ActivityMainBinding
 import com.almgru.prilla.android.fragment.DatePickerFragment
 import com.almgru.prilla.android.fragment.TimePickerFragment
-import com.almgru.prilla.android.model.Entry
-import com.almgru.prilla.android.net.EntryAddedListener
-import com.almgru.prilla.android.net.EntrySubmitter
-import com.android.volley.VolleyError
 import kotlinx.datetime.toJavaLocalDateTime
-import kotlinx.datetime.toKotlinLocalDateTime
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
-class MainActivity : AppCompatActivity(), EntryAddedListener {
+class MainActivity : AppCompatActivity() {
     private enum class UIState {
-        NOT_STARTED, STARTED, SUBMITTED, SELECTING_DATETIME
+        NOT_STARTED, STARTED, SELECTING_DATETIME, SUBMITTED
     }
 
-    private lateinit var submitter: EntrySubmitter
-    private lateinit var backupper: DataBackupManager
-
-    private var startedDateTime: LocalDateTime? = null
-    private var lastEntry: Entry? = null
-
-    private lateinit var startStopButton: Button
-    private lateinit var amountSlider: SeekBar
-    private lateinit var amountLabel: TextView
-    private lateinit var submitProgressIndicator: ProgressBar
-    private lateinit var customStartedLink: TextView
-    private lateinit var customStoppedLink: TextView
-    private lateinit var lastEntryText: TextView
-    private lateinit var startedAtText: TextView
+    private lateinit var binding: ActivityMainBinding
+    private lateinit var viewModel: MainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(R.layout.activity_main)
+        binding.amountLabel.text = getString(R.string.amount_label, binding.amountSlider.progress)
 
-        startStopButton = findViewById(R.id.startStopButton)
-        amountSlider = findViewById(R.id.amountSlider)
-        amountLabel = findViewById(R.id.amountLabel)
-        submitProgressIndicator = findViewById(R.id.submitProgressIndicator)
-        customStartedLink = findViewById(R.id.forgotToStartLink)
-        customStoppedLink = findViewById(R.id.forgotToStopLink)
-        lastEntryText = findViewById(R.id.lastEntryText)
-        startedAtText = findViewById(R.id.startedAtText)
+        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
 
-        startStopButton.setOnClickListener(::onStartStopPressed)
-        startStopButton.setOnLongClickListener(::onStartStopLongPressed)
-
-        amountSlider.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
-            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
-                onAmountChanged(progress = p1)
-            }
-            override fun onStartTrackingTouch(p0: SeekBar?) = Unit
-            override fun onStopTrackingTouch(p0: SeekBar?) = Unit
-        })
-
-        customStartedLink.setOnClickListener(::onCustomStartedPressed)
-        customStoppedLink.setOnClickListener(::onCustomStoppedPressed)
-
-        amountLabel.text = getString(R.string.amount_label).format(amountSlider.progress)
-
-        submitter = EntrySubmitter(this, this)
-        backupper = DataBackupManager(this)
-        lastEntry = PersistenceManager.getLastEntry(this)
+        setupViewListeners()
+        setupEventHandlers()
+        setupStateObservers()
     }
 
     override fun onResume() {
         super.onResume()
-
-        startedDateTime = PersistenceManager.getStartedDateTime(this)
-        setUiState(if (startedDateTime != null) { UIState.STARTED } else { UIState.NOT_STARTED })
-
-        backupper.backup()
+        viewModel.onResume()
     }
 
-    override fun onEntryAdded() {
-        Toast.makeText(this, "Entry added", Toast.LENGTH_SHORT).show()
-
-        lastEntry?.let {
-            PersistenceManager.putLastEntry(this, it)
+    private fun setupViewListeners() {
+        binding.startStopButton.setOnClickListener { viewModel.onStartStopPressed() }
+        binding.startStopButton.setOnLongClickListener {
+            viewModel.onStartStopLongPressed()
+            true
         }
 
-        handleClear()
+        binding.amountSlider.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+            override fun onProgressChanged(seekbar: SeekBar?, progress: Int, fromUser: Boolean) {
+                viewModel.updateAmount(progress)
+            }
+
+            override fun onStartTrackingTouch(p0: SeekBar?) = Unit
+            override fun onStopTrackingTouch(p0: SeekBar?) = Unit
+        })
+
+        binding.customStartLink.setOnClickListener { viewModel.onCustomStartedPressed() }
+        binding.customStopLink.setOnClickListener { viewModel.onCustomStoppedPressed() }
     }
 
-    override fun onEntrySubmitError(error: VolleyError) {
-        Toast.makeText(this, "Session expired", Toast.LENGTH_SHORT).show()
-        val intent = Intent(this, LoginActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
-        startActivity(intent)
-        finish()
+    private fun setupEventHandlers() {
+        viewModel.event.observe(this) { event ->
+            event.getContentIfNotHandled()?.let { content ->
+                when (content) {
+                    MainViewModel.MainViewEvents.ENTRY_STARTED -> {
+                        setUiVisibility(UIState.STARTED)
+                    }
+
+                    MainViewModel.MainViewEvents.ENTRY_CLEARED -> {
+                        Toast
+                            .makeText(this, R.string.entry_clear_message, Toast.LENGTH_SHORT)
+                            .show()
+                        setUiVisibility(UIState.NOT_STARTED)
+                    }
+
+                    MainViewModel.MainViewEvents.ENTRY_SUBMITTED -> {
+                    }
+
+                    MainViewModel.MainViewEvents.ENTRY_SUBMIT_SUCCESS -> {
+                        Toast
+                            .makeText(this, R.string.entry_added_message, Toast.LENGTH_SHORT)
+                            .show()
+                    }
+
+                    MainViewModel.MainViewEvents.ENTRY_SUBMIT_ERROR -> {
+                        Toast.makeText(
+                            this,
+                            R.string.entry_submit_failed_message,
+                            Toast.LENGTH_SHORT
+                        ).show()
+
+                        returnToLoginScreen()
+                    }
+
+                    MainViewModel.MainViewEvents.SELECT_CUSTOM_START_DATETIME -> {
+                        showDateTimePicker(
+                            viewModel::onStartDateTimePicked,
+                            viewModel::onCancelPickStartDateTime
+                        )
+                    }
+
+                    MainViewModel.MainViewEvents.SELECT_CUSTOM_STOP_DATETIME -> {
+                        showDateTimePicker(
+                            viewModel::onStopDateTimePicked,
+                            viewModel::onCancelPickStopDateTime
+                        )
+                    }
+
+                    MainViewModel.MainViewEvents.CANCEL_SELECT_CUSTOM_START_DATETIME -> {
+                        setUiVisibility(UIState.NOT_STARTED)
+                    }
+
+                    MainViewModel.MainViewEvents.CANCEL_SELECT_CUSTOM_STOP_DATETIME -> {
+                        setUiVisibility(UIState.STARTED)
+                    }
+                }
+            }
+        }
     }
 
-    private fun onStartStopPressed(@Suppress("UNUSED_PARAMETER") view: View) {
-        startedDateTime?.let { handleStop(it) } ?: run { handleStart() }
-    }
+    private fun setupStateObservers() {
+        viewModel.amount.observe(this) {
+            binding.amountLabel.text = getString(R.string.amount_label, it)
+        }
 
-    private fun onAmountChanged(progress: Int) {
-        amountLabel.text = getString(R.string.amount_label).format(progress)
-    }
+        viewModel.startedDateTime.observe(this) {
+            when (it) {
+                null -> {
+                    binding.startedAtText.text = ""
+                }
 
-    private fun onStartStopLongPressed(@Suppress("UNUSED_PARAMETER") v: View?): Boolean {
-        Toast.makeText(this, "Entry cleared", Toast.LENGTH_SHORT).show()
-        handleClear()
-        return true
-    }
+                else -> {
+                    binding.startedAtText.text = getString(
+                        R.string.started_at_text,
+                        DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).format(it)
+                    )
+                }
+            }
+        }
 
-    private fun onCustomStartedPressed(@Suppress("UNUSED_PARAMETER") v: View) {
-        setUiState(UIState.SELECTING_DATETIME)
+        viewModel.lastEntry.observe(this) {
+            when (it) {
+                null -> {
+                    binding.lastEntryText.text = ""
+                }
 
-        DatePickerFragment({ date ->
-            TimePickerFragment({ time ->
-                handleStart(LocalDateTime.of(date, time))
-            }, {
-                setUiState(UIState.NOT_STARTED)
-            }).show(supportFragmentManager, "timePicker")
-        }, {
-            setUiState(UIState.NOT_STARTED)
-        }).show(supportFragmentManager, "datePicker")
-    }
-
-    private fun onCustomStoppedPressed(@Suppress("UNUSED_PARAMETER") v: View) {
-        startedDateTime?.let { start ->
-            setUiState(UIState.SELECTING_DATETIME)
-
-            DatePickerFragment({ date ->
-                TimePickerFragment({ time ->
-                    handleStop(start, LocalDateTime.of(date, time))
-                }, {
-                    setUiState(UIState.STARTED)
-                }).show(supportFragmentManager, "timePicker")
-            }, {
-                setUiState(UIState.STARTED)
-            }).show(supportFragmentManager, "datePicker")
-        } ?: run { handleClear() }
-    }
-
-    private fun handleStart(started: LocalDateTime = LocalDateTime.now()) {
-        PersistenceManager.putStartedDateTime(this, started)
-        startedDateTime = started
-        setUiState(UIState.STARTED)
-    }
-
-    private fun handleStop(started: LocalDateTime, stopped: LocalDateTime = LocalDateTime.now()) {
-        val amount = amountSlider.progress
-
-        lastEntry = Entry(
-            started.toKotlinLocalDateTime(),
-            stopped.toKotlinLocalDateTime(),
-            amount
-        )
-        submitter.submit(started, stopped, amount)
-
-        setUiState(UIState.SUBMITTED)
-    }
-
-    private fun handleClear() {
-        setUiState(UIState.NOT_STARTED)
-        startedDateTime = null
-        PersistenceManager.removeStartedDateTime(this)
-    }
-
-    private fun setUiState(state: UIState) {
-        when (state) {
-            UIState.NOT_STARTED -> {
-                submitProgressIndicator.visibility = View.GONE
-                startStopButton.visibility = View.VISIBLE
-                startStopButton.text = getText(R.string.start_stop_button_start_text)
-                customStartedLink.visibility = View.VISIBLE
-                customStoppedLink.visibility = View.GONE
-                startedAtText.visibility = View.GONE
-
-                lastEntry?.let {
-                    lastEntryText.visibility = View.VISIBLE
-                    lastEntryText.text = getString(
+                else -> {
+                    binding.lastEntryText.text = getString(
                         R.string.last_entry_text,
                         DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
                             .format(it.started.toJavaLocalDateTime()),
                         DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
                             .format(it.stopped.toJavaLocalDateTime())
                     )
-                } ?: run {
-                    lastEntryText.visibility = View.GONE
                 }
-            }
-            UIState.STARTED -> {
-                submitProgressIndicator.visibility = View.GONE
-                startStopButton.visibility = View.VISIBLE
-                startStopButton.text = getText(R.string.start_stop_button_stop_text)
-                customStartedLink.visibility = View.GONE
-                customStoppedLink.visibility = View.VISIBLE
-                startedAtText.visibility = View.VISIBLE
-
-                startedDateTime?.let {
-                    startedAtText.text = getString(
-                        R.string.started_at_text,
-                        DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).format(it)
-                    )
-                }
-
-                lastEntryText.visibility = View.GONE
-            }
-            UIState.SUBMITTED,
-            UIState.SELECTING_DATETIME -> {
-                submitProgressIndicator.visibility = View.VISIBLE
-                startStopButton.visibility = View.GONE
-                customStartedLink.visibility = View.GONE
-                customStoppedLink.visibility = View.GONE
-                startedAtText.visibility = View.GONE
-                lastEntryText.visibility = View.GONE
             }
         }
+    }
+
+    private fun returnToLoginScreen() {
+        val intent = Intent(this, LoginActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
+        startActivity(intent)
+        finish()
+    }
+
+    private fun setUiVisibility(state: UIState) {
+        when (state) {
+            UIState.NOT_STARTED -> {
+                binding.submitProgressIndicator.visibility = View.GONE
+                binding.startStopButton.visibility = View.VISIBLE
+                binding.startStopButton.text = getText(R.string.start_stop_button_start_text)
+                binding.customStartLink.visibility = View.VISIBLE
+                binding.customStopLink.visibility = View.GONE
+                binding.startedAtText.visibility = View.GONE
+                binding.lastEntryText.visibility = View.VISIBLE
+            }
+
+            UIState.STARTED -> {
+                binding.submitProgressIndicator.visibility = View.GONE
+                binding.startStopButton.visibility = View.VISIBLE
+                binding.startStopButton.text = getText(R.string.start_stop_button_stop_text)
+                binding.customStartLink.visibility = View.GONE
+                binding.customStopLink.visibility = View.VISIBLE
+                binding.startedAtText.visibility = View.VISIBLE
+                binding.lastEntryText.visibility = View.GONE
+            }
+
+            UIState.SUBMITTED,
+            UIState.SELECTING_DATETIME -> {
+                binding.submitProgressIndicator.visibility = View.VISIBLE
+                binding.startStopButton.visibility = View.GONE
+                binding.customStartLink.visibility = View.GONE
+                binding.customStopLink.visibility = View.GONE
+                binding.startedAtText.visibility = View.GONE
+                binding.lastEntryText.visibility = View.GONE
+            }
+        }
+    }
+
+    private fun showDateTimePicker(callback: (LocalDateTime) -> Unit, cancelCallback: () -> Unit) {
+        DatePickerFragment({ date ->
+            TimePickerFragment({ time ->
+                callback.invoke(LocalDateTime.of(date, time))
+            }, {
+                cancelCallback.invoke()
+            }).show(supportFragmentManager, getString(R.string.time_picker_tag))
+        }, {
+            cancelCallback.invoke()
+        }).show(supportFragmentManager, getString(R.string.date_picker_tag))
     }
 }

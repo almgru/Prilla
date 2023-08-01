@@ -14,8 +14,9 @@ import com.android.volley.toolbox.Volley
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-class EntrySubmitter(private var context: Context, private var listener: EntryAddedListener) {
-    private var queue: RequestQueue
+class EntrySubmitter(private var context: Context) {
+    private val queue: RequestQueue
+    private val listeners: MutableSet<EntryAddedListener> = HashSet()
 
     init {
         CookieStorage.load(context)
@@ -36,6 +37,8 @@ class EntrySubmitter(private var context: Context, private var listener: EntryAd
             )
         )
     }
+
+    fun registerListener(listener: EntryAddedListener) = listeners.add(listener)
 
     private fun onGetAddEntryFormResponse(
         response: String,
@@ -70,11 +73,11 @@ class EntrySubmitter(private var context: Context, private var listener: EntryAd
     }
 
     private fun onSuccess(@Suppress("UNUSED_PARAMETER") response : String) {
-        listener.onEntryAdded()
+        listeners.forEach { it.onEntryAdded() }
     }
 
     private fun onError(error : VolleyError) {
         CookieStorage.setAuthCookieExpired(context)
-        listener.onEntrySubmitError(error)
+        listeners.forEach { it.onEntrySubmitError(error) }
     }
 }
