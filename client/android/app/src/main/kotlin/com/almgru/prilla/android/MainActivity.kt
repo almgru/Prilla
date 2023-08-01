@@ -68,32 +68,96 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
         super.onResume()
 
         startedDateTime = PersistenceManager.getStartedDateTime(this)
-
-        if (startedDateTime != null) {
-            setUiState(UIState.STARTED)
-        } else {
-            setUiState(UIState.NOT_STARTED)
-        }
+        setUiState(if (startedDateTime != null) { UIState.STARTED } else { UIState.NOT_STARTED })
 
         backupper.backup()
     }
 
     fun onStartStopPressed(@Suppress("UNUSED_PARAMETER") view: View) {
-        if (startedDateTime == null) {
-            startNewEntry()
-        } else {
-            finalizeEntry()
-        }
+        startedDateTime?.let { handleStop(it) } ?: run { handleStart() }
     }
 
     override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
         amountLabel.text = getString(R.string.amount_label).format(progress)
     }
 
-    override fun onStartTrackingTouch(seekBar: SeekBar?) {
+    override fun onEntryAdded() {
+        Toast.makeText(this, "Entry added", Toast.LENGTH_SHORT).show()
+
+        lastEntry?.let {
+            PersistenceManager.putLastEntry(this, it)
+        }
+
+        handleClear()
     }
 
-    override fun onStopTrackingTouch(seekBar: SeekBar?) {
+    override fun onEntrySubmitError(error: VolleyError) {
+        Toast.makeText(this, "Session expired", Toast.LENGTH_SHORT).show()
+        val intent = Intent(this, LoginActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
+        startActivity(intent)
+        finish()
+    }
+
+    override fun onLongClick(v: View?): Boolean {
+        Toast.makeText(this, "Entry cleared", Toast.LENGTH_SHORT).show()
+        handleClear()
+        return true
+    }
+
+    fun onCustomStartedPressed(@Suppress("UNUSED_PARAMETER") v: View) {
+        setUiState(UIState.SELECTING_DATETIME)
+
+        DatePickerFragment({ date ->
+            TimePickerFragment({ time ->
+                handleStart(LocalDateTime.of(date, time))
+            }, {
+                setUiState(UIState.NOT_STARTED)
+            }).show(supportFragmentManager, "timePicker")
+        }, {
+            setUiState(UIState.NOT_STARTED)
+        }).show(supportFragmentManager, "datePicker")
+    }
+
+    fun onCustomStoppedPressed(@Suppress("UNUSED_PARAMETER") v: View) {
+        startedDateTime?.let { start ->
+            setUiState(UIState.SELECTING_DATETIME)
+
+            DatePickerFragment({ date ->
+                TimePickerFragment({ time ->
+                    handleStop(start, LocalDateTime.of(date, time))
+                }, {
+                    setUiState(UIState.STARTED)
+                }).show(supportFragmentManager, "timePicker")
+            }, {
+                setUiState(UIState.STARTED)
+            }).show(supportFragmentManager, "datePicker")
+        } ?: run { handleClear() }
+    }
+
+    private fun handleStart(start: LocalDateTime = LocalDateTime.now()) {
+        startedDateTime = start
+        PersistenceManager.putStartedDateTime(this, startedDateTime!!)
+        setUiState(UIState.STARTED)
+    }
+
+    private fun handleStop(start: LocalDateTime, stopped: LocalDateTime = LocalDateTime.now()) {
+        val amount = amountSlider.progress
+
+        lastEntry = Entry(
+            start.toKotlinLocalDateTime(),
+            stopped.toKotlinLocalDateTime(),
+            amount
+        )
+        submitter.submit(start, stopped, amount)
+
+        setUiState(UIState.SUBMITTED)
+    }
+
+    private fun handleClear() {
+        setUiState(UIState.NOT_STARTED)
+        startedDateTime = null
+        PersistenceManager.removeStartedDateTime(this)
     }
 
     private fun setUiState(state: UIState) {
@@ -106,16 +170,16 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
                 customStoppedLink.visibility = View.GONE
                 startedAtText.visibility = View.GONE
 
-                if (lastEntry != null) {
+                lastEntry?.let {
                     lastEntryText.visibility = View.VISIBLE
                     lastEntryText.text = getString(
                         R.string.last_entry_text,
                         DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
-                            .format(lastEntry!!.started.toJavaLocalDateTime()),
+                            .format(it.started.toJavaLocalDateTime()),
                         DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
-                            .format(lastEntry!!.stopped.toJavaLocalDateTime())
+                            .format(it.stopped.toJavaLocalDateTime())
                     )
-                } else {
+                } ?: run {
                     lastEntryText.visibility = View.GONE
                 }
             }
@@ -126,20 +190,17 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
                 customStartedLink.visibility = View.GONE
                 customStoppedLink.visibility = View.VISIBLE
                 startedAtText.visibility = View.VISIBLE
-                startedAtText.text = getString(
-                    R.string.started_at_text,
-                    DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).format(startedDateTime)
-                )
+
+                startedDateTime?.let {
+                    startedAtText.text = getString(
+                        R.string.started_at_text,
+                        DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).format(it)
+                    )
+                }
+
                 lastEntryText.visibility = View.GONE
             }
-            UIState.SUBMITTED -> {
-                submitProgressIndicator.visibility = View.VISIBLE
-                startStopButton.visibility = View.GONE
-                customStartedLink.visibility = View.GONE
-                customStoppedLink.visibility = View.GONE
-                startedAtText.visibility = View.GONE
-                lastEntryText.visibility = View.GONE
-            }
+            UIState.SUBMITTED,
             UIState.SELECTING_DATETIME -> {
                 submitProgressIndicator.visibility = View.VISIBLE
                 startStopButton.visibility = View.GONE
@@ -151,75 +212,6 @@ class MainActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener,
         }
     }
 
-    override fun onEntryAdded() {
-        Toast.makeText(this, "Entry added", Toast.LENGTH_SHORT).show()
-        PersistenceManager.putLastEntry(this, lastEntry!!)
-        startedDateTime = null
-        PersistenceManager.removeStartedDateTime(this)
-        setUiState(UIState.NOT_STARTED)
-    }
-
-    override fun onEntrySubmitError(error: VolleyError) {
-        Toast.makeText(this, "Session expired", Toast.LENGTH_SHORT).show()
-        setUiState(UIState.NOT_STARTED)
-        val intent = Intent(this, LoginActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
-        startActivity(intent)
-        finish()
-    }
-
-    override fun onLongClick(v: View?): Boolean {
-        Toast.makeText(this, "Entry cleared", Toast.LENGTH_SHORT).show()
-        setUiState(UIState.NOT_STARTED)
-        startedDateTime = null
-        PersistenceManager.removeStartedDateTime(this)
-        return true
-    }
-
-    fun onCustomStartedPressed(@Suppress("UNUSED_PARAMETER") v: View) {
-        setUiState(UIState.SELECTING_DATETIME)
-
-        DatePickerFragment({ date ->
-            TimePickerFragment({ time ->
-                startNewEntry(LocalDateTime.of(date, time))
-            }, {
-                setUiState(UIState.NOT_STARTED)
-            }).show(supportFragmentManager, "timePicker")
-        }, {
-            setUiState(UIState.NOT_STARTED)
-        }).show(supportFragmentManager, "datePicker")
-    }
-
-    fun onCustomStoppedPressed(@Suppress("UNUSED_PARAMETER") v: View) {
-        setUiState(UIState.SELECTING_DATETIME)
-
-        DatePickerFragment({ date ->
-            TimePickerFragment({ time ->
-                finalizeEntry(LocalDateTime.of(date, time))
-            }, {
-                setUiState(UIState.STARTED)
-            }).show(supportFragmentManager, "timePicker")
-        }, {
-            setUiState(UIState.STARTED)
-        }).show(supportFragmentManager, "datePicker")
-    }
-
-    private fun startNewEntry(start: LocalDateTime = LocalDateTime.now()) {
-        startedDateTime = start
-        PersistenceManager.putStartedDateTime(this, startedDateTime!!)
-        setUiState(UIState.STARTED)
-    }
-
-    private fun finalizeEntry(stoppedDateTime: LocalDateTime = LocalDateTime.now()) {
-        val amount = amountSlider.progress
-
-        lastEntry = Entry(
-            startedDateTime!!.toKotlinLocalDateTime(),
-            stoppedDateTime.toKotlinLocalDateTime(),
-            amount
-        )
-        submitter.submit(startedDateTime!!, stoppedDateTime, amount)
-
-        setUiState(UIState.SUBMITTED)
-    }
+    override fun onStartTrackingTouch(p0: SeekBar?) = Unit
+    override fun onStopTrackingTouch(p0: SeekBar?) = Unit
 }
