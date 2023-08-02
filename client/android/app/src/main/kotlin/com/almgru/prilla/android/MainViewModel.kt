@@ -22,9 +22,9 @@ class MainViewModel(
     }
 
     val event = MutableLiveData<Event<MainViewEvents>>(null)
-    val lastEntry = MutableLiveData<Entry?>(null)
-    val startedDateTime = MutableLiveData<LocalDateTime?>(null)
-    val amount = MutableLiveData(1)
+    val lastEntry = MutableLiveData<Entry?>(persistenceManager.getLastEntry())
+    val startedDateTime = MutableLiveData<LocalDateTime?>(persistenceManager.getStartedDateTime())
+    val amount = MutableLiveData(persistenceManager.getAmount())
 
     init {
         submitter.registerListener(this)
@@ -35,13 +35,9 @@ class MainViewModel(
     }
 
     override fun onEntryAdded() {
-        lastEntry.value?.let {
-            persistenceManager.putLastEntry(it)
-        }
-
-        event.value = Event(MainViewEvents.ENTRY_SUBMIT_SUCCESS)
-
+        lastEntry.value?.let { persistenceManager.putLastEntry(it) }
         handleClear()
+        event.value = Event(MainViewEvents.ENTRY_SUBMIT_SUCCESS)
     }
 
     override fun onEntrySubmitError(error: VolleyError) {
@@ -50,6 +46,7 @@ class MainViewModel(
 
     fun updateAmount(newAmount: Int) {
         amount.value = newAmount
+        persistenceManager.putAmount(newAmount)
     }
 
     fun onStartDateTimePicked(start: LocalDateTime) {
@@ -83,7 +80,6 @@ class MainViewModel(
 
     fun onCustomStoppedPressed() {
         requireNotNull(startedDateTime.value)
-
         event.value = Event(MainViewEvents.SELECT_CUSTOM_STOP_DATETIME)
     }
 
@@ -101,7 +97,6 @@ class MainViewModel(
         )
 
         submitter.submit(started, stopped, checkNotNull(amount.value))
-
         event.value = Event(MainViewEvents.ENTRY_SUBMITTED)
     }
 

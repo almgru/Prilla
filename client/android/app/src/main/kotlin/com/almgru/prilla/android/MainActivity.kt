@@ -8,6 +8,15 @@ import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import com.almgru.prilla.android.MainViewModel.MainViewEvents.CANCEL_SELECT_CUSTOM_START_DATETIME
+import com.almgru.prilla.android.MainViewModel.MainViewEvents.CANCEL_SELECT_CUSTOM_STOP_DATETIME
+import com.almgru.prilla.android.MainViewModel.MainViewEvents.ENTRY_CLEARED
+import com.almgru.prilla.android.MainViewModel.MainViewEvents.ENTRY_STARTED
+import com.almgru.prilla.android.MainViewModel.MainViewEvents.ENTRY_SUBMITTED
+import com.almgru.prilla.android.MainViewModel.MainViewEvents.ENTRY_SUBMIT_ERROR
+import com.almgru.prilla.android.MainViewModel.MainViewEvents.ENTRY_SUBMIT_SUCCESS
+import com.almgru.prilla.android.MainViewModel.MainViewEvents.SELECT_CUSTOM_START_DATETIME
+import com.almgru.prilla.android.MainViewModel.MainViewEvents.SELECT_CUSTOM_STOP_DATETIME
 import com.almgru.prilla.android.databinding.ActivityMainBinding
 import com.almgru.prilla.android.fragment.DatePickerFragment
 import com.almgru.prilla.android.fragment.TimePickerFragment
@@ -28,7 +37,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(R.layout.activity_main)
+        setContentView(binding.root)
         binding.amountLabel.text = getString(R.string.amount_label, binding.amountSlider.progress)
 
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
@@ -67,57 +76,31 @@ class MainActivity : AppCompatActivity() {
         viewModel.event.observe(this) { event ->
             event.getContentIfNotHandled()?.let { content ->
                 when (content) {
-                    MainViewModel.MainViewEvents.ENTRY_STARTED -> {
-                        setUiVisibility(UIState.STARTED)
-                    }
-
-                    MainViewModel.MainViewEvents.ENTRY_CLEARED -> {
-                        Toast
-                            .makeText(this, R.string.entry_clear_message, Toast.LENGTH_SHORT)
-                            .show()
+                    ENTRY_STARTED -> setUiVisibility(UIState.STARTED)
+                    ENTRY_CLEARED -> {
+                        showMessage(R.string.entry_clear_message)
                         setUiVisibility(UIState.NOT_STARTED)
                     }
 
-                    MainViewModel.MainViewEvents.ENTRY_SUBMITTED -> {
-                    }
-
-                    MainViewModel.MainViewEvents.ENTRY_SUBMIT_SUCCESS -> {
-                        Toast
-                            .makeText(this, R.string.entry_added_message, Toast.LENGTH_SHORT)
-                            .show()
-                    }
-
-                    MainViewModel.MainViewEvents.ENTRY_SUBMIT_ERROR -> {
-                        Toast.makeText(
-                            this,
-                            R.string.entry_submit_failed_message,
-                            Toast.LENGTH_SHORT
-                        ).show()
-
+                    ENTRY_SUBMITTED -> Unit
+                    ENTRY_SUBMIT_SUCCESS -> showMessage(R.string.entry_added_message)
+                    ENTRY_SUBMIT_ERROR -> {
+                        showMessage(R.string.entry_submit_failed_message)
                         returnToLoginScreen()
                     }
 
-                    MainViewModel.MainViewEvents.SELECT_CUSTOM_START_DATETIME -> {
-                        showDateTimePicker(
-                            viewModel::onStartDateTimePicked,
-                            viewModel::onCancelPickStartDateTime
-                        )
-                    }
+                    SELECT_CUSTOM_START_DATETIME -> showDateTimePicker(
+                        viewModel::onStartDateTimePicked,
+                        viewModel::onCancelPickStartDateTime
+                    )
 
-                    MainViewModel.MainViewEvents.SELECT_CUSTOM_STOP_DATETIME -> {
-                        showDateTimePicker(
-                            viewModel::onStopDateTimePicked,
-                            viewModel::onCancelPickStopDateTime
-                        )
-                    }
+                    SELECT_CUSTOM_STOP_DATETIME -> showDateTimePicker(
+                        viewModel::onStopDateTimePicked,
+                        viewModel::onCancelPickStopDateTime
+                    )
 
-                    MainViewModel.MainViewEvents.CANCEL_SELECT_CUSTOM_START_DATETIME -> {
-                        setUiVisibility(UIState.NOT_STARTED)
-                    }
-
-                    MainViewModel.MainViewEvents.CANCEL_SELECT_CUSTOM_STOP_DATETIME -> {
-                        setUiVisibility(UIState.STARTED)
-                    }
+                    CANCEL_SELECT_CUSTOM_START_DATETIME -> setUiVisibility(UIState.NOT_STARTED)
+                    CANCEL_SELECT_CUSTOM_STOP_DATETIME -> setUiVisibility(UIState.STARTED)
                 }
             }
         }
@@ -130,34 +113,24 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.startedDateTime.observe(this) {
             when (it) {
-                null -> {
-                    binding.startedAtText.text = ""
-                }
-
-                else -> {
-                    binding.startedAtText.text = getString(
-                        R.string.started_at_text,
-                        DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).format(it)
-                    )
-                }
+                null -> binding.startedAtText.text = ""
+                else -> binding.startedAtText.text = getString(
+                    R.string.started_at_text,
+                    DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).format(it)
+                )
             }
         }
 
         viewModel.lastEntry.observe(this) {
             when (it) {
-                null -> {
-                    binding.lastEntryText.text = ""
-                }
-
-                else -> {
-                    binding.lastEntryText.text = getString(
-                        R.string.last_entry_text,
-                        DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
-                            .format(it.started.toJavaLocalDateTime()),
-                        DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
-                            .format(it.stopped.toJavaLocalDateTime())
-                    )
-                }
+                null -> binding.lastEntryText.text = ""
+                else -> binding.lastEntryText.text = getString(
+                    R.string.last_entry_text,
+                    DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
+                        .format(it.started.toJavaLocalDateTime()),
+                    DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
+                        .format(it.stopped.toJavaLocalDateTime())
+                )
             }
         }
     }
@@ -213,5 +186,9 @@ class MainActivity : AppCompatActivity() {
         }, {
             cancelCallback.invoke()
         }).show(supportFragmentManager, getString(R.string.date_picker_tag))
+    }
+
+    private fun showMessage(resId: Int) {
+        Toast.makeText(this, resId, Toast.LENGTH_SHORT).show()
     }
 }

@@ -7,7 +7,6 @@ import com.almgru.prilla.android.model.Entry
 import com.almgru.prilla.android.net.cookie.SerializableHttpCookie
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import java.lang.Exception
 import java.net.HttpCookie
 import java.time.LocalDateTime
 import java.time.Period
@@ -63,19 +62,19 @@ class PersistenceManager(private val context: Context) {
     fun getLastUpdateTimestamp(): LocalDateTime? {
         return try {
             LocalDateTime.parse(readString(R.string.shared_prefs_last_backup_timestamp))
-        } catch(e : Exception) {
+        } catch (e: Exception) {
             null
         }
     }
 
-    fun putLastUpdateTimestamp(timestamp : LocalDateTime) {
+    fun putLastUpdateTimestamp(timestamp: LocalDateTime) {
         writeString(R.string.shared_prefs_last_backup_timestamp, timestamp.toString())
     }
 
-    fun getUpdateInterval() : Period? {
+    fun getUpdateInterval(): Period? {
         return try {
             Period.parse(readString(R.string.shared_prefs_update_interval))
-        } catch (ex : Exception) {
+        } catch (ex: Exception) {
             null
         }
     }
@@ -84,14 +83,26 @@ class PersistenceManager(private val context: Context) {
         writeString(R.string.shared_prefs_update_interval, updateInterval.toString())
     }
 
-    fun putLastEntry(entry : Entry) {
+    fun putLastEntry(entry: Entry) {
         writeString(R.string.shared_prefs_last_entry, Json.encodeToString(entry))
     }
 
-    fun getLastEntry() : Entry? {
+    fun getLastEntry(): Entry? {
         val raw = readString(R.string.shared_prefs_last_entry) ?: return null
 
         return Json.decodeFromString(raw)
+    }
+
+    fun putAmount(amount: Int) {
+        writeString(R.string.shared_prefs_amount, amount.toString())
+    }
+
+    fun getAmount(): Int? {
+        return try {
+            readString(R.string.shared_prefs_amount)?.toInt()
+        } catch (ex: NumberFormatException) {
+            null
+        }
     }
 
     private fun writeString(keyId: Int, value: String) {

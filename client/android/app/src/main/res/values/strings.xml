@@ -8,6 +8,7 @@
     <string name="shared_prefs_last_backup_timestamp">lastBackupTimestamp</string>
     <string name="shared_prefs_update_interval">updateInterval</string>
     <string name="shared_prefs_last_entry">lastEntry</string>
+    <string name="shared_prefs_amount">amount</string>
 
     <string name="file_storage_backup">backup</string>
 
@@ -40,6 +41,9 @@
     <string name="entry_clear_message">Entry cleared.</string>
 
     <string name="server_url_validation_error_message">Must start with http(s)://</string>
+    <string name="bad_credentials_error_message">Bad credentials</string>
+    <string name="session_expired_error_message">Session expired</string>
+    <string name="network_error_message">Network error</string>
 
     <string name="date_picker_tag">datepicker</string>
     <string name="time_picker_tag">timepicker</string>
