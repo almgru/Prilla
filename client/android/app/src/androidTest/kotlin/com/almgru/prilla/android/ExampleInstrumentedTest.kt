@@ -10,14 +10,13 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withSubstring
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import com.almgru.prilla.android.activities.login.LoginActivity
 import org.hamcrest.Matcher
-
+import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
-
-import org.junit.Assert.*
 
 fun waitForView(viewMatcher: Matcher<View>, timeout: Long = 10000) {
     val endTime = System.currentTimeMillis() + timeout
@@ -44,8 +43,7 @@ fun waitForView(viewMatcher: Matcher<View>, timeout: Long = 10000) {
 @RunWith(AndroidJUnit4::class)
 class ExampleInstrumentedTest {
     @Test
-    fun useAppContext() {
-        // Context of the app under test.
+    fun useAppContext() { // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
         assertEquals("com.almgru.prilla.android", appContext.packageName)
     }
@@ -57,9 +55,21 @@ class ExampleInstrumentedTest {
         val password = System.getenv("PRILLA_PASSWORD_TEST")
 
         launch(LoginActivity::class.java).use {
-            onView(withId(R.id.serverField)).perform(click(), replaceText(serverHost), closeSoftKeyboard())
-            onView(withId(R.id.usernameField)).perform(click(), replaceText(username), closeSoftKeyboard())
-            onView(withId(R.id.passwordField)).perform(click(), replaceText(password), closeSoftKeyboard())
+            onView(withId(R.id.serverField)).perform(
+                click(),
+                replaceText(serverHost),
+                closeSoftKeyboard()
+            )
+            onView(withId(R.id.usernameField)).perform(
+                click(),
+                replaceText(username),
+                closeSoftKeyboard()
+            )
+            onView(withId(R.id.passwordField)).perform(
+                click(),
+                replaceText(password),
+                closeSoftKeyboard()
+            )
             onView(withId(R.id.loginButton)).perform(click())
 
             waitForView(withId(R.id.startStopButton))

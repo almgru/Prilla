@@ -1,4 +1,4 @@
-package com.almgru.prilla.android
+package com.almgru.prilla.android.activities.login
 
 import android.content.Intent
 import android.os.Bundle
@@ -10,13 +10,15 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.almgru.prilla.android.LoginViewModel.LoginViewEvents.BAD_CREDENTIALS_ERROR
-import com.almgru.prilla.android.LoginViewModel.LoginViewEvents.HAS_ACTIVE_SESSION
-import com.almgru.prilla.android.LoginViewModel.LoginViewEvents.INVALID_URL_ERROR
-import com.almgru.prilla.android.LoginViewModel.LoginViewEvents.LOGGED_IN
-import com.almgru.prilla.android.LoginViewModel.LoginViewEvents.NETWORK_ERROR
-import com.almgru.prilla.android.LoginViewModel.LoginViewEvents.SESSION_EXPIRED_ERROR
-import com.almgru.prilla.android.LoginViewModel.LoginViewEvents.SUBMITTED
+import com.almgru.prilla.android.R
+import com.almgru.prilla.android.activities.login.events.BadCredentialsErrorEvent
+import com.almgru.prilla.android.activities.login.events.HasActiveSessionEvent
+import com.almgru.prilla.android.activities.login.events.InvalidURLErrorEvent
+import com.almgru.prilla.android.activities.login.events.LoggedInSuccessfullyEvent
+import com.almgru.prilla.android.activities.login.events.NetworkErrorEvent
+import com.almgru.prilla.android.activities.login.events.SessionExpiredErrorEvent
+import com.almgru.prilla.android.activities.login.events.SubmittedEvent
+import com.almgru.prilla.android.activities.main.MainActivity
 import com.almgru.prilla.android.databinding.ActivityLoginBinding
 import com.almgru.prilla.android.events.Event
 import kotlinx.coroutines.launch
@@ -57,18 +59,15 @@ class LoginActivity : AppCompatActivity() {
         viewModel.onResume()
     }
 
-    private fun handleEvent(event: Event<LoginViewModel.LoginViewEvents>) {
-        event.getContentIfNotHandled()?.let { content ->
-            when (content) {
-                HAS_ACTIVE_SESSION -> viewModel.loginWithActiveSession()
-                SUBMITTED -> setUiVisibility(true)
-                LOGGED_IN -> gotoMainActivity()
-                INVALID_URL_ERROR -> showError(R.string.server_url_validation_error_message)
-                BAD_CREDENTIALS_ERROR -> showError(R.string.bad_credentials_error_message)
-                SESSION_EXPIRED_ERROR -> showError(R.string.session_expired_error_message)
-                NETWORK_ERROR -> showError(R.string.network_error_message)
-            }
-        }
+    private fun handleEvent(event: Event) = when (event) {
+        is HasActiveSessionEvent -> viewModel.loginWithActiveSession()
+        is SubmittedEvent -> setUiVisibility(true)
+        is LoggedInSuccessfullyEvent -> gotoMainActivity()
+        is InvalidURLErrorEvent -> showError(R.string.server_url_validation_error_message)
+        is BadCredentialsErrorEvent -> showError(R.string.bad_credentials_error_message)
+        is SessionExpiredErrorEvent -> showError(R.string.session_expired_error_message)
+        is NetworkErrorEvent -> showError(R.string.network_error_message)
+        else -> throw IllegalArgumentException("Unknown event")
     }
 
     private fun handleStateChange(state: LoginViewState) {

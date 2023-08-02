@@ -1,44 +1,46 @@
-package com.almgru.prilla.android
+package com.almgru.prilla.android.activities.main
 
 import androidx.lifecycle.ViewModel
+import com.almgru.prilla.android.DataBackupManager
+import com.almgru.prilla.android.PersistenceManager
+import com.almgru.prilla.android.activities.main.events.CancelSelectCustomStartDateTimeEvent
+import com.almgru.prilla.android.activities.main.events.CancelSelectCustomStopDateTimeEvent
+import com.almgru.prilla.android.activities.main.events.EntryAddedSuccessfullyEvent
+import com.almgru.prilla.android.activities.main.events.EntryClearedEvent
+import com.almgru.prilla.android.activities.main.events.EntryStartedEvent
+import com.almgru.prilla.android.activities.main.events.EntrySubmitErrorEvent
+import com.almgru.prilla.android.activities.main.events.EntrySubmittedEvent
+import com.almgru.prilla.android.activities.main.events.SelectCustomStartDateTimeEvent
+import com.almgru.prilla.android.activities.main.events.SelectCustomStopDateTimeEvent
 import com.almgru.prilla.android.events.Event
 import com.almgru.prilla.android.model.Entry
 import com.almgru.prilla.android.net.EntryAddedListener
 import com.almgru.prilla.android.net.EntrySubmitter
 import com.android.volley.VolleyError
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.datetime.toKotlinLocalDateTime
 import java.time.LocalDateTime
-
-data class MainViewState(
-    val event: Event<MainViewModel.MainViewEvents>?,
-    val lastEntry: Entry?,
-    val startedDateTime: LocalDateTime?,
-    val amount: Int
-)
 
 class MainViewModel(
     private val submitter: EntrySubmitter,
     private val backupManager: DataBackupManager,
     private val persistenceManager: PersistenceManager
 ) : ViewModel(), EntryAddedListener {
-    enum class MainViewEvents {
-        ENTRY_STARTED, ENTRY_CLEARED, ENTRY_SUBMITTED, ENTRY_SUBMIT_SUCCESS, ENTRY_SUBMIT_ERROR,
-        SELECT_CUSTOM_START_DATETIME, SELECT_CUSTOM_STOP_DATETIME,
-        CANCEL_SELECT_CUSTOM_START_DATETIME, CANCEL_SELECT_CUSTOM_STOP_DATETIME
-    }
-
     private val _state = MutableStateFlow(
         MainViewState(
-            event = null,
             lastEntry = persistenceManager.getLastEntry(),
             startedDateTime = persistenceManager.getStartedDateTime(),
             amount = 0
         )
     )
-    val state: StateFlow<MainViewState> = _state
+    val state = _state.asStateFlow()
+
+    private val _events = MutableSharedFlow<Event>()
+    val events = _events.asSharedFlow()
 
     init {
         submitter.registerListener(this)
@@ -49,11 +51,12 @@ class MainViewModel(
     override fun onEntryAdded() {
         state.value.lastEntry?.let { persistenceManager.putLastEntry(it) }
         handleClear()
-        _state.update { it.copy(event = Event(MainViewEvents.ENTRY_SUBMIT_SUCCESS)) }
+        _events.tryEmit(EntryAddedSuccessfullyEvent())
     }
 
-    override fun onEntrySubmitError(error: VolleyError) =
-        _state.update { it.copy(event = Event(MainViewEvents.ENTRY_SUBMIT_ERROR)) }
+    override fun onEntrySubmitError(error: VolleyError) {
+        _events.tryEmit(EntrySubmitErrorEvent())
+    }
 
     fun updateAmount(newAmount: Int) {
         _state.update { it.copy(amount = newAmount) }
@@ -62,39 +65,38 @@ class MainViewModel(
 
     fun onStartDateTimePicked(start: LocalDateTime) = handleStart(start)
 
-    fun onCancelPickStartDateTime() =
-        _state.update { it.copy(event = Event(MainViewEvents.CANCEL_SELECT_CUSTOM_START_DATETIME)) }
+    fun onCancelPickStartDateTime() {
+        _events.tryEmit(CancelSelectCustomStartDateTimeEvent())
+    }
 
     fun onStopDateTimePicked(stop: LocalDateTime) =
         handleStop(checkNotNull(state.value.startedDateTime), stop)
 
-    fun onCancelPickStopDateTime() =
-        _state.update { it.copy(event = Event(MainViewEvents.CANCEL_SELECT_CUSTOM_STOP_DATETIME)) }
+    fun onCancelPickStopDateTime() {
+        _events.tryEmit(CancelSelectCustomStopDateTimeEvent())
+    }
 
     fun onStartStopPressed() =
         state.value.startedDateTime?.let { handleStop(it) } ?: run { handleStart() }
 
     fun onStartStopLongPressed() {
         handleClear()
-        _state.update { it.copy(event = Event(MainViewEvents.ENTRY_CLEARED)) }
+        _events.tryEmit(EntryClearedEvent())
     }
 
-    fun onCustomStartedPressed() =
-        _state.update { it.copy(event = Event(MainViewEvents.SELECT_CUSTOM_START_DATETIME)) }
+    fun onCustomStartedPressed() {
+        _events.tryEmit(SelectCustomStartDateTimeEvent())
+    }
 
     fun onCustomStoppedPressed() {
         requireNotNull(state.value.startedDateTime)
-        _state.update { it.copy(event = Event(MainViewEvents.SELECT_CUSTOM_STOP_DATETIME)) }
+        _events.tryEmit(SelectCustomStopDateTimeEvent())
     }
 
     private fun handleStart(started: LocalDateTime = LocalDateTime.now()) {
         persistenceManager.putStartedDateTime(started)
-        _state.update {
-            it.copy(
-                event = Event(MainViewEvents.ENTRY_STARTED),
-                startedDateTime = started
-            )
-        }
+        _state.update { it.copy(startedDateTime = started) }
+        _events.tryEmit(EntryStartedEvent())
     }
 
     private fun handleStop(started: LocalDateTime, stopped: LocalDateTime = LocalDateTime.now()) {
@@ -102,7 +104,6 @@ class MainViewModel(
 
         _state.update {
             it.copy(
-                event = Event(MainViewEvents.ENTRY_SUBMITTED),
                 lastEntry = Entry(
                     started.toKotlinLocalDateTime(),
                     stopped.toKotlinLocalDateTime(),
@@ -110,6 +111,8 @@ class MainViewModel(
                 )
             )
         }
+
+        _events.tryEmit(EntrySubmittedEvent())
     }
 
     private fun handleClear() {
