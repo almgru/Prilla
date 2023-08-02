@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.datetime.toKotlinLocalDateTime
 import java.time.LocalDateTime
 
+// TODO: Use view model lifecycle scope for asynchronous calls to entry submitter
 class MainViewModel(
     private val submitter: EntrySubmitter,
     private val backupManager: DataBackupManager,

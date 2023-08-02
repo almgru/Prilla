@@ -1,28 +1,28 @@
 package com.almgru.prilla.android.activities.login
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.almgru.prilla.android.PersistenceManager
 import com.almgru.prilla.android.activities.login.events.BadCredentialsErrorEvent
 import com.almgru.prilla.android.activities.login.events.HasActiveSessionEvent
 import com.almgru.prilla.android.activities.login.events.InvalidURLErrorEvent
 import com.almgru.prilla.android.activities.login.events.LoggedInSuccessfullyEvent
 import com.almgru.prilla.android.activities.login.events.NetworkErrorEvent
-import com.almgru.prilla.android.activities.login.events.SessionExpiredErrorEvent
 import com.almgru.prilla.android.activities.login.events.SubmittedEvent
 import com.almgru.prilla.android.events.Event
-import com.almgru.prilla.android.net.auth.LoginListener
 import com.almgru.prilla.android.net.auth.LoginManager
+import com.almgru.prilla.android.net.auth.LoginResult
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-// TODO: Use viewModelScope to call loginManager asynchronously
 class LoginViewModel(
     private val loginManager: LoginManager, private val persistenceManager: PersistenceManager
-) : ViewModel(), LoginListener {
+) : ViewModel() {
 
     private val _state = MutableStateFlow(
         LoginViewState(
@@ -40,13 +40,24 @@ class LoginViewModel(
         }
     }
 
-    fun loginWithActiveSession() = loginManager.login()
+    fun loginWithActiveSession() {
+        viewModelScope.launch {
+            handleLoginResult(
+                loginManager.login().await()
+            )
+        }
+    }
 
     fun onLoginPressed() {
         if (isValidUrl(state.value.serverUrl)) {
             persistenceManager.putServerUrl(state.value.serverUrl)
             _events.tryEmit(SubmittedEvent())
-            loginManager.login(state.value.username, state.value.password)
+
+            viewModelScope.launch {
+                handleLoginResult(
+                    loginManager.login(state.value.username, state.value.password).await()
+                )
+            }
         } else {
             _events.tryEmit(InvalidURLErrorEvent())
         }
@@ -56,20 +67,12 @@ class LoginViewModel(
     fun onUsernameFieldTextChanged(text: String) = _state.update { it.copy(username = text) }
     fun onPasswordFieldTextChanged(text: String) = _state.update { it.copy(password = text) }
 
-    override fun onLoggedIn() {
-        _events.tryEmit(LoggedInSuccessfullyEvent())
-    }
-
-    override fun onBadCredentials() {
-        _events.tryEmit(BadCredentialsErrorEvent())
-    }
-
-    override fun onSessionExpired() {
-        _events.tryEmit(SessionExpiredErrorEvent())
-    }
-
-    override fun onNetworkError() {
-        _events.tryEmit(NetworkErrorEvent())
+    private fun handleLoginResult(result: LoginResult) {
+        when (result) {
+            LoginResult.Success -> _events.tryEmit(LoggedInSuccessfullyEvent())
+            LoginResult.InvalidCredentials -> _events.tryEmit(BadCredentialsErrorEvent())
+            LoginResult.NetworkError -> _events.tryEmit(NetworkErrorEvent())
+        }
     }
 
     private fun isValidUrl(url: String): Boolean {
