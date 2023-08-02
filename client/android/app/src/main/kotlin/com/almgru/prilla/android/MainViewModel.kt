@@ -1,14 +1,23 @@
 package com.almgru.prilla.android
 
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.almgru.prilla.android.events.Event
 import com.almgru.prilla.android.model.Entry
 import com.almgru.prilla.android.net.EntryAddedListener
 import com.almgru.prilla.android.net.EntrySubmitter
 import com.android.volley.VolleyError
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.datetime.toKotlinLocalDateTime
 import java.time.LocalDateTime
+
+data class MainViewState(
+    val event: Event<MainViewModel.MainViewEvents>?,
+    val lastEntry: Entry?,
+    val startedDateTime: LocalDateTime?,
+    val amount: Int
+)
 
 class MainViewModel(
     private val submitter: EntrySubmitter,
@@ -21,87 +30,90 @@ class MainViewModel(
         CANCEL_SELECT_CUSTOM_START_DATETIME, CANCEL_SELECT_CUSTOM_STOP_DATETIME
     }
 
-    val event = MutableLiveData<Event<MainViewEvents>>(null)
-    val lastEntry = MutableLiveData<Entry?>(persistenceManager.getLastEntry())
-    val startedDateTime = MutableLiveData<LocalDateTime?>(persistenceManager.getStartedDateTime())
-    val amount = MutableLiveData(persistenceManager.getAmount())
+    private val _state = MutableStateFlow(
+        MainViewState(
+            event = null,
+            lastEntry = persistenceManager.getLastEntry(),
+            startedDateTime = persistenceManager.getStartedDateTime(),
+            amount = 0
+        )
+    )
+    val state: StateFlow<MainViewState> = _state
 
     init {
         submitter.registerListener(this)
     }
 
-    fun onResume() {
-        backupManager.backup()
-    }
+    fun onResume() = backupManager.backup()
 
     override fun onEntryAdded() {
-        lastEntry.value?.let { persistenceManager.putLastEntry(it) }
+        state.value.lastEntry?.let { persistenceManager.putLastEntry(it) }
         handleClear()
-        event.value = Event(MainViewEvents.ENTRY_SUBMIT_SUCCESS)
+        _state.update { it.copy(event = Event(MainViewEvents.ENTRY_SUBMIT_SUCCESS)) }
     }
 
-    override fun onEntrySubmitError(error: VolleyError) {
-        event.value = Event(MainViewEvents.ENTRY_SUBMIT_ERROR)
-    }
+    override fun onEntrySubmitError(error: VolleyError) =
+        _state.update { it.copy(event = Event(MainViewEvents.ENTRY_SUBMIT_ERROR)) }
 
     fun updateAmount(newAmount: Int) {
-        amount.value = newAmount
+        _state.update { it.copy(amount = newAmount) }
         persistenceManager.putAmount(newAmount)
     }
 
-    fun onStartDateTimePicked(start: LocalDateTime) {
-        handleStart(start)
-    }
+    fun onStartDateTimePicked(start: LocalDateTime) = handleStart(start)
 
-    fun onCancelPickStartDateTime() {
-        event.value = Event(MainViewEvents.CANCEL_SELECT_CUSTOM_START_DATETIME)
-    }
+    fun onCancelPickStartDateTime() =
+        _state.update { it.copy(event = Event(MainViewEvents.CANCEL_SELECT_CUSTOM_START_DATETIME)) }
 
-    fun onStopDateTimePicked(stop: LocalDateTime) {
-        handleStop(checkNotNull(startedDateTime.value), stop)
-    }
+    fun onStopDateTimePicked(stop: LocalDateTime) =
+        handleStop(checkNotNull(state.value.startedDateTime), stop)
 
-    fun onCancelPickStopDateTime() {
-        event.value = Event(MainViewEvents.CANCEL_SELECT_CUSTOM_STOP_DATETIME)
-    }
+    fun onCancelPickStopDateTime() =
+        _state.update { it.copy(event = Event(MainViewEvents.CANCEL_SELECT_CUSTOM_STOP_DATETIME)) }
 
-    fun onStartStopPressed() {
-        startedDateTime.value?.let { handleStop(it) } ?: run { handleStart() }
-    }
+    fun onStartStopPressed() =
+        state.value.startedDateTime?.let { handleStop(it) } ?: run { handleStart() }
 
     fun onStartStopLongPressed() {
         handleClear()
-        event.value = Event(MainViewEvents.ENTRY_CLEARED)
+        _state.update { it.copy(event = Event(MainViewEvents.ENTRY_CLEARED)) }
     }
 
-    fun onCustomStartedPressed() {
-        event.value = Event(MainViewEvents.SELECT_CUSTOM_START_DATETIME)
-    }
+    fun onCustomStartedPressed() =
+        _state.update { it.copy(event = Event(MainViewEvents.SELECT_CUSTOM_START_DATETIME)) }
 
     fun onCustomStoppedPressed() {
-        requireNotNull(startedDateTime.value)
-        event.value = Event(MainViewEvents.SELECT_CUSTOM_STOP_DATETIME)
+        requireNotNull(state.value.startedDateTime)
+        _state.update { it.copy(event = Event(MainViewEvents.SELECT_CUSTOM_STOP_DATETIME)) }
     }
 
     private fun handleStart(started: LocalDateTime = LocalDateTime.now()) {
         persistenceManager.putStartedDateTime(started)
-        startedDateTime.value = started
-        event.value = Event(MainViewEvents.ENTRY_STARTED)
+        _state.update {
+            it.copy(
+                event = Event(MainViewEvents.ENTRY_STARTED),
+                startedDateTime = started
+            )
+        }
     }
 
     private fun handleStop(started: LocalDateTime, stopped: LocalDateTime = LocalDateTime.now()) {
-        lastEntry.value = Entry(
-            started.toKotlinLocalDateTime(),
-            stopped.toKotlinLocalDateTime(),
-            checkNotNull(amount.value)
-        )
+        submitter.submit(started, stopped, state.value.amount)
 
-        submitter.submit(started, stopped, checkNotNull(amount.value))
-        event.value = Event(MainViewEvents.ENTRY_SUBMITTED)
+        _state.update {
+            it.copy(
+                event = Event(MainViewEvents.ENTRY_SUBMITTED),
+                lastEntry = Entry(
+                    started.toKotlinLocalDateTime(),
+                    stopped.toKotlinLocalDateTime(),
+                    state.value.amount
+                )
+            )
+        }
     }
 
     private fun handleClear() {
-        startedDateTime.value = null
         persistenceManager.removeStartedDateTime()
+        _state.update { it.copy(startedDateTime = null) }
     }
 }

@@ -8,8 +8,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import com.almgru.prilla.android.LoginViewModel.LoginViewEvents.BAD_CREDENTIALS_ERROR
 import com.almgru.prilla.android.LoginViewModel.LoginViewEvents.HAS_ACTIVE_SESSION
 import com.almgru.prilla.android.LoginViewModel.LoginViewEvents.INVALID_URL_ERROR
@@ -34,35 +34,36 @@ class LoginActivity : AppCompatActivity() {
 
         binding.loginButton.setOnClickListener { viewModel.onLoginPressed() }
         binding.serverField.doOnTextChanged { text, _, _, _ ->
-            viewModel.serverUrl.value = text.toString()
+            viewModel.onServerUrlFieldTextChanged(text.toString())
         }
         binding.usernameField.doOnTextChanged { text, _, _, _ ->
-            viewModel.username.value = text.toString()
+            viewModel.onUsernameFieldTextChanged(text.toString())
         }
         binding.passwordField.doOnTextChanged { text, _, _, _ ->
-            viewModel.password.value = text.toString()
-        }
-
-        viewModel.event.observe(this) { event ->
-            event.getContentIfNotHandled()?.let { content ->
-                when (content) {
-                    HAS_ACTIVE_SESSION -> viewModel.loginWithActiveSession()
-                    SUBMITTED -> setLoadingState(true)
-                    LOGGED_IN -> gotoMainActivity()
-                    INVALID_URL_ERROR -> showError(R.string.server_url_validation_error_message)
-                    BAD_CREDENTIALS_ERROR -> showError(R.string.bad_credentials_error_message)
-                    SESSION_EXPIRED_ERROR -> showError(R.string.session_expired_error_message)
-                    NETWORK_ERROR -> showError(R.string.network_error_message)
-                }
-            }
+            viewModel.onPasswordFieldTextChanged(text.toString())
         }
 
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch { viewModel.serverUrl.collect { binding.serverField.setText(it) } }
-                launch { viewModel.username.collect { binding.usernameField.setText(it) } }
-                launch { viewModel.password.collect { binding.passwordField.setText(it) } }
-            }
+            viewModel
+                .state
+                .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+                .collect { state ->
+                    state.event?.getContentIfNotHandled()?.let { content ->
+                        when (content) {
+                            HAS_ACTIVE_SESSION -> viewModel.loginWithActiveSession()
+                            SUBMITTED -> setUiVisibility(true)
+                            LOGGED_IN -> gotoMainActivity()
+                            INVALID_URL_ERROR -> showError(R.string.server_url_validation_error_message)
+                            BAD_CREDENTIALS_ERROR -> showError(R.string.bad_credentials_error_message)
+                            SESSION_EXPIRED_ERROR -> showError(R.string.session_expired_error_message)
+                            NETWORK_ERROR -> showError(R.string.network_error_message)
+                        }
+                    }
+
+                    binding.serverField.setText(state.serverUrl)
+                    binding.usernameField.setText(state.username)
+                    binding.passwordField.setText(state.password)
+                }
         }
     }
 
@@ -72,7 +73,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun gotoMainActivity() {
-        setLoadingState(false)
+        setUiVisibility(false)
         val intent = Intent(this, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
         startActivity(intent)
@@ -80,12 +81,12 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun showError(resId: Int) {
-        setLoadingState(false)
+        setUiVisibility(false)
         Toast.makeText(this, getString(resId), Toast.LENGTH_SHORT).show()
     }
 
-    private fun setLoadingState(loading: Boolean) {
-        if (loading) {
+    private fun setUiVisibility(isLoading: Boolean) {
+        if (isLoading) {
             binding.loginButton.visibility = View.GONE
             binding.loginProgressBar.visibility = View.VISIBLE
         } else {

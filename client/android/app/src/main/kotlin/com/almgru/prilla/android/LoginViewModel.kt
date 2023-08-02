@@ -1,12 +1,19 @@
 package com.almgru.prilla.android
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.almgru.prilla.android.events.Event
 import com.almgru.prilla.android.net.auth.LoginListener
 import com.almgru.prilla.android.net.auth.LoginManager
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
+
+data class LoginViewState(
+    val event: Event<LoginViewModel.LoginViewEvents>?,
+    val serverUrl: String,
+    val username: String,
+    val password: String
+)
 
 class LoginViewModel(
     private val loginManager: LoginManager,
@@ -17,45 +24,49 @@ class LoginViewModel(
         SESSION_EXPIRED_ERROR, NETWORK_ERROR
     }
 
-    private val _event = MutableLiveData<Event<LoginViewEvents>>(null)
-    val event: LiveData<Event<LoginViewEvents>> = _event
-
-    val serverUrl = MutableStateFlow(persistenceManager.getServerUrl() ?: "")
-    val username = MutableStateFlow("")
-    val password = MutableStateFlow("")
+    private val _state = MutableStateFlow(
+        LoginViewState(
+            event = null,
+            serverUrl = persistenceManager.getServerUrl() ?: "",
+            username = "",
+            password = ""
+        )
+    )
+    val state: StateFlow<LoginViewState> = _state
 
     fun onResume() {
         if (loginManager.hasActiveSession()) {
-            _event.value = Event(LoginViewEvents.HAS_ACTIVE_SESSION)
+            _state.update { it.copy(event = Event(LoginViewEvents.HAS_ACTIVE_SESSION)) }
         }
     }
 
     fun loginWithActiveSession() = loginManager.login()
 
     fun onLoginPressed() {
-        if (isValidUrl(serverUrl.value)) {
-            persistenceManager.putServerUrl(serverUrl.value)
-            _event.value = Event(LoginViewEvents.SUBMITTED)
-            loginManager.login(username.value, password.value)
+        if (isValidUrl(state.value.serverUrl)) {
+            persistenceManager.putServerUrl(state.value.serverUrl)
+            _state.update { it.copy(event = Event(LoginViewEvents.SUBMITTED)) }
+            loginManager.login(state.value.username, state.value.password)
         } else {
-            _event.value = Event(LoginViewEvents.INVALID_URL_ERROR)
+            _state.update { it.copy(event = Event(LoginViewEvents.INVALID_URL_ERROR)) }
         }
     }
 
-    override fun onLoggedIn() {
-        _event.value = Event(LoginViewEvents.LOGGED_IN)
+    fun onServerUrlFieldTextChanged(text: String) = _state.update { it.copy(serverUrl = text) }
+    fun onUsernameFieldTextChanged(text: String) = _state.update { it.copy(username = text) }
+    fun onPasswordFieldTextChanged(text: String) = _state.update { it.copy(password = text) }
+
+    override fun onLoggedIn() = _state.update { it.copy(event = Event(LoginViewEvents.LOGGED_IN)) }
+    override fun onBadCredentials() = _state.update {
+        it.copy(event = Event(LoginViewEvents.BAD_CREDENTIALS_ERROR))
     }
 
-    override fun onBadCredentials() {
-        _event.value = Event(LoginViewEvents.BAD_CREDENTIALS_ERROR)
+    override fun onSessionExpired() = _state.update {
+        it.copy(event = Event(LoginViewEvents.SESSION_EXPIRED_ERROR))
     }
 
-    override fun onSessionExpired() {
-        _event.value = Event(LoginViewEvents.SESSION_EXPIRED_ERROR)
-    }
-
-    override fun onNetworkError() {
-        _event.value = Event(LoginViewEvents.NETWORK_ERROR)
+    override fun onNetworkError() = _state.update {
+        it.copy(event = Event(LoginViewEvents.NETWORK_ERROR))
     }
 
     private fun isValidUrl(url: String): Boolean {

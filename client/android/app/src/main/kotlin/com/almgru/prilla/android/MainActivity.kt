@@ -7,7 +7,10 @@ import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import com.almgru.prilla.android.MainViewModel.MainViewEvents.CANCEL_SELECT_CUSTOM_START_DATETIME
 import com.almgru.prilla.android.MainViewModel.MainViewEvents.CANCEL_SELECT_CUSTOM_STOP_DATETIME
 import com.almgru.prilla.android.MainViewModel.MainViewEvents.ENTRY_CLEARED
@@ -20,6 +23,8 @@ import com.almgru.prilla.android.MainViewModel.MainViewEvents.SELECT_CUSTOM_STOP
 import com.almgru.prilla.android.databinding.ActivityMainBinding
 import com.almgru.prilla.android.fragment.DatePickerFragment
 import com.almgru.prilla.android.fragment.TimePickerFragment
+import com.almgru.prilla.android.model.Entry
+import kotlinx.coroutines.launch
 import kotlinx.datetime.toJavaLocalDateTime
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -43,8 +48,7 @@ class MainActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
 
         setupViewListeners()
-        setupEventHandlers()
-        setupStateObservers()
+        setupStateChangeHandlers()
     }
 
     override fun onResume() {
@@ -72,67 +76,67 @@ class MainActivity : AppCompatActivity() {
         binding.customStopLink.setOnClickListener { viewModel.onCustomStoppedPressed() }
     }
 
-    private fun setupEventHandlers() {
-        viewModel.event.observe(this) { event ->
-            event.getContentIfNotHandled()?.let { content ->
-                when (content) {
-                    ENTRY_STARTED -> setUiVisibility(UIState.STARTED)
-                    ENTRY_CLEARED -> {
-                        showMessage(R.string.entry_clear_message)
-                        setUiVisibility(UIState.NOT_STARTED)
-                    }
-
-                    ENTRY_SUBMITTED -> Unit
-                    ENTRY_SUBMIT_SUCCESS -> showMessage(R.string.entry_added_message)
-                    ENTRY_SUBMIT_ERROR -> {
-                        showMessage(R.string.entry_submit_failed_message)
-                        returnToLoginScreen()
-                    }
-
-                    SELECT_CUSTOM_START_DATETIME -> showDateTimePicker(
-                        viewModel::onStartDateTimePicked,
-                        viewModel::onCancelPickStartDateTime
-                    )
-
-                    SELECT_CUSTOM_STOP_DATETIME -> showDateTimePicker(
-                        viewModel::onStopDateTimePicked,
-                        viewModel::onCancelPickStopDateTime
-                    )
-
-                    CANCEL_SELECT_CUSTOM_START_DATETIME -> setUiVisibility(UIState.NOT_STARTED)
-                    CANCEL_SELECT_CUSTOM_STOP_DATETIME -> setUiVisibility(UIState.STARTED)
+    private fun setupStateChangeHandlers() {
+        lifecycleScope.launch {
+            viewModel
+                .state
+                .flowWithLifecycle(lifecycle, Lifecycle.State.STARTED)
+                .collect { state ->
+                    state.event?.getContentIfNotHandled()?.let { content -> handleEvent(content) }
+                    binding.amountLabel.text = getString(R.string.amount_label, state.amount)
+                    handleStartedDatetimeChanged(state.startedDateTime)
+                    handleLastEntryChanged(state.lastEntry)
                 }
-            }
         }
     }
 
-    private fun setupStateObservers() {
-        viewModel.amount.observe(this) {
-            binding.amountLabel.text = getString(R.string.amount_label, it)
+    private fun handleEvent(event: MainViewModel.MainViewEvents) = when (event) {
+        ENTRY_STARTED -> setUiVisibility(UIState.STARTED)
+        ENTRY_CLEARED -> {
+            showMessage(R.string.entry_clear_message)
+            setUiVisibility(UIState.NOT_STARTED)
         }
 
-        viewModel.startedDateTime.observe(this) {
-            when (it) {
-                null -> binding.startedAtText.text = ""
-                else -> binding.startedAtText.text = getString(
-                    R.string.started_at_text,
-                    DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).format(it)
-                )
-            }
+        ENTRY_SUBMITTED -> Unit
+        ENTRY_SUBMIT_SUCCESS -> showMessage(R.string.entry_added_message)
+        ENTRY_SUBMIT_ERROR -> {
+            showMessage(R.string.entry_submit_failed_message)
+            returnToLoginScreen()
         }
 
-        viewModel.lastEntry.observe(this) {
-            when (it) {
-                null -> binding.lastEntryText.text = ""
-                else -> binding.lastEntryText.text = getString(
-                    R.string.last_entry_text,
-                    DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
-                        .format(it.started.toJavaLocalDateTime()),
-                    DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
-                        .format(it.stopped.toJavaLocalDateTime())
-                )
-            }
-        }
+        SELECT_CUSTOM_START_DATETIME -> showDateTimePicker(
+            viewModel::onStartDateTimePicked,
+            viewModel::onCancelPickStartDateTime
+        )
+
+        SELECT_CUSTOM_STOP_DATETIME -> showDateTimePicker(
+            viewModel::onStopDateTimePicked,
+            viewModel::onCancelPickStopDateTime
+        )
+
+        CANCEL_SELECT_CUSTOM_START_DATETIME -> setUiVisibility(UIState.NOT_STARTED)
+        CANCEL_SELECT_CUSTOM_STOP_DATETIME -> setUiVisibility(UIState.STARTED)
+    }
+
+    private fun handleStartedDatetimeChanged(started: LocalDateTime?) = when (started) {
+        null -> binding.startedAtText.text = ""
+        else -> binding.startedAtText.text = getString(
+            R.string.started_at_text,
+            DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).format(started)
+        )
+    }
+
+    private fun handleLastEntryChanged(lastEntry: Entry?) = when (lastEntry) {
+        null -> binding.lastEntryText.text = ""
+        else -> binding.lastEntryText.text = getString(
+            R.string.last_entry_text,
+            DateTimeFormatter
+                .ofLocalizedDateTime(FormatStyle.SHORT)
+                .format(lastEntry.started.toJavaLocalDateTime()),
+            DateTimeFormatter
+                .ofLocalizedDateTime(FormatStyle.SHORT)
+                .format(lastEntry.stopped.toJavaLocalDateTime())
+        )
     }
 
     private fun returnToLoginScreen() {
