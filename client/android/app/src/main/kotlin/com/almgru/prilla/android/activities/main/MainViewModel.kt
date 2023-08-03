@@ -56,15 +56,13 @@ class MainViewModel(
         _events.tryEmit(CancelSelectCustomStartDateTimeEvent())
     }
 
-    fun onStopDateTimePicked(stop: LocalDateTime) =
-        handleStop(checkNotNull(state.value.startedDateTime), stop)
+    fun onStopDateTimePicked(stop: LocalDateTime) = handleStop(checkNotNull(state.value.startedDateTime), stop)
 
     fun onCancelPickStopDateTime() {
         _events.tryEmit(CancelSelectCustomStopDateTimeEvent())
     }
 
-    fun onStartStopPressed() =
-        state.value.startedDateTime?.let { handleStop(it) } ?: run { handleStart() }
+    fun onStartStopPressed() = state.value.startedDateTime?.let { handleStop(it) } ?: run { handleStart() }
 
     fun onStartStopLongPressed() {
         handleClear()
@@ -96,13 +94,8 @@ class MainViewModel(
         viewModelScope.launch {
             when (submitter.submit(entry).await()) {
                 EntrySubmitResult.Success -> onEntryAdded(entry)
-                EntrySubmitResult.NetworkError -> _events.tryEmit(
-                    EntrySubmitSessionExpiredErrorEvent()
-                )
-
-                EntrySubmitResult.SessionExpiredError -> _events.tryEmit(
-                    EntrySubmitSessionExpiredErrorEvent()
-                )
+                EntrySubmitResult.NetworkError -> _events.tryEmit(EntrySubmitSessionExpiredErrorEvent())
+                EntrySubmitResult.SessionExpiredError -> _events.tryEmit(EntrySubmitSessionExpiredErrorEvent())
             }
         }
     }

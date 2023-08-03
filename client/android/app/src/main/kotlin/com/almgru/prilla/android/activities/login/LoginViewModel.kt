@@ -40,11 +40,7 @@ class LoginViewModel(
     }
 
     fun loginWithActiveSession() {
-        viewModelScope.launch {
-            handleLoginResult(
-                loginManager.login().await()
-            )
-        }
+        viewModelScope.launch { handleLoginResult(loginManager.login().await()) }
     }
 
     fun onLoginPressed() {
@@ -53,9 +49,7 @@ class LoginViewModel(
             _events.tryEmit(SubmittedEvent())
 
             viewModelScope.launch {
-                handleLoginResult(
-                    loginManager.login(state.value.username, state.value.password).await()
-                )
+                handleLoginResult(loginManager.login(state.value.username, state.value.password).await())
             }
         } else {
             _events.tryEmit(InvalidURLErrorEvent())
@@ -66,14 +60,13 @@ class LoginViewModel(
     fun onUsernameFieldTextChanged(text: String) = _state.update { it.copy(username = text) }
     fun onPasswordFieldTextChanged(text: String) = _state.update { it.copy(password = text) }
 
-    private fun handleLoginResult(result: LoginResult) {
-        when (result) {
-            LoginResult.Success -> _events.tryEmit(LoggedInSuccessfullyEvent())
-            LoginResult.InvalidCredentials -> _events.tryEmit(BadCredentialsErrorEvent())
-            LoginResult.NetworkError -> _events.tryEmit(NetworkErrorEvent())
-        }
+    private fun handleLoginResult(result: LoginResult) = when (result) {
+        LoginResult.Success -> _events.tryEmit(LoggedInSuccessfullyEvent())
+        LoginResult.InvalidCredentials -> _events.tryEmit(BadCredentialsErrorEvent())
+        LoginResult.NetworkError -> _events.tryEmit(NetworkErrorEvent())
     }
 
+    // TODO: Move to utility class
     private fun isValidUrl(url: String): Boolean {
         if (!(url.startsWith("http://") || url.startsWith("https://"))) {
             return false

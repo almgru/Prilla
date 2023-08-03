@@ -36,15 +36,9 @@ class LoginActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this)[LoginViewModel::class.java]
 
         binding.loginButton.setOnClickListener { viewModel.onLoginPressed() }
-        binding.serverField.doOnTextChanged { text, _, _, _ ->
-            viewModel.onServerUrlFieldTextChanged(text.toString())
-        }
-        binding.usernameField.doOnTextChanged { text, _, _, _ ->
-            viewModel.onUsernameFieldTextChanged(text.toString())
-        }
-        binding.passwordField.doOnTextChanged { text, _, _, _ ->
-            viewModel.onPasswordFieldTextChanged(text.toString())
-        }
+        binding.serverField.doOnTextChanged { text, _, _, _ -> viewModel.onServerUrlFieldTextChanged(text.toString()) }
+        binding.usernameField.doOnTextChanged { text, _, _, _ -> viewModel.onUsernameFieldTextChanged(text.toString()) }
+        binding.passwordField.doOnTextChanged { text, _, _, _ -> viewModel.onPasswordFieldTextChanged(text.toString()) }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
