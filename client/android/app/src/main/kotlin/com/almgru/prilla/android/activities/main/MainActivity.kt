@@ -18,7 +18,6 @@ import com.almgru.prilla.android.fragment.DatePickerFragment
 import com.almgru.prilla.android.fragment.TimePickerFragment
 import com.almgru.prilla.android.model.Entry
 import kotlinx.coroutines.launch
-import kotlinx.datetime.toJavaLocalDateTime
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -115,8 +114,8 @@ class MainActivity : AppCompatActivity() {
         null -> binding.lastEntryText.text = ""
         else -> binding.lastEntryText.text = getString(
             R.string.last_entry_text,
-            DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).format(lastEntry.started.toJavaLocalDateTime()),
-            DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).format(lastEntry.stopped.toJavaLocalDateTime())
+            DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).format(lastEntry.started),
+            DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).format(lastEntry.stopped)
         )
     }
 
