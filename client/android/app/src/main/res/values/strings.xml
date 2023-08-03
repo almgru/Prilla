@@ -36,10 +36,10 @@
     <string name="last_entry_text">Last entry: %1$s to %2$s</string>
     <string name="started_at_text">Started at: %1$s</string>
 
-    <string name="entry_added_message">Entry added!</string>
-    <string name="entry_submit_session_expired_message">Session expired.</string>
-    <string name="entry_submit_network_error_message">Session expired.</string>
-    <string name="entry_clear_message">Entry cleared.</string>
+    <string name="entry_added_message">Entry added</string>
+    <string name="entry_submit_session_expired_message">Session expired</string>
+    <string name="entry_submit_network_error_message">Network error</string>
+    <string name="entry_clear_message">Entry cleared</string>
 
     <string name="server_url_validation_error_message">Must start with http(s)://</string>
     <string name="bad_credentials_error_message">Bad credentials</string>

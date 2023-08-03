@@ -4,16 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.almgru.prilla.android.DataBackupManager
 import com.almgru.prilla.android.PersistenceManager
-import com.almgru.prilla.android.activities.main.events.CancelSelectCustomStartDateTimeEvent
-import com.almgru.prilla.android.activities.main.events.CancelSelectCustomStopDateTimeEvent
-import com.almgru.prilla.android.activities.main.events.EntryAddedSuccessfullyEvent
-import com.almgru.prilla.android.activities.main.events.EntryClearedEvent
-import com.almgru.prilla.android.activities.main.events.EntryStartedEvent
-import com.almgru.prilla.android.activities.main.events.EntrySubmitSessionExpiredErrorEvent
-import com.almgru.prilla.android.activities.main.events.EntrySubmittedEvent
-import com.almgru.prilla.android.activities.main.events.SelectCustomStartDateTimeEvent
-import com.almgru.prilla.android.activities.main.events.SelectCustomStopDateTimeEvent
-import com.almgru.prilla.android.events.Event
 import com.almgru.prilla.android.model.Entry
 import com.almgru.prilla.android.net.EntrySubmitResult
 import com.almgru.prilla.android.net.EntrySubmitter
@@ -40,7 +30,7 @@ class MainViewModel(
     )
     val state = _state.asStateFlow()
 
-    private val _events = MutableSharedFlow<Event>()
+    private val _events = MutableSharedFlow<EntryEvent>()
     val events = _events.asSharedFlow()
 
     fun onResume() = backupManager.backup()
@@ -53,35 +43,35 @@ class MainViewModel(
     fun onStartDateTimePicked(start: LocalDateTime) = handleStart(start)
 
     fun onCancelPickStartDateTime() {
-        _events.tryEmit(CancelSelectCustomStartDateTimeEvent())
+        _events.tryEmit(EntryEvent.CancelledPickStartedDatetime)
     }
 
     fun onStopDateTimePicked(stop: LocalDateTime) = handleStop(checkNotNull(state.value.startedDateTime), stop)
 
     fun onCancelPickStopDateTime() {
-        _events.tryEmit(CancelSelectCustomStopDateTimeEvent())
+        _events.tryEmit(EntryEvent.CancelledPickStoppedDatetime)
     }
 
     fun onStartStopPressed() = state.value.startedDateTime?.let { handleStop(it) } ?: run { handleStart() }
 
     fun onStartStopLongPressed() {
         handleClear()
-        _events.tryEmit(EntryClearedEvent())
+        _events.tryEmit(EntryEvent.Cleared)
     }
 
     fun onCustomStartedPressed() {
-        _events.tryEmit(SelectCustomStartDateTimeEvent())
+        _events.tryEmit(EntryEvent.PickStartedDatetimeRequest)
     }
 
     fun onCustomStoppedPressed() {
         requireNotNull(state.value.startedDateTime)
-        _events.tryEmit(SelectCustomStopDateTimeEvent())
+        _events.tryEmit(EntryEvent.PickStoppedDatetimeRequest)
     }
 
     private fun handleStart(started: LocalDateTime = LocalDateTime.now()) {
         persistenceManager.putStartedDateTime(started)
         _state.update { it.copy(startedDateTime = started) }
-        _events.tryEmit(EntryStartedEvent())
+        _events.tryEmit(EntryEvent.Started)
     }
 
     private fun handleStop(started: LocalDateTime, stopped: LocalDateTime = LocalDateTime.now()) {
@@ -89,13 +79,13 @@ class MainViewModel(
             started.toKotlinLocalDateTime(), stopped.toKotlinLocalDateTime(), state.value.amount
         )
 
-        _events.tryEmit(EntrySubmittedEvent())
+        _events.tryEmit(EntryEvent.Submitted)
 
         viewModelScope.launch {
             when (submitter.submit(entry).await()) {
                 EntrySubmitResult.Success -> onEntryAdded(entry)
-                EntrySubmitResult.NetworkError -> _events.tryEmit(EntrySubmitSessionExpiredErrorEvent())
-                EntrySubmitResult.SessionExpiredError -> _events.tryEmit(EntrySubmitSessionExpiredErrorEvent())
+                EntrySubmitResult.NetworkError -> _events.tryEmit(EntryEvent.NetworkError)
+                EntrySubmitResult.SessionExpiredError -> _events.tryEmit(EntryEvent.InvalidCredentialsError)
             }
         }
     }
@@ -104,7 +94,7 @@ class MainViewModel(
         _state.update { it.copy(latestEntry = entry) }
         persistenceManager.putLastEntry(checkNotNull(state.value.latestEntry))
         handleClear()
-        _events.tryEmit(EntryAddedSuccessfullyEvent())
+        _events.tryEmit(EntryEvent.Stored)
     }
 
     private fun handleClear() {

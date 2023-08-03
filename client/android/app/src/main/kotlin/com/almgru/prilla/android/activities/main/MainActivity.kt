@@ -13,18 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.almgru.prilla.android.R
 import com.almgru.prilla.android.activities.login.LoginActivity
-import com.almgru.prilla.android.activities.main.events.CancelSelectCustomStartDateTimeEvent
-import com.almgru.prilla.android.activities.main.events.CancelSelectCustomStopDateTimeEvent
-import com.almgru.prilla.android.activities.main.events.EntryAddedSuccessfullyEvent
-import com.almgru.prilla.android.activities.main.events.EntryClearedEvent
-import com.almgru.prilla.android.activities.main.events.EntryStartedEvent
-import com.almgru.prilla.android.activities.main.events.EntrySubmitNetworkErrorEvent
-import com.almgru.prilla.android.activities.main.events.EntrySubmitSessionExpiredErrorEvent
-import com.almgru.prilla.android.activities.main.events.EntrySubmittedEvent
-import com.almgru.prilla.android.activities.main.events.SelectCustomStartDateTimeEvent
-import com.almgru.prilla.android.activities.main.events.SelectCustomStopDateTimeEvent
 import com.almgru.prilla.android.databinding.ActivityMainBinding
-import com.almgru.prilla.android.events.Event
 import com.almgru.prilla.android.fragment.DatePickerFragment
 import com.almgru.prilla.android.fragment.TimePickerFragment
 import com.almgru.prilla.android.model.Entry
@@ -82,32 +71,31 @@ class MainActivity : AppCompatActivity() {
         binding.customStopLink.setOnClickListener { viewModel.onCustomStoppedPressed() }
     }
 
-    private fun handleEvent(event: Event) = when (event) {
-        is EntryStartedEvent -> setUiVisibility(UIMode.STARTED)
-        is EntryClearedEvent -> {
+    private fun handleEvent(event: EntryEvent) = when (event) {
+        is EntryEvent.Started -> setUiVisibility(UIMode.STARTED)
+        is EntryEvent.Cleared -> {
             showMessage(R.string.entry_clear_message)
             setUiVisibility(UIMode.NOT_STARTED)
         }
 
-        is EntrySubmittedEvent -> setUiVisibility(UIMode.SUBMITTED)
-        is EntryAddedSuccessfullyEvent -> showMessage(R.string.entry_added_message)
-        is EntrySubmitNetworkErrorEvent -> showMessage(R.string.entry_submit_network_error_message)
-        is EntrySubmitSessionExpiredErrorEvent -> {
+        is EntryEvent.Submitted -> setUiVisibility(UIMode.SUBMITTED)
+        is EntryEvent.Stored -> showMessage(R.string.entry_added_message)
+        is EntryEvent.NetworkError -> showMessage(R.string.entry_submit_network_error_message)
+        is EntryEvent.InvalidCredentialsError -> {
             showMessage(R.string.entry_submit_session_expired_message)
             returnToLoginScreen()
         }
 
-        is SelectCustomStartDateTimeEvent -> showDateTimePicker(
+        is EntryEvent.PickStartedDatetimeRequest -> showDateTimePicker(
             viewModel::onStartDateTimePicked, viewModel::onCancelPickStartDateTime
         )
 
-        is SelectCustomStopDateTimeEvent -> showDateTimePicker(
+        is EntryEvent.PickStoppedDatetimeRequest -> showDateTimePicker(
             viewModel::onStopDateTimePicked, viewModel::onCancelPickStopDateTime
         )
 
-        is CancelSelectCustomStartDateTimeEvent -> setUiVisibility(UIMode.NOT_STARTED)
-        is CancelSelectCustomStopDateTimeEvent -> setUiVisibility(UIMode.STARTED)
-        else -> throw IllegalArgumentException("Unknown event")
+        is EntryEvent.CancelledPickStartedDatetime -> setUiVisibility(UIMode.NOT_STARTED)
+        is EntryEvent.CancelledPickStoppedDatetime -> setUiVisibility(UIMode.STARTED)
     }
 
     private fun handleStateChange(state: MainViewState) {
@@ -119,8 +107,7 @@ class MainActivity : AppCompatActivity() {
     private fun handleStartedDatetimeChanged(started: LocalDateTime?) = when (started) {
         null -> binding.startedAtText.text = ""
         else -> binding.startedAtText.text = getString(
-            R.string.started_at_text,
-            DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).format(started)
+            R.string.started_at_text, DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).format(started)
         )
     }
 
@@ -128,10 +115,8 @@ class MainActivity : AppCompatActivity() {
         null -> binding.lastEntryText.text = ""
         else -> binding.lastEntryText.text = getString(
             R.string.last_entry_text,
-            DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
-                .format(lastEntry.started.toJavaLocalDateTime()),
-            DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)
-                .format(lastEntry.stopped.toJavaLocalDateTime())
+            DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).format(lastEntry.started.toJavaLocalDateTime()),
+            DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).format(lastEntry.stopped.toJavaLocalDateTime())
         )
     }
 

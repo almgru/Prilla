@@ -11,16 +11,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.almgru.prilla.android.R
-import com.almgru.prilla.android.activities.login.events.BadCredentialsErrorEvent
-import com.almgru.prilla.android.activities.login.events.HasActiveSessionEvent
-import com.almgru.prilla.android.activities.login.events.InvalidURLErrorEvent
-import com.almgru.prilla.android.activities.login.events.LoggedInSuccessfullyEvent
-import com.almgru.prilla.android.activities.login.events.NetworkErrorEvent
-import com.almgru.prilla.android.activities.login.events.SessionExpiredErrorEvent
-import com.almgru.prilla.android.activities.login.events.SubmittedEvent
 import com.almgru.prilla.android.activities.main.MainActivity
 import com.almgru.prilla.android.databinding.ActivityLoginBinding
-import com.almgru.prilla.android.events.Event
 import kotlinx.coroutines.launch
 
 class LoginActivity : AppCompatActivity() {
@@ -53,15 +45,14 @@ class LoginActivity : AppCompatActivity() {
         viewModel.onResume()
     }
 
-    private fun handleEvent(event: Event) = when (event) {
-        is HasActiveSessionEvent -> viewModel.loginWithActiveSession()
-        is SubmittedEvent -> setUiVisibility(true)
-        is LoggedInSuccessfullyEvent -> gotoMainActivity()
-        is InvalidURLErrorEvent -> showError(R.string.server_url_validation_error_message)
-        is BadCredentialsErrorEvent -> showError(R.string.bad_credentials_error_message)
-        is SessionExpiredErrorEvent -> showError(R.string.session_expired_error_message)
-        is NetworkErrorEvent -> showError(R.string.network_error_message)
-        else -> throw IllegalArgumentException("Unknown event")
+    private fun handleEvent(event: LoginEvent) = when (event) {
+        is LoginEvent.HasActiveSession -> viewModel.loginWithActiveSession()
+        is LoginEvent.Submitted -> setUiVisibility(true)
+        is LoginEvent.LoggedIn -> gotoMainActivity()
+        is LoginEvent.InvalidUrlError -> showError(R.string.server_url_validation_error_message)
+        is LoginEvent.InvalidCredentialsError -> showError(R.string.bad_credentials_error_message)
+        is LoginEvent.SessionExpiredError -> showError(R.string.session_expired_error_message)
+        is LoginEvent.NetworkError -> showError(R.string.network_error_message)
     }
 
     private fun handleStateChange(state: LoginViewState) {
