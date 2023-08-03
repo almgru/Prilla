@@ -18,7 +18,8 @@ import com.almgru.prilla.android.activities.main.events.CancelSelectCustomStopDa
 import com.almgru.prilla.android.activities.main.events.EntryAddedSuccessfullyEvent
 import com.almgru.prilla.android.activities.main.events.EntryClearedEvent
 import com.almgru.prilla.android.activities.main.events.EntryStartedEvent
-import com.almgru.prilla.android.activities.main.events.EntrySubmitErrorEvent
+import com.almgru.prilla.android.activities.main.events.EntrySubmitNetworkErrorEvent
+import com.almgru.prilla.android.activities.main.events.EntrySubmitSessionExpiredErrorEvent
 import com.almgru.prilla.android.activities.main.events.EntrySubmittedEvent
 import com.almgru.prilla.android.activities.main.events.SelectCustomStartDateTimeEvent
 import com.almgru.prilla.android.activities.main.events.SelectCustomStopDateTimeEvent
@@ -90,8 +91,9 @@ class MainActivity : AppCompatActivity() {
 
         is EntrySubmittedEvent -> setUiVisibility(UIMode.SUBMITTED)
         is EntryAddedSuccessfullyEvent -> showMessage(R.string.entry_added_message)
-        is EntrySubmitErrorEvent -> {
-            showMessage(R.string.entry_submit_failed_message)
+        is EntrySubmitNetworkErrorEvent -> showMessage(R.string.entry_submit_network_error_message)
+        is EntrySubmitSessionExpiredErrorEvent -> {
+            showMessage(R.string.entry_submit_session_expired_message)
             returnToLoginScreen()
         }
 
@@ -111,7 +113,7 @@ class MainActivity : AppCompatActivity() {
     private fun handleStateChange(state: MainViewState) {
         binding.amountLabel.text = getString(R.string.amount_label, state.amount)
         handleStartedDatetimeChanged(state.startedDateTime)
-        handleLastEntryChanged(state.lastEntry)
+        handleLastEntryChanged(state.latestEntry)
     }
 
     private fun handleStartedDatetimeChanged(started: LocalDateTime?) = when (started) {

@@ -1,6 +1,7 @@
 package com.almgru.prilla.android.activities.main
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.almgru.prilla.android.DataBackupManager
 import com.almgru.prilla.android.PersistenceManager
 import com.almgru.prilla.android.activities.main.events.CancelSelectCustomStartDateTimeEvent
@@ -8,32 +9,31 @@ import com.almgru.prilla.android.activities.main.events.CancelSelectCustomStopDa
 import com.almgru.prilla.android.activities.main.events.EntryAddedSuccessfullyEvent
 import com.almgru.prilla.android.activities.main.events.EntryClearedEvent
 import com.almgru.prilla.android.activities.main.events.EntryStartedEvent
-import com.almgru.prilla.android.activities.main.events.EntrySubmitErrorEvent
+import com.almgru.prilla.android.activities.main.events.EntrySubmitSessionExpiredErrorEvent
 import com.almgru.prilla.android.activities.main.events.EntrySubmittedEvent
 import com.almgru.prilla.android.activities.main.events.SelectCustomStartDateTimeEvent
 import com.almgru.prilla.android.activities.main.events.SelectCustomStopDateTimeEvent
 import com.almgru.prilla.android.events.Event
 import com.almgru.prilla.android.model.Entry
-import com.almgru.prilla.android.net.EntryAddedListener
+import com.almgru.prilla.android.net.EntrySubmitResult
 import com.almgru.prilla.android.net.EntrySubmitter
-import com.android.volley.VolleyError
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import kotlinx.datetime.toKotlinLocalDateTime
 import java.time.LocalDateTime
 
-// TODO: Use view model lifecycle scope for asynchronous calls to entry submitter
 class MainViewModel(
     private val submitter: EntrySubmitter,
     private val backupManager: DataBackupManager,
     private val persistenceManager: PersistenceManager
-) : ViewModel(), EntryAddedListener {
+) : ViewModel() {
     private val _state = MutableStateFlow(
         MainViewState(
-            lastEntry = persistenceManager.getLastEntry(),
+            latestEntry = persistenceManager.getLastEntry(),
             startedDateTime = persistenceManager.getStartedDateTime(),
             amount = 0
         )
@@ -43,21 +43,7 @@ class MainViewModel(
     private val _events = MutableSharedFlow<Event>()
     val events = _events.asSharedFlow()
 
-    init {
-        submitter.registerListener(this)
-    }
-
     fun onResume() = backupManager.backup()
-
-    override fun onEntryAdded() {
-        state.value.lastEntry?.let { persistenceManager.putLastEntry(it) }
-        handleClear()
-        _events.tryEmit(EntryAddedSuccessfullyEvent())
-    }
-
-    override fun onEntrySubmitError(error: VolleyError) {
-        _events.tryEmit(EntrySubmitErrorEvent())
-    }
 
     fun updateAmount(newAmount: Int) {
         _state.update { it.copy(amount = newAmount) }
@@ -101,19 +87,31 @@ class MainViewModel(
     }
 
     private fun handleStop(started: LocalDateTime, stopped: LocalDateTime = LocalDateTime.now()) {
-        submitter.submit(started, stopped, state.value.amount)
-
-        _state.update {
-            it.copy(
-                lastEntry = Entry(
-                    started.toKotlinLocalDateTime(),
-                    stopped.toKotlinLocalDateTime(),
-                    state.value.amount
-                )
-            )
-        }
+        val entry = Entry(
+            started.toKotlinLocalDateTime(), stopped.toKotlinLocalDateTime(), state.value.amount
+        )
 
         _events.tryEmit(EntrySubmittedEvent())
+
+        viewModelScope.launch {
+            when (submitter.submit(entry).await()) {
+                EntrySubmitResult.Success -> onEntryAdded(entry)
+                EntrySubmitResult.NetworkError -> _events.tryEmit(
+                    EntrySubmitSessionExpiredErrorEvent()
+                )
+
+                EntrySubmitResult.SessionExpiredError -> _events.tryEmit(
+                    EntrySubmitSessionExpiredErrorEvent()
+                )
+            }
+        }
+    }
+
+    private fun onEntryAdded(entry: Entry) {
+        _state.update { it.copy(latestEntry = entry) }
+        persistenceManager.putLastEntry(checkNotNull(state.value.latestEntry))
+        handleClear()
+        _events.tryEmit(EntryAddedSuccessfullyEvent())
     }
 
     private fun handleClear() {
