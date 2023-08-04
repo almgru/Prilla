@@ -26,7 +26,7 @@ class TimePickerFragment(
     }
 
     override fun onTimeSet(view: TimePicker?, hourOfDay: Int, minute: Int) {
-        callback(LocalTime.of(hourOfDay, minute));
+        callback(LocalTime.of(hourOfDay, minute))
     }
 
     override fun onCancel(dialog: DialogInterface) {

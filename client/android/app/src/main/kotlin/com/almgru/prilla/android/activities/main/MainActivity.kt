@@ -17,10 +17,10 @@ import com.almgru.prilla.android.databinding.ActivityMainBinding
 import com.almgru.prilla.android.fragment.DatePickerFragment
 import com.almgru.prilla.android.fragment.TimePickerFragment
 import com.almgru.prilla.android.model.Entry
-import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -81,11 +81,13 @@ class MainActivity : AppCompatActivity() {
         }
 
         is EntryEvent.PickStartedDatetimeRequest -> showDateTimePicker(
-            viewModel::onStartDateTimePicked, viewModel::onCancelPickStartDateTime
+            viewModel::onStartDateTimePicked,
+            viewModel::onCancelPickStartDateTime
         )
 
         is EntryEvent.PickStoppedDatetimeRequest -> showDateTimePicker(
-            viewModel::onStopDateTimePicked, viewModel::onCancelPickStopDateTime
+            viewModel::onStopDateTimePicked,
+            viewModel::onCancelPickStopDateTime
         )
 
         is EntryEvent.CancelledPickStartedDatetime -> setUiVisibility(UIMode.NOT_STARTED)

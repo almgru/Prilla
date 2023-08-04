@@ -1,5 +1,6 @@
 package com.almgru.prilla.android.activities.login
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -60,7 +61,8 @@ class LoginActivity : AppCompatActivity() {
     private fun handleEvent(event: LoginEvent) = when (event) {
         is LoginEvent.HasActiveSession, is LoginEvent.LoggedIn -> gotoMainActivity()
         is LoginEvent.Submitted -> setUiVisibility(true)
-        is LoginEvent.InvalidCredentialsError -> showError(R.string.invalid_credentials_error_message)
+        is LoginEvent.InvalidCredentialsError ->
+            showError(R.string.invalid_credentials_error_message)
         is LoginEvent.SessionExpiredError -> showError(R.string.session_expired_error_message)
         is LoginEvent.NetworkError -> showError(R.string.network_error_message)
     }
@@ -71,11 +73,12 @@ class LoginActivity : AppCompatActivity() {
         binding.passwordField.setText(state.password)
     }
 
+    @SuppressLint("IntentWithNullActionLaunch")
     private fun gotoMainActivity() {
         setUiVisibility(false)
-        val intent = Intent(this, MainActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
-        startActivity(intent)
+        startActivity(Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
+        })
         finish()
     }
 

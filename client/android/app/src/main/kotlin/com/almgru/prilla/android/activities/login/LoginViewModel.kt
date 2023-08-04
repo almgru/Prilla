@@ -15,7 +15,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class LoginViewModel(
-    private val loginManager: LoginManager, private val settings: DataStore<Settings>
+    private val loginManager: LoginManager,
+    private val settings: DataStore<Settings>
 ) : ViewModel() {
     private val _state = MutableStateFlow(LoginViewState())
     val state = _state.asStateFlow()
@@ -58,6 +59,6 @@ class LoginViewModel(
 
         LoginResult.InvalidCredentials -> _events.emit(LoginEvent.InvalidCredentialsError)
         LoginResult.SessionExpired -> _events.emit(LoginEvent.SessionExpiredError)
-        LoginResult.NetworkError -> _events.emit(LoginEvent.NetworkError)
+        is LoginResult.NetworkError -> _events.emit(LoginEvent.NetworkError)
     }
 }

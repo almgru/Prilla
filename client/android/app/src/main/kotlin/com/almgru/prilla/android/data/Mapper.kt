@@ -9,7 +9,9 @@ import java.time.ZoneId
 
 object Mapper {
     fun State.LastEntry.toEntry() = Entry(
-        started = startedAt.toLocalDateTime(), stopped = stoppedAt.toLocalDateTime(), amount = amount
+        started = startedAt.toLocalDateTime(),
+        stopped = stoppedAt.toLocalDateTime(),
+        amount = amount
     )
 
     fun LocalDateTime.toTimestamp(): Timestamp {
@@ -17,6 +19,8 @@ object Mapper {
         return Timestamp.newBuilder().setSeconds(instant.epochSecond).setNanos(instant.nano).build()
     }
 
-    fun Timestamp.toLocalDateTime(): LocalDateTime =
-        Instant.ofEpochSecond(seconds, nanos.toLong()).atZone(ZoneId.systemDefault()).toLocalDateTime()
+    fun Timestamp.toLocalDateTime(): LocalDateTime = Instant
+        .ofEpochSecond(seconds, nanos.toLong())
+        .atZone(ZoneId.systemDefault())
+        .toLocalDateTime()
 }

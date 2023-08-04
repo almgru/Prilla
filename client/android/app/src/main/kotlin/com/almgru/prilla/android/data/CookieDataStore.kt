@@ -1,6 +1,5 @@
 package com.almgru.prilla.android.data
 
-import android.content.Context
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
@@ -24,7 +23,7 @@ object CookieDataStore {
         override suspend fun writeTo(t: Cookies, output: OutputStream) = t.writeTo(output)
     }
 
-    fun provideStateDataStore(context: Context): DataStore<Cookies> =
+    fun provideStateDataStore(): DataStore<Cookies> =
         DataStoreFactory.create(serializer = CookieSerializer, produceFile = {
             File("cookies.pb")
         })

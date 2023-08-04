@@ -2,7 +2,6 @@ package com.almgru.prilla.android.net.cookie
 
 import androidx.datastore.core.DataStore
 import com.almgru.prilla.android.Cookies
-import com.almgru.prilla.android.Cookies.UrlCookie
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import okhttp3.Cookie
@@ -11,7 +10,8 @@ import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 
 class PrillaCookieJar(
-    private val cookieStore: DataStore<Cookies>, private val scope: CoroutineScope
+    private val cookieStore: DataStore<Cookies>,
+    private val scope: CoroutineScope
 ) : CookieJar {
     private val cookies: MutableMap<HttpUrl, List<Cookie>> = mutableMapOf()
 
@@ -39,7 +39,7 @@ class PrillaCookieJar(
     private suspend fun saveCookies(url: HttpUrl, cookies: List<Cookie>) {
         cookieStore.updateData { current ->
             val index = current.cookiesForUrlList.indexOfFirst { it.url == url.toString() }
-            val toAdd = UrlCookie.newBuilder()
+            val toAdd = Cookies.UrlCookies.newBuilder()
                 .setUrl(url.toString())
                 .addAllCookies(cookies.map { it.toProtoCookie() })
                 .build()
@@ -54,7 +54,7 @@ class PrillaCookieJar(
         }
     }
 
-    private fun UrlCookie.Cookie.toOkHttpCookie() = Cookie.Builder()
+    private fun Cookies.UrlCookies.Cookie.toOkHttpCookie() = Cookie.Builder()
         .name(name)
         .value(value)
         .domain(domain)
@@ -67,7 +67,7 @@ class PrillaCookieJar(
         }
         .build()
 
-    private fun Cookie.toProtoCookie() = UrlCookie.Cookie.newBuilder()
+    private fun Cookie.toProtoCookie() = Cookies.UrlCookies.Cookie.newBuilder()
         .setName(name)
         .setValue(value)
         .setDomain(domain)

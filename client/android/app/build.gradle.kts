@@ -1,4 +1,5 @@
 import com.android.build.gradle.internal.api.BaseVariantOutputImpl
+import io.gitlab.arturbosch.detekt.Detekt
 
 /**
  * The first section in the build configuration applies the Android Gradle plugin
@@ -8,8 +9,9 @@ import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    id("org.jetbrains.kotlin.plugin.serialization")
     id("com.google.protobuf")
+    id("io.gitlab.arturbosch.detekt")
+    id("org.jlleitschuh.gradle.ktlint")
 }
 
 /**
@@ -71,7 +73,8 @@ android {
             isDebuggable = false
 
             proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
             )
 
             signingConfig = signingConfigs.getByName("release")
@@ -108,8 +111,6 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
     implementation("org.jsoup:jsoup:1.16.1")
     implementation("com.squareup.okhttp3:okhttp:4.11.0")
     implementation("androidx.datastore:datastore:1.1.0-alpha04")
@@ -139,4 +140,19 @@ protobuf {
             }
         }
     }
+}
+
+detekt {
+    toolVersion = "1.23.1"
+
+    tasks.withType<Detekt>().configureEach {
+        reports {
+            html.required.set(true)
+        }
+    }
+}
+
+ktlint {
+    android.set(true)
+    outputColorName.set("RED")
 }

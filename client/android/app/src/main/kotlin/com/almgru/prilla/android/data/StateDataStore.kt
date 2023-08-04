@@ -1,6 +1,5 @@
 package com.almgru.prilla.android.data
 
-import android.content.Context
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
@@ -24,10 +23,8 @@ object StateDataStore {
         override suspend fun writeTo(t: State, output: OutputStream) = t.writeTo(output)
     }
 
-    fun provideStateDataStore(context: Context): DataStore<State> = DataStoreFactory.create(
-        serializer = StateSerializer,
-        produceFile = {
+    fun provideStateDataStore(): DataStore<State> =
+        DataStoreFactory.create(serializer = StateSerializer, produceFile = {
             File("state.pb")
-        }
-    )
+        })
 }
