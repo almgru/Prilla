@@ -1,18 +1,7 @@
 <resources>
     <string name="app_name">Prilla</string>
 
-    <string name="shared_prefs">com.almgru.prilla.data.shared_preferences</string>
-    <string name="shared_prefs_cookie_auth_key">authCookie</string>
-    <string name="shared_prefs_started_key">started</string>
-    <string name="shared_prefs_server_url_key">serverUrl</string>
-    <string name="shared_prefs_last_backup_timestamp">lastBackupTimestamp</string>
-    <string name="shared_prefs_update_interval">updateInterval</string>
-    <string name="shared_prefs_last_entry">lastEntry</string>
-    <string name="shared_prefs_amount">amount</string>
-
     <string name="file_storage_backup">backup</string>
-
-    <string name="default_preference_update_interval">P1D</string>
 
     <string name="server_login_success_endpoint">/</string>
     <string name="server_login_failure_endpoint">/login?error</string>
@@ -37,12 +26,8 @@
     <string name="started_at_text">Started at: %1$s</string>
 
     <string name="entry_added_message">Entry added</string>
-    <string name="entry_submit_session_expired_message">Session expired</string>
-    <string name="entry_submit_network_error_message">Network error</string>
     <string name="entry_clear_message">Entry cleared</string>
-
-    <string name="server_url_validation_error_message">Must start with http(s)://</string>
-    <string name="bad_credentials_error_message">Bad credentials</string>
+    <string name="invalid_credentials_error_message">Invalid credentials</string>
     <string name="session_expired_error_message">Session expired</string>
     <string name="network_error_message">Network error</string>
 

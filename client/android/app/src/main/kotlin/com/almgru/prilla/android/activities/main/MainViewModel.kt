@@ -3,14 +3,13 @@ package com.almgru.prilla.android.activities.main
 import androidx.datastore.core.DataStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.almgru.prilla.android.data.DataBackupManager
 import com.almgru.prilla.android.State
 import com.almgru.prilla.android.data.Mapper.toEntry
 import com.almgru.prilla.android.data.Mapper.toLocalDateTime
 import com.almgru.prilla.android.data.Mapper.toTimestamp
 import com.almgru.prilla.android.model.Entry
-import com.almgru.prilla.android.net.EntrySubmitResult
 import com.almgru.prilla.android.net.EntrySubmitter
+import com.almgru.prilla.android.net.results.RecordEntryResult
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -21,11 +20,9 @@ import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 
 class MainViewModel(
-    private val submitter: EntrySubmitter,
-    private val backupManager: DataBackupManager,
-    private val dataStore: DataStore<State>
+    private val submitter: EntrySubmitter, private val dataStore: DataStore<State>
 ) : ViewModel() {
-    private val _state = MutableStateFlow(MainViewState(latestEntry = null, startedDateTime = null, amount = 0))
+    private val _state = MutableStateFlow(MainViewState(null, null, 0))
     val state = _state.asStateFlow()
 
     private val _events = MutableSharedFlow<EntryEvent>()
@@ -35,17 +32,15 @@ class MainViewModel(
         viewModelScope.launch {
             val stored = dataStore.data.first()
 
-            _state.update { current ->
-                current.copy(
-                    latestEntry = stored.last.toEntry(),
-                    startedDateTime = stored.started.startedAt.toLocalDateTime(),
-                    amount = stored.started.amount
+            _state.update {
+                MainViewState(
+                    stored.last.toEntry(),
+                    stored.started.startedAt.toLocalDateTime(),
+                    stored.started.amount
                 )
             }
         }
     }
-
-    fun onResume() = backupManager.backup()
 
     fun updateAmount(newAmount: Int) {
         _state.update { it.copy(amount = newAmount) }
@@ -95,7 +90,8 @@ class MainViewModel(
 
     private suspend fun handleStart(started: LocalDateTime = LocalDateTime.now()) {
         dataStore.updateData {
-            val startedEntry = it.started.toBuilder().setStartedAt(started.toTimestamp()).setAmount(state.value.amount)
+            val startedEntry = it.started.toBuilder().setStartedAt(started.toTimestamp())
+                .setAmount(state.value.amount)
             it.toBuilder().setStarted(startedEntry).build()
         }
 
@@ -108,18 +104,17 @@ class MainViewModel(
         _state.update { it.copy(latestEntry = latest) }
         _events.emit(EntryEvent.Submitted)
 
-        when (submitter.submit(latest).await()) {
-            EntrySubmitResult.Success -> onEntryAdded(latest)
-            EntrySubmitResult.NetworkError -> _events.tryEmit(EntryEvent.NetworkError)
-            EntrySubmitResult.SessionExpiredError -> _events.tryEmit(EntryEvent.InvalidCredentialsError)
+        when (submitter.submit(latest)) {
+            RecordEntryResult.Success -> onEntryAdded(latest)
+            RecordEntryResult.NetworkError -> _events.tryEmit(EntryEvent.NetworkError)
+            RecordEntryResult.SessionExpiredError -> _events.tryEmit(EntryEvent.InvalidCredentialsError)
         }
     }
 
     private suspend fun onEntryAdded(entry: Entry) {
         dataStore.updateData {
-            val toStore =
-                it.last.toBuilder().setStartedAt(entry.started.toTimestamp()).setStoppedAt(entry.stopped.toTimestamp())
-                    .setAmount(entry.amount)
+            val toStore = it.last.toBuilder().setStartedAt(entry.started.toTimestamp())
+                .setStoppedAt(entry.stopped.toTimestamp()).setAmount(entry.amount)
 
             it.toBuilder().setLast(toStore).build()
         }

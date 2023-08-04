@@ -1,4 +1,4 @@
-package com.almgru.prilla.android.net.auth
+package com.almgru.prilla.android.net.results
 
 sealed class LoginResult {
     data object Success : LoginResult()

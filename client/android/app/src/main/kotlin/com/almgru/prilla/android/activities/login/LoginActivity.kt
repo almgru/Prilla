@@ -28,9 +28,21 @@ class LoginActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this)[LoginViewModel::class.java]
 
         binding.loginButton.setOnClickListener { viewModel.onLoginPressed() }
-        binding.serverField.doOnTextChanged { text, _, _, _ -> viewModel.onServerUrlFieldTextChanged(text.toString()) }
-        binding.usernameField.doOnTextChanged { text, _, _, _ -> viewModel.onUsernameFieldTextChanged(text.toString()) }
-        binding.passwordField.doOnTextChanged { text, _, _, _ -> viewModel.onPasswordFieldTextChanged(text.toString()) }
+        binding.serverField.doOnTextChanged { text, _, _, _ ->
+            viewModel.onServerUrlFieldTextChanged(
+                text.toString()
+            )
+        }
+        binding.usernameField.doOnTextChanged { text, _, _, _ ->
+            viewModel.onUsernameFieldTextChanged(
+                text.toString()
+            )
+        }
+        binding.passwordField.doOnTextChanged { text, _, _, _ ->
+            viewModel.onPasswordFieldTextChanged(
+                text.toString()
+            )
+        }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -46,11 +58,9 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun handleEvent(event: LoginEvent) = when (event) {
-        is LoginEvent.HasActiveSession -> viewModel.loginWithActiveSession()
+        is LoginEvent.HasActiveSession, is LoginEvent.LoggedIn -> gotoMainActivity()
         is LoginEvent.Submitted -> setUiVisibility(true)
-        is LoginEvent.LoggedIn -> gotoMainActivity()
-        is LoginEvent.InvalidUrlError -> showError(R.string.server_url_validation_error_message)
-        is LoginEvent.InvalidCredentialsError -> showError(R.string.bad_credentials_error_message)
+        is LoginEvent.InvalidCredentialsError -> showError(R.string.invalid_credentials_error_message)
         is LoginEvent.SessionExpiredError -> showError(R.string.session_expired_error_message)
         is LoginEvent.NetworkError -> showError(R.string.network_error_message)
     }

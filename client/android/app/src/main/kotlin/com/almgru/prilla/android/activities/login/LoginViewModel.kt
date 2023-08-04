@@ -4,8 +4,8 @@ import androidx.datastore.core.DataStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.almgru.prilla.android.Settings
-import com.almgru.prilla.android.net.auth.LoginManager
-import com.almgru.prilla.android.net.auth.LoginResult
+import com.almgru.prilla.android.net.LoginManager
+import com.almgru.prilla.android.net.results.LoginResult
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -14,7 +14,9 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class LoginViewModel(private val loginManager: LoginManager, private val settings: DataStore<Settings>) : ViewModel() {
+class LoginViewModel(
+    private val loginManager: LoginManager, private val settings: DataStore<Settings>
+) : ViewModel() {
     private val _state = MutableStateFlow(LoginViewState())
     val state = _state.asStateFlow()
 
@@ -28,25 +30,19 @@ class LoginViewModel(private val loginManager: LoginManager, private val setting
     }
 
     fun onResume() {
-        if (loginManager.hasActiveSession()) {
-            _events.tryEmit(LoginEvent.HasActiveSession)
+        viewModelScope.launch {
+            if (loginManager.hasActiveSession()) {
+                _events.emit(LoginEvent.HasActiveSession)
+            }
         }
     }
 
-    fun loginWithActiveSession() {
-        viewModelScope.launch { handleLoginResult(loginManager.login().await()) }
-    }
-
     fun onLoginPressed() {
-        if (isValidUrl(state.value.serverUrl)) {
-            _events.tryEmit(LoginEvent.Submitted)
-
-            viewModelScope.launch {
-                settings.updateData { it.toBuilder().setServerUrl(state.value.serverUrl).build() }
-                handleLoginResult(loginManager.login(state.value.username, state.value.password).await())
-            }
-        } else {
-            _events.tryEmit(LoginEvent.InvalidUrlError)
+        viewModelScope.launch {
+            _events.emit(LoginEvent.Submitted)
+            handleLoginResult(
+                loginManager.login(state.value.username, state.value.password)
+            )
         }
     }
 
@@ -54,23 +50,14 @@ class LoginViewModel(private val loginManager: LoginManager, private val setting
     fun onUsernameFieldTextChanged(text: String) = _state.update { it.copy(username = text) }
     fun onPasswordFieldTextChanged(text: String) = _state.update { it.copy(password = text) }
 
-    private fun handleLoginResult(result: LoginResult) = when (result) {
-        LoginResult.Success -> _events.tryEmit(LoginEvent.LoggedIn)
-        LoginResult.InvalidCredentials -> _events.tryEmit(LoginEvent.InvalidCredentialsError)
-        LoginResult.SessionExpired -> _events.tryEmit(LoginEvent.SessionExpiredError)
-        LoginResult.NetworkError -> _events.tryEmit(LoginEvent.NetworkError)
-    }
-
-    // TODO: Move to utility class
-    private fun isValidUrl(url: String): Boolean {
-        if (!(url.startsWith("http://") || url.startsWith("https://"))) {
-            return false
+    private suspend fun handleLoginResult(result: LoginResult) = when (result) {
+        LoginResult.Success -> {
+            settings.updateData { it.toBuilder().setServerUrl(state.value.serverUrl).build() }
+            _events.emit(LoginEvent.LoggedIn)
         }
 
-        if (url == "http://" || url == "https://") {
-            return false
-        }
-
-        return true
+        LoginResult.InvalidCredentials -> _events.emit(LoginEvent.InvalidCredentialsError)
+        LoginResult.SessionExpired -> _events.emit(LoginEvent.SessionExpiredError)
+        LoginResult.NetworkError -> _events.emit(LoginEvent.NetworkError)
     }
 }

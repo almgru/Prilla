@@ -45,11 +45,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        viewModel.onResume()
-    }
-
     private fun setupViewListeners() {
         binding.startStopButton.setOnClickListener { viewModel.onStartStopPressed() }
         binding.startStopButton.setOnLongClickListener {
@@ -79,9 +74,9 @@ class MainActivity : AppCompatActivity() {
 
         is EntryEvent.Submitted -> setUiVisibility(UIMode.SUBMITTED)
         is EntryEvent.Stored -> showMessage(R.string.entry_added_message)
-        is EntryEvent.NetworkError -> showMessage(R.string.entry_submit_network_error_message)
+        is EntryEvent.NetworkError -> showMessage(R.string.network_error_message)
         is EntryEvent.InvalidCredentialsError -> {
-            showMessage(R.string.entry_submit_session_expired_message)
+            showMessage(R.string.session_expired_error_message)
             returnToLoginScreen()
         }
 
@@ -106,7 +101,8 @@ class MainActivity : AppCompatActivity() {
     private fun handleStartedDatetimeChanged(started: LocalDateTime?) = when (started) {
         null -> binding.startedAtText.text = ""
         else -> binding.startedAtText.text = getString(
-            R.string.started_at_text, DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).format(started)
+            R.string.started_at_text,
+            DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).format(started)
         )
     }
 
