@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+option java_package = "com.almgru.prilla.android";
+option java_multiple_files = true;
+
+message Cookies {
+  repeated UrlCookies cookies_for_url = 1;
+
+  message UrlCookies {
+    string url = 1;
+
+    message Cookie {
+      string name = 1;
+      string value = 2;
+      string domain = 3;
+      string path = 4;
+      bool secure = 5;
+      bool http_only = 6;
+      int64 expires_at = 7;
+      bool host_only = 8;
+      bool persistent = 9;
+    }
+
+    repeated Cookie cookies = 2;
+  }
+}

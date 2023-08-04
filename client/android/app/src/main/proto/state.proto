@@ -9,7 +9,6 @@ message State {
   StartedEntry started = 1;
   LastEntry last = 2;
   google.protobuf.Timestamp last_backup_time = 3;
-  AuthCookie auth_cookie = 4;
 
   message StartedEntry {
     google.protobuf.Timestamp startedAt = 1;
@@ -20,20 +19,5 @@ message State {
     google.protobuf.Timestamp startedAt = 1;
     google.protobuf.Timestamp stoppedAt = 2;
     int32 amount = 3;
-  }
-
-  message AuthCookie {
-    string comment = 1;
-    string comment_url = 2;
-    bool discard = 3;
-    string domain = 4;
-    int64 max_age = 5;
-    string name = 6;
-    string path = 7;
-    string port_list = 8;
-    bool secure = 9;
-    string value = 10;
-    int32 version = 11;
-    bool http_only = 12;
   }
 }
