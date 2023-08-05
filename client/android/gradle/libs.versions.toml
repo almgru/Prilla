@@ -1,0 +1,64 @@
+[versions]
+prilla-code = "3"
+prilla-name = "0.1.1"
+
+kotlin = "1.9.0"
+
+jvm-toolchain = "17"
+jvm-target = "1.8"
+jvm-sourceCompat = "VERSION_1_8"
+jvm-targetCompat = "VERSION_1_8"
+
+sdk-compile = "34"
+sdk-min = "21"
+sdk-target = "34"
+sdk-buildTools = "34.0.0"
+
+plugin-android = "8.1.0"
+plugin-protobuf = "0.9.4"
+plugin-detekt = "1.23.1"
+plugin-ktlint = "11.3.1"
+
+deps-coreKtx = "1.10.1"
+deps-appCompat = "1.6.1"
+deps-constraintLayout = "2.1.4"
+deps-lifecycle = "2.6.1"
+deps-datastore = "1.0.0"
+deps-protobuf-javaLite = "3.23.4"
+deps-jsoup = "1.16.1"
+deps-okhttp = "4.11.0"
+deps-materialComponents = "1.9.0"
+
+deps-tools-desugarJdkLibs = "2.0.3"
+
+deps-test-junit = "4.13.2"
+deps-test-androidx-junit = "1.1.5"
+deps-test-espressoCore = "3.5.1"
+
+[libraries]
+kotlin-stdLib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
+androidx-coreKtx = { group = "androidx.core", name = "core-ktx", version.ref = "deps-coreKtx" }
+androidx-appCompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "deps-appCompat" }
+androidx-constraintLayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "deps-constraintLayout" }
+androidx-lifecycle-runtimeKtx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "deps-lifecycle" }
+androidx-lifecycle-viewmodelKtx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "deps-lifecycle" }
+androidx-dataStore = { group = "androidx.datastore", name = "datastore", version.ref = "deps-datastore" }
+jsoup = { group = "org.jsoup", name = "jsoup", version.ref = "deps-jsoup" }
+okHttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "deps-okhttp" }
+protobuf-javaLite = { group = "com.google.protobuf", name = "protobuf-javalite", version.ref = "deps-protobuf-javaLite" }
+protobuf-protoc = { group = "com.google.protobuf", name = "protoc", version.ref = "deps-protobuf-javaLite" }
+android-materialComponents = { group = "com.google.android.material", name = "material", version.ref = "deps-materialComponents" }
+
+tools-android-desugarJdkLibs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "deps-tools-desugarJdkLibs" }
+
+test-junit = { group = "junit", name = "junit", version.ref = "deps-test-junit" }
+test-androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "deps-test-androidx-junit" }
+test-androidx-espressoCore = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "deps-test-espressoCore" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "plugin-android" }
+android-library = { id = "com.android.library", version.ref = "plugin-android" }
+kotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+protobuf = { id = "com.google.protobuf", version.ref = "plugin-protobuf" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "plugin-detekt" }
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "plugin-ktlint" }

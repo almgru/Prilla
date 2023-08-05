@@ -1,45 +1,31 @@
+@file:Suppress("DSL_SCOPE_VIOLATION")
+
 import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 import io.gitlab.arturbosch.detekt.Detekt
 
-/**
- * The first section in the build configuration applies the Android Gradle plugin
- * to this build and makes the android block available to specify
- * Android-specific build options.
- */
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
-    id("com.google.protobuf")
-    id("io.gitlab.arturbosch.detekt")
-    id("org.jlleitschuh.gradle.ktlint")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin)
+    alias(libs.plugins.protobuf)
+    alias(libs.plugins.detekt)
+    alias(libs.plugins.ktlint)
 }
 
-/**
- * Locate (and possibly download) a JDK used to build your kotlin
- * source code. This also acts as a default for sourceCompatibility,
- * targetCompatibility and jvmTarget. Note that this does not affect which JDK
- * is used to run the Gradle build itself, and does not need to take into
- * account the JDK version required by Gradle plugins (such as the
- * Android Gradle Plugin)
- */
 kotlin {
-    jvmToolchain(17)
+    version = libs.versions.kotlin.get()
+    jvmToolchain(libs.versions.jvm.toolchain.get().toInt())
 }
 
-/**
- * The android block is where you configure all your Android-specific
- * build options.
- */
 android {
     namespace = "com.almgru.prilla.android"
 
-    compileSdk = 34
-    buildToolsVersion = "34.0.0"
+    compileSdk = libs.versions.sdk.compile.get().toInt()
+    buildToolsVersion = libs.versions.sdk.buildTools.get()
 
     defaultConfig {
         applicationId = "com.almgru.prilla.android"
-        minSdk = 21
-        targetSdk = 34
+        minSdk = libs.versions.sdk.min.get().toInt()
+        targetSdk = libs.versions.sdk.target.get().toInt()
         versionCode = 3
         versionName = "0.1.1"
 
@@ -88,14 +74,14 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = libs.versions.jvm.target.get()
     }
 
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
 
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.valueOf(libs.versions.jvm.sourceCompat.get())
+        targetCompatibility = JavaVersion.valueOf(libs.versions.jvm.targetCompat.get())
     }
 
     viewBinding {
@@ -104,28 +90,28 @@ android {
 }
 
 dependencies {
-    implementation("com.google.android.material:material:1.9.0")
-    implementation("androidx.core:core-ktx:1.10.1")
-    implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.0")
-    implementation("org.jsoup:jsoup:1.16.1")
-    implementation("com.squareup.okhttp3:okhttp:4.11.0")
-    implementation("androidx.datastore:datastore:1.1.0-alpha04")
-    implementation("com.google.protobuf:protobuf-javalite:3.23.4")
+    implementation(libs.kotlin.stdLib)
+    implementation(libs.androidx.coreKtx)
+    implementation(libs.androidx.appCompat)
+    implementation(libs.androidx.constraintLayout)
+    implementation(libs.androidx.lifecycle.runtimeKtx)
+    implementation(libs.androidx.lifecycle.viewmodelKtx)
+    implementation(libs.androidx.dataStore)
+    implementation(libs.protobuf.javaLite)
+    implementation(libs.jsoup)
+    implementation(libs.okHttp)
+    implementation(libs.android.materialComponents)
 
-    testImplementation("junit:junit:4.13.2:")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    coreLibraryDesugaring(libs.tools.android.desugarJdkLibs)
 
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
+    testImplementation(libs.test.junit)
+    androidTestImplementation(libs.test.androidx.junit)
+    androidTestImplementation(libs.test.androidx.espressoCore)
 }
 
 protobuf {
     protoc {
-        artifact = "com.google.protobuf:protoc:3.23.4"
+        artifact = libs.protobuf.protoc.get().toString()
     }
 
     // Generates the java Protobuf-lite code for the Protobufs in this project. See
@@ -143,7 +129,7 @@ protobuf {
 }
 
 detekt {
-    toolVersion = "1.23.1"
+    toolVersion = libs.versions.plugin.detekt.get()
 
     tasks.withType<Detekt>().configureEach {
         reports {
