@@ -4,18 +4,20 @@ import com.almgru.prilla.android.model.Entry
 import com.almgru.prilla.android.net.exceptions.UnexpectedHttpStatusException
 import com.almgru.prilla.android.net.results.LoginResult
 import com.almgru.prilla.android.net.results.RecordEntryResult
-import com.almgru.prilla.android.net.utilities.CSRFTokenExtractor
+import com.almgru.prilla.android.net.utilities.csrf.CSRFTokenExtractor
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.time.format.DateTimeFormatter
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.FormBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
-class PrillaHttpClient(
-    private val baseUrl: String,
+private const val BASE_URL = "https://prilla.algr.se"
+
+class PrillaHttpClient @Inject constructor(
     private val httpClient: OkHttpClient,
     private val csrfExtractor: CSRFTokenExtractor,
 ) : LoginManager, EntrySubmitter {
@@ -51,7 +53,7 @@ class PrillaHttpClient(
 
     @Suppress("SwallowedException")
     override suspend fun hasActiveSession() = withContext(Dispatchers.IO) {
-        val getIndexRequest = Request.Builder().url("$baseUrl/").get().build()
+        val getIndexRequest = Request.Builder().url("$BASE_URL/").get().build()
 
         return@withContext try {
             httpClient.newCall(getIndexRequest).execute().use {
@@ -96,7 +98,7 @@ class PrillaHttpClient(
     }
 
     private suspend fun getCsrfTokenFor(path: String) = withContext(Dispatchers.IO) {
-        val getFormRequest = Request.Builder().url("$baseUrl/$path").get().build()
+        val getFormRequest = Request.Builder().url("$BASE_URL/$path").get().build()
 
         httpClient.newCall(getFormRequest).execute().use {
             when (it.code) {
@@ -108,7 +110,7 @@ class PrillaHttpClient(
 
     private fun buildPostRequest(path: String, form: Map<String, String>) =
         Request.Builder().addHeader("Content-Type", "application/x-www-form-urlencoded")
-            .url("$baseUrl/$path").post(buildFormBody(form)).build()
+            .url("$BASE_URL/$path").post(buildFormBody(form)).build()
 
     private fun buildFormBody(form: Map<String, String>): FormBody {
         val builder = FormBody.Builder()

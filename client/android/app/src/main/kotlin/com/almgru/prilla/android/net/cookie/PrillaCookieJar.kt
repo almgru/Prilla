@@ -2,17 +2,19 @@ package com.almgru.prilla.android.net.cookie
 
 import androidx.datastore.core.DataStore
 import com.almgru.prilla.android.Cookies
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.Cookie
 import okhttp3.CookieJar
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 
-class PrillaCookieJar(
+class PrillaCookieJar @Inject constructor(
     private val cookieStore: DataStore<Cookies>,
-    private val scope: CoroutineScope
 ) : CookieJar {
+    private val scope = CoroutineScope(Dispatchers.IO)
     private val cookies: MutableMap<HttpUrl, List<Cookie>> = mutableMapOf()
 
     init {

@@ -7,7 +7,7 @@ import com.google.protobuf.InvalidProtocolBufferException
 import java.io.InputStream
 import java.io.OutputStream
 
-class StateSerializer : Serializer<State> {
+object StateSerializer : Serializer<State> {
     override val defaultValue: State = State.getDefaultInstance()
 
     override suspend fun readFrom(input: InputStream): State = try {

@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.almgru.prilla.android.Settings
 import com.almgru.prilla.android.net.LoginManager
 import com.almgru.prilla.android.net.results.LoginResult
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -14,7 +16,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class LoginViewModel(
+@HiltViewModel
+class LoginViewModel @Inject constructor(
     private val loginManager: LoginManager,
     private val settings: DataStore<Settings>
 ) : ViewModel() {

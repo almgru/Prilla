@@ -5,28 +5,28 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.almgru.prilla.android.R
 import com.almgru.prilla.android.activities.main.MainActivity
 import com.almgru.prilla.android.databinding.ActivityLoginBinding
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class LoginActivity : AppCompatActivity() {
+    private val viewModel by viewModels<LoginViewModel>()
     private lateinit var binding: ActivityLoginBinding
-    private lateinit var viewModel: LoginViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        viewModel = ViewModelProvider(this)[LoginViewModel::class.java]
 
         binding.loginButton.setOnClickListener { viewModel.onLoginPressed() }
         binding.serverField.doOnTextChanged { text, _, _, _ ->

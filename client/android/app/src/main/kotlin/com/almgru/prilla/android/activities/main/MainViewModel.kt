@@ -9,7 +9,9 @@ import com.almgru.prilla.android.data.Mapper.toTimestamp
 import com.almgru.prilla.android.model.Entry
 import com.almgru.prilla.android.net.EntrySubmitter
 import com.almgru.prilla.android.net.results.RecordEntryResult
+import dagger.hilt.android.lifecycle.HiltViewModel
 import java.time.LocalDateTime
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -19,7 +21,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 @Suppress("TooManyFunctions")
-class MainViewModel(
+@HiltViewModel
+class MainViewModel @Inject constructor(
     private val submitter: EntrySubmitter,
     private val dataStore: DataStore<State>
 ) : ViewModel() {

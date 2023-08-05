@@ -9,11 +9,18 @@ plugins {
     alias(libs.plugins.protobuf)
     alias(libs.plugins.detekt)
     alias(libs.plugins.ktlint)
+
+    kotlin("kapt")
+    alias(libs.plugins.hilt)
 }
 
 kotlin {
     version = libs.versions.kotlin.get()
     jvmToolchain(libs.versions.jvm.toolchain.get().toInt())
+}
+
+tasks.withType<JavaCompile> {
+    options.compilerArgs.add("-Xlint:deprecation")
 }
 
 android {
@@ -92,6 +99,7 @@ android {
 dependencies {
     implementation(libs.kotlin.stdLib)
     implementation(libs.androidx.coreKtx)
+    implementation(libs.androidx.activityKtx)
     implementation(libs.androidx.appCompat)
     implementation(libs.androidx.constraintLayout)
     implementation(libs.androidx.lifecycle.runtimeKtx)
@@ -102,11 +110,18 @@ dependencies {
     implementation(libs.okHttp)
     implementation(libs.android.materialComponents)
 
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.android.compiler)
+
     coreLibraryDesugaring(libs.tools.android.desugarJdkLibs)
 
     testImplementation(libs.test.junit)
     androidTestImplementation(libs.test.androidx.junit)
     androidTestImplementation(libs.test.androidx.espressoCore)
+}
+
+kapt {
+    correctErrorTypes = true
 }
 
 protobuf {

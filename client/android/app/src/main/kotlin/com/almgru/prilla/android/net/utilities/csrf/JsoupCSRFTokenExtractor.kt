@@ -1,4 +1,4 @@
-package com.almgru.prilla.android.net.utilities
+package com.almgru.prilla.android.net.utilities.csrf
 
 import org.jsoup.Jsoup
 

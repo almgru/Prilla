@@ -15,11 +15,13 @@ sdk-target = "34"
 sdk-buildTools = "34.0.0"
 
 plugin-android = "8.1.0"
+plugin-hilt = "2.47"
 plugin-protobuf = "0.9.4"
 plugin-detekt = "1.23.1"
 plugin-ktlint = "11.3.1"
 
 deps-coreKtx = "1.10.1"
+deps-activityKtx = "1.7.2"
 deps-appCompat = "1.6.1"
 deps-constraintLayout = "2.1.4"
 deps-lifecycle = "2.6.1"
@@ -38,11 +40,14 @@ deps-test-espressoCore = "3.5.1"
 [libraries]
 kotlin-stdLib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
 androidx-coreKtx = { group = "androidx.core", name = "core-ktx", version.ref = "deps-coreKtx" }
+androidx-activityKtx = { group = "androidx.activity", name = "activity-ktx", version.ref = "deps-activityKtx" }
 androidx-appCompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "deps-appCompat" }
 androidx-constraintLayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "deps-constraintLayout" }
 androidx-lifecycle-runtimeKtx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "deps-lifecycle" }
 androidx-lifecycle-viewmodelKtx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "deps-lifecycle" }
 androidx-dataStore = { group = "androidx.datastore", name = "datastore", version.ref = "deps-datastore" }
+hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "plugin-hilt"}
+hilt-android-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "plugin-hilt"}
 jsoup = { group = "org.jsoup", name = "jsoup", version.ref = "deps-jsoup" }
 okHttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "deps-okhttp" }
 protobuf-javaLite = { group = "com.google.protobuf", name = "protobuf-javalite", version.ref = "deps-protobuf-javaLite" }
@@ -59,6 +64,7 @@ test-androidx-espressoCore = { group = "androidx.test.espresso", name = "espress
 android-application = { id = "com.android.application", version.ref = "plugin-android" }
 android-library = { id = "com.android.library", version.ref = "plugin-android" }
 kotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+hilt = { id = "com.google.dagger.hilt.android", version.ref = "plugin-hilt" }
 protobuf = { id = "com.google.protobuf", version.ref = "plugin-protobuf" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "plugin-detekt" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "plugin-ktlint" }
