@@ -35,8 +35,12 @@ class LoginViewModel @Inject constructor(
 
     fun onResume() {
         viewModelScope.launch {
+            _events.emit(LoginEvent.CheckingForActiveSession)
+
             if (loginManager.hasActiveSession()) {
                 _events.emit(LoginEvent.HasActiveSession)
+            } else {
+                _events.emit(LoginEvent.NoActiveSession)
             }
         }
     }

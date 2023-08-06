@@ -26,7 +26,7 @@ class MainViewModel @Inject constructor(
     private val submitter: EntrySubmitter,
     private val dataStore: DataStore<State>
 ) : ViewModel() {
-    private val _state = MutableStateFlow(MainViewState(null, null, 0))
+    private val _state = MutableStateFlow(MainViewState(null, null, 1))
     val state = _state.asStateFlow()
 
     private val _events = MutableSharedFlow<EntryEvent>()

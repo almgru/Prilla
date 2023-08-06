@@ -48,9 +48,16 @@ class LoginActivity : AppCompatActivity() {
         viewModel.onResume()
     }
 
+    override fun onStop() {
+        super.onStop()
+        setIsLoading(false)
+    }
+
     private fun handleEvent(event: LoginEvent) = when (event) {
+        is LoginEvent.CheckingForActiveSession -> setIsLoading(true)
         is LoginEvent.HasActiveSession, is LoginEvent.LoggedIn -> gotoMainActivity()
-        is LoginEvent.Submitted -> setUiVisibility(true)
+        is LoginEvent.NoActiveSession -> setIsLoading(false)
+        is LoginEvent.Submitted -> setIsLoading(true)
         is LoginEvent.InvalidCredentialsError ->
             showError(R.string.invalid_credentials_error_message)
         is LoginEvent.SessionExpiredError -> showError(R.string.session_expired_error_message)
@@ -65,7 +72,6 @@ class LoginActivity : AppCompatActivity() {
 
     @SuppressLint("IntentWithNullActionLaunch")
     private fun gotoMainActivity() {
-        setUiVisibility(false)
         startActivity(Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
         })
@@ -73,11 +79,11 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun showError(resId: Int) {
-        setUiVisibility(false)
+        setIsLoading(false)
         Toast.makeText(this, getString(resId), Toast.LENGTH_SHORT).show()
     }
 
-    private fun setUiVisibility(isLoading: Boolean) {
+    private fun setIsLoading(isLoading: Boolean) {
         if (isLoading) {
             binding.loginButton.visibility = View.GONE
             binding.loginProgressBar.visibility = View.VISIBLE

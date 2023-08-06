@@ -56,14 +56,11 @@ class PrillaHttpClient @Inject constructor(
         )
 
         return@withContext try {
-            httpClient.newCall(loginRequest).execute().use { auth ->
-                if (auth.code != HttpURLConnection.HTTP_MOVED_TEMP) {
-                    throw UnexpectedHttpStatusException(auth.code, auth.message)
-                }
-
-                when (hasActiveSession()) {
-                    true -> LoginResult.Success
-                    false -> LoginResult.InvalidCredentials
+            httpClient.newCall(loginRequest).execute().use {
+                when (it.code) {
+                    HttpURLConnection.HTTP_MOVED_TEMP -> LoginResult.Success
+                    HttpURLConnection.HTTP_UNAUTHORIZED -> LoginResult.InvalidCredentials
+                    else -> throw UnexpectedHttpStatusException(it.code, it.message)
                 }
             }
         } catch (io: IOException) {
