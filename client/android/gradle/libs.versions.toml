@@ -60,6 +60,8 @@ test-junit = { group = "junit", name = "junit", version.ref = "deps-test-junit" 
 test-androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "deps-test-androidx-junit" }
 test-androidx-espressoCore = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "deps-test-espressoCore" }
 
+debug-okHttp-logInterceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "deps-okhttp" }
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "plugin-android" }
 android-library = { id = "com.android.library", version.ref = "plugin-android" }

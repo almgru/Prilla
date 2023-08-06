@@ -8,8 +8,8 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object CSRFTokenExtractorModule {
+object CsrfTokenExtractorModule {
     @Provides
     @Singleton
-    fun provideCSRFTokenExtractor(): CSRFTokenExtractor = JsoupCSRFTokenExtractor
+    fun provideCsrfTokenExtractor(): CsrfTokenExtractor = JsoupCsrfTokenExtractor
 }

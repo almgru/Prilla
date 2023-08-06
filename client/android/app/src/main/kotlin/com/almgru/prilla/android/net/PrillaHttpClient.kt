@@ -1,33 +1,53 @@
 package com.almgru.prilla.android.net
 
+import androidx.datastore.core.DataStore
+import com.almgru.prilla.android.Settings
 import com.almgru.prilla.android.model.Entry
 import com.almgru.prilla.android.net.exceptions.UnexpectedHttpStatusException
 import com.almgru.prilla.android.net.results.LoginResult
 import com.almgru.prilla.android.net.results.RecordEntryResult
-import com.almgru.prilla.android.net.utilities.csrf.CSRFTokenExtractor
+import com.almgru.prilla.android.net.utilities.csrf.CsrfTokenExtractor
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.FormBody
+import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
-private const val BASE_URL = "https://prilla.algr.se"
-
 class PrillaHttpClient @Inject constructor(
     private val httpClient: OkHttpClient,
-    private val csrfExtractor: CSRFTokenExtractor,
+    private val csrfExtractor: CsrfTokenExtractor,
+    private val settings: DataStore<Settings>
 ) : LoginManager, EntrySubmitter {
+    private val scope = CoroutineScope(Dispatchers.IO)
+    private var baseUrl: CompletableDeferred<String> = CompletableDeferred()
+
+    init {
+        scope.launch { settings.data.collect {
+            if (it.serverUrl.isNullOrEmpty()) return@collect
+
+            if (baseUrl.isCompleted) { baseUrl = CompletableDeferred() }
+            baseUrl.complete(it.serverUrl)
+        } }
+    }
+
     override suspend fun login(
         username: String,
         password: String
     ): LoginResult = withContext(Dispatchers.IO) {
-        val csrf = getCsrfTokenFor("/")
+        val url = Request.Builder().url("${baseUrl.await()}/login").build().url
+        httpClient.cookieJar.saveFromResponse(url, emptyList())
+
+        val csrf = getCsrfTokenFor(url)
         val loginRequest = buildPostRequest(
-            "/",
+            url,
             mapOf(
                 "username" to username,
                 "password" to password,
@@ -36,12 +56,12 @@ class PrillaHttpClient @Inject constructor(
         )
 
         return@withContext try {
-            httpClient.newCall(loginRequest).execute().use {
-                if (it.code != HttpURLConnection.HTTP_OK) {
-                    throw UnexpectedHttpStatusException(it.code, it.message)
+            httpClient.newCall(loginRequest).execute().use { auth ->
+                if (auth.code != HttpURLConnection.HTTP_MOVED_TEMP) {
+                    throw UnexpectedHttpStatusException(auth.code, auth.message)
                 }
 
-                when (it.request.url.toString().endsWith("/")) {
+                when (hasActiveSession()) {
                     true -> LoginResult.Success
                     false -> LoginResult.InvalidCredentials
                 }
@@ -53,24 +73,29 @@ class PrillaHttpClient @Inject constructor(
 
     @Suppress("SwallowedException")
     override suspend fun hasActiveSession() = withContext(Dispatchers.IO) {
-        val getIndexRequest = Request.Builder().url("$BASE_URL/").get().build()
+        if (!baseUrl.isCompleted) return@withContext false
+
+        val getIndexRequest = Request.Builder().url("${baseUrl.await()}/").get().build()
 
         return@withContext try {
             httpClient.newCall(getIndexRequest).execute().use {
                 when (it.code) {
-                    HttpURLConnection.HTTP_OK -> it.request.url.toString().endsWith("/")
+                    HttpURLConnection.HTTP_OK -> true
                     else -> false
                 }
             }
         } catch (ex: IOException) {
             false
+        } catch (ex: IllegalArgumentException) {
+            false
         }
     }
 
     override suspend fun submit(entry: Entry): RecordEntryResult = withContext(Dispatchers.IO) {
-        val csrf = getCsrfTokenFor("/record")
+        val url = Request.Builder().url("${baseUrl.await()}/record").build().url
+        val csrf = getCsrfTokenFor(url)
         val recordRequest = buildPostRequest(
-            "/record",
+            url,
             mapOf(
                 "appliedDate" to DateTimeFormatter.ISO_DATE.format(entry.started.toLocalDate()),
                 "appliedTime" to DateTimeFormatter.ISO_DATE.format(entry.started.toLocalTime()),
@@ -83,13 +108,16 @@ class PrillaHttpClient @Inject constructor(
 
         return@withContext try {
             httpClient.newCall(recordRequest).execute().use {
-                if (it.code != HttpURLConnection.HTTP_OK) {
-                    throw UnexpectedHttpStatusException(it.code, it.message)
-                }
-
-                when (it.request.url.toString().endsWith("/")) {
-                    true -> RecordEntryResult.Success
-                    false -> RecordEntryResult.SessionExpiredError
+                when (it.code) {
+                    HttpURLConnection.HTTP_OK -> {
+                        if (it.request.url.toString().endsWith("/")) {
+                            RecordEntryResult.Success
+                        } else {
+                            RecordEntryResult.SessionExpiredError
+                        }
+                    }
+                    HttpURLConnection.HTTP_UNAUTHORIZED -> RecordEntryResult.SessionExpiredError
+                    else -> throw UnexpectedHttpStatusException(it.code, it.message)
                 }
             }
         } catch (io: IOException) {
@@ -97,20 +125,21 @@ class PrillaHttpClient @Inject constructor(
         }
     }
 
-    private suspend fun getCsrfTokenFor(path: String) = withContext(Dispatchers.IO) {
-        val getFormRequest = Request.Builder().url("$BASE_URL/$path").get().build()
+    private suspend fun getCsrfTokenFor(url: HttpUrl) = withContext(Dispatchers.IO) {
+        val getFormRequest = Request.Builder().url(url).get().build()
 
         httpClient.newCall(getFormRequest).execute().use {
             when (it.code) {
-                HttpURLConnection.HTTP_OK -> csrfExtractor.extractCSRFToken(it.body.toString())
+                HttpURLConnection.HTTP_OK ->
+                    csrfExtractor.extractCsrfToken(it.body?.string() ?: "")
                 else -> throw UnexpectedHttpStatusException(it.code, it.message)
             }
         }
     }
 
-    private fun buildPostRequest(path: String, form: Map<String, String>) =
+    private fun buildPostRequest(url: HttpUrl, form: Map<String, String>) =
         Request.Builder().addHeader("Content-Type", "application/x-www-form-urlencoded")
-            .url("$BASE_URL/$path").post(buildFormBody(form)).build()
+            .url(url).post(buildFormBody(form)).build()
 
     private fun buildFormBody(form: Map<String, String>): FormBody {
         val builder = FormBody.Builder()

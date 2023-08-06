@@ -1,5 +1,6 @@
 package com.almgru.prilla.android.activities.main
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -117,10 +118,13 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
+    @SuppressLint("IntentWithNullActionLaunch")
     private fun returnToLoginScreen() {
-        val intent = Intent(this, LoginActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
-        startActivity(intent)
+        startActivity(
+            Intent(this, LoginActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
+            }
+        )
         finish()
     }
 

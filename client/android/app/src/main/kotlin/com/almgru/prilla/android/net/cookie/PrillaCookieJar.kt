@@ -12,7 +12,7 @@ import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 
 class PrillaCookieJar @Inject constructor(
-    private val cookieStore: DataStore<Cookies>,
+    private val cookieStore: DataStore<Cookies>
 ) : CookieJar {
     private val scope = CoroutineScope(Dispatchers.IO)
     private val cookies: MutableMap<HttpUrl, List<Cookie>> = mutableMapOf()
@@ -26,9 +26,7 @@ class PrillaCookieJar @Inject constructor(
         scope.launch { saveCookies(url, cookies) }
     }
 
-    override fun loadForRequest(url: HttpUrl): List<Cookie> {
-        return cookies.getOrDefault(url, emptyList())
-    }
+    override fun loadForRequest(url: HttpUrl): List<Cookie> = cookies.getOrDefault(url, emptyList())
 
     private fun loadCookies(cookies: Cookies) {
         cookies.cookiesForUrlList.forEach { urlCookies ->

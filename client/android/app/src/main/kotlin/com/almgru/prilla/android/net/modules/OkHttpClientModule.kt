@@ -7,11 +7,19 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 
 @Module
 @InstallIn(SingletonComponent::class)
 object OkHttpClientModule {
     @Provides
     @Singleton
-    fun provideHttpClient(jar: PrillaCookieJar) = OkHttpClient().newBuilder().cookieJar(jar).build()
+    fun provideHttpClient(jar: PrillaCookieJar) = OkHttpClient()
+        .newBuilder()
+        .addNetworkInterceptor(
+            HttpLoggingInterceptor().apply { setLevel(HttpLoggingInterceptor.Level.BODY) }
+        )
+        .cookieJar(jar)
+        .followRedirects(false)
+        .build()
 }

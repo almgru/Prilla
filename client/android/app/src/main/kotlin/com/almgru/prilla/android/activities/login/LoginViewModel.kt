@@ -44,6 +44,7 @@ class LoginViewModel @Inject constructor(
     fun onLoginPressed() {
         viewModelScope.launch {
             _events.emit(LoginEvent.Submitted)
+            settings.updateData { it.toBuilder().setServerUrl(state.value.serverUrl).build() }
             handleLoginResult(
                 loginManager.login(state.value.username, state.value.password)
             )
@@ -55,11 +56,7 @@ class LoginViewModel @Inject constructor(
     fun onPasswordFieldTextChanged(text: String) = _state.update { it.copy(password = text) }
 
     private suspend fun handleLoginResult(result: LoginResult) = when (result) {
-        LoginResult.Success -> {
-            settings.updateData { it.toBuilder().setServerUrl(state.value.serverUrl).build() }
-            _events.emit(LoginEvent.LoggedIn)
-        }
-
+        LoginResult.Success -> _events.emit(LoginEvent.LoggedIn)
         LoginResult.InvalidCredentials -> _events.emit(LoginEvent.InvalidCredentialsError)
         LoginResult.SessionExpired -> _events.emit(LoginEvent.SessionExpiredError)
         is LoginResult.NetworkError -> _events.emit(LoginEvent.NetworkError)

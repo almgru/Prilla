@@ -19,10 +19,6 @@ kotlin {
     jvmToolchain(libs.versions.jvm.toolchain.get().toInt())
 }
 
-tasks.withType<JavaCompile> {
-    options.compilerArgs.add("-Xlint:deprecation")
-}
-
 android {
     namespace = "com.almgru.prilla.android"
 
@@ -94,6 +90,13 @@ android {
     viewBinding {
         enable = true
     }
+
+    sourceSets {
+        getByName("main") {
+            // Needed to allow ktlint to find kotlin sources
+            java.setSrcDirs(listOf("src/main/kotlin"))
+        }
+    }
 }
 
 dependencies {
@@ -114,6 +117,8 @@ dependencies {
     kapt(libs.hilt.android.compiler)
 
     coreLibraryDesugaring(libs.tools.android.desugarJdkLibs)
+
+    debugImplementation(libs.debug.okHttp.logInterceptor)
 
     testImplementation(libs.test.junit)
     androidTestImplementation(libs.test.androidx.junit)
@@ -148,12 +153,15 @@ detekt {
 
     tasks.withType<Detekt>().configureEach {
         reports {
-            html.required.set(true)
+            html.required.set(false)
+            txt.required.set(false)
+            md.required.set(false)
+            sarif.required.set(false)
+            xml.required.set(false)
         }
     }
 }
 
 ktlint {
     android.set(true)
-    outputColorName.set("RED")
 }

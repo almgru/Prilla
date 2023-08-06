@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -29,21 +30,10 @@ class LoginActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.loginButton.setOnClickListener { viewModel.onLoginPressed() }
-        binding.serverField.doOnTextChanged { text, _, _, _ ->
-            viewModel.onServerUrlFieldTextChanged(
-                text.toString()
-            )
-        }
-        binding.usernameField.doOnTextChanged { text, _, _, _ ->
-            viewModel.onUsernameFieldTextChanged(
-                text.toString()
-            )
-        }
-        binding.passwordField.doOnTextChanged { text, _, _, _ ->
-            viewModel.onPasswordFieldTextChanged(
-                text.toString()
-            )
-        }
+
+        setupFieldListener(binding.serverField, viewModel::onServerUrlFieldTextChanged)
+        setupFieldListener(binding.usernameField, viewModel::onUsernameFieldTextChanged)
+        setupFieldListener(binding.passwordField, viewModel::onPasswordFieldTextChanged)
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -68,9 +58,9 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun handleStateChange(state: LoginViewState) {
-        binding.serverField.setText(state.serverUrl)
-        binding.usernameField.setText(state.username)
-        binding.passwordField.setText(state.password)
+        binding.serverField.setTextAndMoveCaretToEnd(state.serverUrl)
+        binding.usernameField.setTextAndMoveCaretToEnd(state.username)
+        binding.passwordField.setTextAndMoveCaretToEnd(state.password)
     }
 
     @SuppressLint("IntentWithNullActionLaunch")
@@ -95,5 +85,14 @@ class LoginActivity : AppCompatActivity() {
             binding.loginButton.visibility = View.VISIBLE
             binding.loginProgressBar.visibility = View.GONE
         }
+    }
+
+    private fun setupFieldListener(field: EditText, callback: (String) -> (Unit)) {
+        field.doOnTextChanged { text, _, _, _ -> callback(text.toString()) }
+    }
+
+    private fun EditText.setTextAndMoveCaretToEnd(newText: String) {
+        setText(newText)
+        setSelection(text.length)
     }
 }
