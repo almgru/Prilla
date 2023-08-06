@@ -4,6 +4,6 @@ option java_package = "com.almgru.prilla.android";
 option java_multiple_files = true;
 
 message ProtoSettings {
-  string server_url = 1;
-  int32 backup_interval_in_days = 2;
+  optional string server_url = 1;
+  optional int32 backup_interval_in_days = 2;
 }

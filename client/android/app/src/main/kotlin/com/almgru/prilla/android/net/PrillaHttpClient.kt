@@ -2,7 +2,7 @@ package com.almgru.prilla.android.net
 
 import androidx.datastore.core.DataStore
 import com.almgru.prilla.android.ProtoSettings
-import com.almgru.prilla.android.model.Entry
+import com.almgru.prilla.android.model.CompleteEntry
 import com.almgru.prilla.android.net.exceptions.UnexpectedHttpStatusException
 import com.almgru.prilla.android.net.results.LoginResult
 import com.almgru.prilla.android.net.results.RecordEntryResult
@@ -90,16 +90,18 @@ class PrillaHttpClient @Inject constructor(
         }
     }
 
-    override suspend fun submit(entry: Entry): RecordEntryResult = withContext(Dispatchers.IO) {
+    override suspend fun submit(entry: CompleteEntry): RecordEntryResult = withContext(
+        Dispatchers.IO
+    ) {
         val url = Request.Builder().url("${baseUrl.await()}/record").build().url
         val csrf = getCsrfTokenFor(url)
         val recordRequest = buildPostRequest(
             url,
             mapOf(
                 "appliedDate" to DateTimeFormatter.ISO_DATE.format(entry.started.toLocalDate()),
-                "appliedTime" to DateTimeFormatter.ISO_DATE.format(entry.started.toLocalTime()),
+                "appliedTime" to DateTimeFormatter.ISO_TIME.format(entry.started.toLocalTime()),
                 "removedDate" to DateTimeFormatter.ISO_DATE.format(entry.stopped.toLocalDate()),
-                "removedTime" to DateTimeFormatter.ISO_DATE.format(entry.stopped.toLocalTime()),
+                "removedTime" to DateTimeFormatter.ISO_TIME.format(entry.stopped.toLocalTime()),
                 "amount" to entry.amount.toString(),
                 "_csrf" to csrf
             )

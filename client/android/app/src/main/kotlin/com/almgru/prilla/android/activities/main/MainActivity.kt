@@ -17,7 +17,7 @@ import com.almgru.prilla.android.activities.login.LoginActivity
 import com.almgru.prilla.android.databinding.ActivityMainBinding
 import com.almgru.prilla.android.fragment.DatePickerFragment
 import com.almgru.prilla.android.fragment.TimePickerFragment
-import com.almgru.prilla.android.model.Entry
+import com.almgru.prilla.android.model.CompleteEntry
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -109,7 +109,7 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    private fun handleLastEntryChanged(lastEntry: Entry?) = when (lastEntry) {
+    private fun handleLastEntryChanged(lastEntry: CompleteEntry?) = when (lastEntry) {
         null -> binding.lastEntryText.text = ""
         else -> binding.lastEntryText.text = getString(
             R.string.last_entry_text,

@@ -1,16 +1,22 @@
 package com.almgru.prilla.android.data
 
 import com.almgru.prilla.android.ProtoEntryState
-import com.almgru.prilla.android.model.Entry
+import com.almgru.prilla.android.model.CompleteEntry
+import com.almgru.prilla.android.model.StartedEntry
 import com.google.protobuf.Timestamp
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 
 object Mapper {
-    fun ProtoEntryState.ProtoEntry.toModelEntry() = Entry(
+    fun ProtoEntryState.ProtoCompleteEntry.toModelEntry() = CompleteEntry(
         started = startedAt.toLocalDateTime(),
         stopped = stoppedAt.toLocalDateTime(),
+        amount = amount.value
+    )
+
+    fun ProtoEntryState.ProtoStartedEntry.toModelEntry() = StartedEntry(
+        started = startedAt.toLocalDateTime(),
         amount = amount.value
     )
 

@@ -1,6 +1,6 @@
 package com.almgru.prilla.android.activities.main
 
-import com.almgru.prilla.android.model.Entry
+import com.almgru.prilla.android.model.CompleteEntry
 import java.time.LocalDateTime
 
 /**
@@ -15,7 +15,7 @@ import java.time.LocalDateTime
  * @property amount             The number of portions used for the current entry.
  */
 data class MainViewState(
-    val latestEntry: Entry?,
+    val latestEntry: CompleteEntry?,
     val startedDateTime: LocalDateTime?,
     val amount: Int
 )
