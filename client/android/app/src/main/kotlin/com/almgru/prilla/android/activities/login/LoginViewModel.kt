@@ -3,7 +3,7 @@ package com.almgru.prilla.android.activities.login
 import androidx.datastore.core.DataStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.almgru.prilla.android.Settings
+import com.almgru.prilla.android.ProtoSettings
 import com.almgru.prilla.android.net.LoginManager
 import com.almgru.prilla.android.net.results.LoginResult
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val loginManager: LoginManager,
-    private val settings: DataStore<Settings>
+    private val settings: DataStore<ProtoSettings>
 ) : ViewModel() {
     private val _state = MutableStateFlow(LoginViewState())
     val state = _state.asStateFlow()

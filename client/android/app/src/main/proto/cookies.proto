@@ -3,13 +3,13 @@ syntax = "proto3";
 option java_package = "com.almgru.prilla.android";
 option java_multiple_files = true;
 
-message Cookies {
-  repeated DomainCookies cookies_for_domain = 1;
+message ProtoCookies {
+  repeated ProtoDomainCookies cookies_for_domain = 1;
 
-  message DomainCookies {
+  message ProtoDomainCookies {
     string domain = 1;
 
-    message Cookie {
+    message ProtoCookie {
       string name = 1;
       string value = 2;
       string domain = 3;
@@ -21,6 +21,6 @@ message Cookies {
       bool persistent = 9;
     }
 
-    repeated Cookie cookies = 2;
+    repeated ProtoCookie cookies = 2;
   }
 }

@@ -72,9 +72,11 @@ class LoginActivity : AppCompatActivity() {
 
     @SuppressLint("IntentWithNullActionLaunch")
     private fun gotoMainActivity() {
-        startActivity(Intent(this, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
-        })
+        startActivity(
+            Intent(this, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
+            }
+        )
         finish()
     }
 

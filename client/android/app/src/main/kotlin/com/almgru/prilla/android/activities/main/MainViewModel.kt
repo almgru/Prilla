@@ -2,13 +2,14 @@ package com.almgru.prilla.android.activities.main
 import androidx.datastore.core.DataStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.almgru.prilla.android.State
-import com.almgru.prilla.android.data.Mapper.toEntry
+import com.almgru.prilla.android.ProtoEntryState
 import com.almgru.prilla.android.data.Mapper.toLocalDateTime
-import com.almgru.prilla.android.data.Mapper.toTimestamp
+import com.almgru.prilla.android.data.Mapper.toModelEntry
+import com.almgru.prilla.android.data.Mapper.toProtoTimestamp
 import com.almgru.prilla.android.model.Entry
 import com.almgru.prilla.android.net.EntrySubmitter
 import com.almgru.prilla.android.net.results.RecordEntryResult
+import com.google.protobuf.Int32Value
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.time.LocalDateTime
 import javax.inject.Inject
@@ -24,7 +25,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val submitter: EntrySubmitter,
-    private val dataStore: DataStore<State>
+    private val dataStore: DataStore<ProtoEntryState>
 ) : ViewModel() {
     private val _state = MutableStateFlow(MainViewState(null, null, 1))
     val state = _state.asStateFlow()
@@ -35,14 +36,15 @@ class MainViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             val stored = dataStore.data.first()
+            val newState = MainViewState(
+                stored.mostRecentlyStoredEntry?.toModelEntry(),
+                stored.currentStartedEntry?.startedAt?.toLocalDateTime(),
+                stored.currentStartedEntry.amount.let {
+                    if (it.value != 0) it.value else state.value.amount
+                }
+            )
 
-            _state.update {
-                MainViewState(
-                    stored.last.toEntry(),
-                    stored.started.startedAt.toLocalDateTime(),
-                    stored.started.amount
-                )
-            }
+            _state.update { newState }
         }
     }
 
@@ -94,10 +96,10 @@ class MainViewModel @Inject constructor(
 
     private suspend fun handleStart(started: LocalDateTime = LocalDateTime.now()) {
         dataStore.updateData {
-            val startedEntry = it.started.toBuilder()
-                .setStartedAt(started.toTimestamp())
-                .setAmount(state.value.amount)
-            it.toBuilder().setStarted(startedEntry).build()
+            val startedEntry = it.currentStartedEntry.toBuilder()
+                .setStartedAt(started.toProtoTimestamp())
+                .setAmount(Int32Value.of(state.value.amount))
+            it.toBuilder().setCurrentStartedEntry(startedEntry).build()
         }
 
         _state.update { it.copy(startedDateTime = started) }
@@ -119,21 +121,21 @@ class MainViewModel @Inject constructor(
 
     private suspend fun onEntryAdded(entry: Entry) {
         dataStore.updateData {
-            val toStore = it.last.toBuilder()
-                .setStartedAt(entry.started.toTimestamp())
-                .setStoppedAt(entry.stopped.toTimestamp())
-                .setAmount(entry.amount)
+            val toStore = it.mostRecentlyStoredEntry.toBuilder()
+                .setStartedAt(entry.started.toProtoTimestamp())
+                .setStoppedAt(entry.stopped.toProtoTimestamp())
+                .setAmount(Int32Value.of(entry.amount))
 
-            it.toBuilder().setLast(toStore).build()
+            it.toBuilder().setMostRecentlyStoredEntry(toStore).build()
         }
-        _state.update { it.copy(latestEntry = entry) }
 
+        _state.update { it.copy(latestEntry = entry) }
         _events.emit(EntryEvent.Stored)
         handleClear()
     }
 
     private suspend fun handleClear() {
-        dataStore.updateData { it.toBuilder().clearStarted().build() }
+        dataStore.updateData { it.toBuilder().clearCurrentStartedEntry().build() }
         _state.update { it.copy(startedDateTime = null) }
     }
 }

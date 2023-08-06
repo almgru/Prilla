@@ -1,6 +1,6 @@
 package com.almgru.prilla.android.data
 
-import com.almgru.prilla.android.State
+import com.almgru.prilla.android.ProtoEntryState
 import com.almgru.prilla.android.model.Entry
 import com.google.protobuf.Timestamp
 import java.time.Instant
@@ -8,13 +8,13 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 
 object Mapper {
-    fun State.LastEntry.toEntry() = Entry(
+    fun ProtoEntryState.ProtoEntry.toModelEntry() = Entry(
         started = startedAt.toLocalDateTime(),
         stopped = stoppedAt.toLocalDateTime(),
-        amount = amount
+        amount = amount.value
     )
 
-    fun LocalDateTime.toTimestamp(): Timestamp {
+    fun LocalDateTime.toProtoTimestamp(): Timestamp {
         val instant = atZone(ZoneId.systemDefault()).toInstant()
         return Timestamp.newBuilder().setSeconds(instant.epochSecond).setNanos(instant.nano).build()
     }

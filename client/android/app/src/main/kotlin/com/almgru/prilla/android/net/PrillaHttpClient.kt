@@ -1,7 +1,7 @@
 package com.almgru.prilla.android.net
 
 import androidx.datastore.core.DataStore
-import com.almgru.prilla.android.Settings
+import com.almgru.prilla.android.ProtoSettings
 import com.almgru.prilla.android.model.Entry
 import com.almgru.prilla.android.net.exceptions.UnexpectedHttpStatusException
 import com.almgru.prilla.android.net.results.LoginResult
@@ -24,18 +24,20 @@ import okhttp3.Request
 class PrillaHttpClient @Inject constructor(
     private val httpClient: OkHttpClient,
     private val csrfExtractor: CsrfTokenExtractor,
-    private val settings: DataStore<Settings>
+    private val settings: DataStore<ProtoSettings>
 ) : LoginManager, EntrySubmitter {
     private val scope = CoroutineScope(Dispatchers.IO)
     private var baseUrl: CompletableDeferred<String> = CompletableDeferred()
 
     init {
-        scope.launch { settings.data.collect {
-            if (it.serverUrl.isNullOrEmpty()) return@collect
+        scope.launch {
+            settings.data.collect {
+                if (it.serverUrl.isNullOrEmpty()) return@collect
 
-            if (baseUrl.isCompleted) { baseUrl = CompletableDeferred() }
-            baseUrl.complete(it.serverUrl)
-        } }
+                if (baseUrl.isCompleted) { baseUrl = CompletableDeferred() }
+                baseUrl.complete(it.serverUrl)
+            }
+        }
     }
 
     override suspend fun login(

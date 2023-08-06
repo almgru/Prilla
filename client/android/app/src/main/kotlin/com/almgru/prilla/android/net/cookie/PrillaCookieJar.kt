@@ -1,7 +1,7 @@
 package com.almgru.prilla.android.net.cookie
 
 import androidx.datastore.core.DataStore
-import com.almgru.prilla.android.Cookies
+import com.almgru.prilla.android.ProtoCookies
 import java.time.Instant
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
@@ -12,7 +12,7 @@ import okhttp3.CookieJar
 import okhttp3.HttpUrl
 
 class PrillaCookieJar @Inject constructor(
-    private val cookieStore: DataStore<Cookies>
+    private val cookieStore: DataStore<ProtoCookies>
 ) : CookieJar {
     private val scope = CoroutineScope(Dispatchers.IO)
     private val cookies: MutableMap<String, List<Cookie>> = mutableMapOf()
@@ -30,14 +30,14 @@ class PrillaCookieJar @Inject constructor(
         .getOrDefault(url.host, emptyList())
         .filter { cookie -> cookie.isExpired() || cookie.isForUrl(url) }
 
-    private fun loadCookies(cookies: Cookies) = cookies.cookiesForDomainList.forEach {
+    private fun loadCookies(cookies: ProtoCookies) = cookies.cookiesForDomainList.forEach {
         this.cookies[it.domain] = it.cookiesList.map { cookie -> cookie.toOkHttpCookie() }
     }
 
     private suspend fun saveCookies(domain: String, cookies: List<Cookie>) {
         cookieStore.updateData { current ->
             val index = current.cookiesForDomainList.indexOfFirst { it.domain == domain }
-            val toAdd = Cookies.DomainCookies.newBuilder()
+            val toAdd = ProtoCookies.ProtoDomainCookies.newBuilder()
                 .setDomain(domain)
                 .addAllCookies(cookies.map { it.toProtoCookie() })
                 .build()
@@ -57,7 +57,7 @@ class PrillaCookieJar @Inject constructor(
         return (path.isEmpty() || url.encodedPath.startsWith(path))
     }
 
-    private fun Cookies.DomainCookies.Cookie.toOkHttpCookie() = Cookie.Builder()
+    private fun ProtoCookies.ProtoDomainCookies.ProtoCookie.toOkHttpCookie() = Cookie.Builder()
         .name(name)
         .value(value)
         .domain(domain)
@@ -70,7 +70,7 @@ class PrillaCookieJar @Inject constructor(
         }
         .build()
 
-    private fun Cookie.toProtoCookie() = Cookies.DomainCookies.Cookie.newBuilder()
+    private fun Cookie.toProtoCookie() = ProtoCookies.ProtoDomainCookies.ProtoCookie.newBuilder()
         .setName(name)
         .setValue(value)
         .setDomain(domain)
