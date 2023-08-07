@@ -2,6 +2,10 @@
 prilla-code = "3"
 prilla-name = "0.1.1"
 
+# Check versions and checksums here: https://gradle.org/release-checksums/
+gradle-wrapper = "8.2.1"
+gradle-sha256Sum = "03ec176d388f2aa99defcadc3ac6adf8dd2bce5145a129659537c0874dea5ad1"
+
 kotlin = "1.9.0"
 
 jvm-toolchain = "17"

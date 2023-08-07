@@ -11,3 +11,4 @@ local.properties
 .direnv/
 *.jks
 android-sdk/
+/gradle/wrapper/dists/

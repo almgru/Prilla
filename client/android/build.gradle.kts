@@ -9,3 +9,11 @@ plugins {
     alias(libs.plugins.detekt).apply(false)
     alias(libs.plugins.ktlint).apply(false)
 }
+
+tasks.wrapper {
+    gradleVersion = libs.versions.gradle.wrapper.get()
+    distributionSha256Sum = libs.versions.gradle.sha256Sum.get()
+    distributionBase = Wrapper.PathBase.PROJECT
+    distributionPath = "wrapper/dists"
+    distributionType = Wrapper.DistributionType.BIN
+}
