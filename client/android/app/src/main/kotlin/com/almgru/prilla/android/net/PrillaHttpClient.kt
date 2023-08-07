@@ -40,10 +40,9 @@ class PrillaHttpClient @Inject constructor(
         }
     }
 
-    override suspend fun login(
-        username: String,
-        password: String
-    ): LoginResult = withContext(Dispatchers.IO) {
+    override suspend fun login(username: String, password: String): LoginResult = withContext(
+        Dispatchers.IO
+    ) {
         val url = Request.Builder().url("${baseUrl.await()}/login").build().url
         httpClient.cookieJar.saveFromResponse(url, emptyList())
 

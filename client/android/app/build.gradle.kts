@@ -61,7 +61,7 @@ android {
 
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro",
+                "proguard-rules.pro"
             )
 
             signingConfig = signingConfigs.getByName("release")
@@ -162,4 +162,6 @@ detekt {
 
 ktlint {
     android.set(true)
+    enableExperimentalRules = true
+    outputToConsole = true
 }
