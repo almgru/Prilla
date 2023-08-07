@@ -1,5 +1,3 @@
-@file:Suppress("DSL_SCOPE_VIOLATION")
-
 import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 import io.gitlab.arturbosch.detekt.Detekt
 
@@ -63,7 +61,7 @@ android {
 
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
 
             signingConfig = signingConfigs.getByName("release")

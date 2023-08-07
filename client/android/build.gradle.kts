@@ -1,5 +1,3 @@
-@file:Suppress("DSL_SCOPE_VIOLATION")
-
 plugins {
     alias(libs.plugins.android.application).apply(false)
     alias(libs.plugins.android.library).apply(false)
@@ -13,7 +11,4 @@ plugins {
 tasks.wrapper {
     gradleVersion = libs.versions.gradle.wrapper.get()
     distributionSha256Sum = libs.versions.gradle.sha256Sum.get()
-    distributionBase = Wrapper.PathBase.PROJECT
-    distributionPath = "wrapper/dists"
-    distributionType = Wrapper.DistributionType.BIN
 }
