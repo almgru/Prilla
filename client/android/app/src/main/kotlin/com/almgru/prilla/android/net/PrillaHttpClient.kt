@@ -44,16 +44,11 @@ class PrillaHttpClient @Inject constructor(
         Dispatchers.IO
     ) {
         val url = Request.Builder().url("${baseUrl.await()}/login").build().url
-        httpClient.cookieJar.saveFromResponse(url, emptyList())
 
         val csrf = getCsrfTokenFor(url)
         val loginRequest = buildPostRequest(
             url,
-            mapOf(
-                "username" to username,
-                "password" to password,
-                "_csrf" to csrf
-            )
+            mapOf("username" to username, "password" to password, "_csrf" to csrf)
         )
 
         return@withContext try {
