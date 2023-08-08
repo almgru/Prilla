@@ -118,7 +118,12 @@ dependencies {
 
     debugImplementation(libs.debug.okHttp.logInterceptor)
 
+    testImplementation(libs.test.kotlinx.couroutines)
     testImplementation(libs.test.junit)
+    testImplementation(libs.test.mockk.android)
+    testImplementation(libs.test.mockk.agent)
+    testImplementation(libs.test.okhttp.mockWebServer)
+
     androidTestImplementation(libs.test.androidx.junit)
     androidTestImplementation(libs.test.androidx.espressoCore)
 }
