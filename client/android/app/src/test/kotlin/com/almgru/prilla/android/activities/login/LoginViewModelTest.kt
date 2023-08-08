@@ -74,10 +74,48 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun `onResume should emit HasActiveSession`() = runTest {
+    fun `onResume should emit HasActiveSession`() = runTest(
+        timeout = Duration.parse("1s")
+    ) {
+        val collectIsSetup = Channel<Unit>()
+
+        coEvery { loginManager.hasActiveSession() } returns true
+
+        launch {
+            sut.events
+                .onSubscription { collectIsSetup.send(Unit) }
+                .collect {
+                    if (it is LoginEvent.HasActiveSession) {
+                        cancel()
+                    }
+                }
+        }
+
+        collectIsSetup.receive()
+
+        sut.onResume()
     }
 
     @Test
-    fun `onResume should emit NoActiveSession`() = runTest {
+    fun `onResume should emit NoActiveSession`() = runTest(
+        timeout = Duration.parse("1s")
+    ) {
+        val collectIsSetup = Channel<Unit>()
+
+        coEvery { loginManager.hasActiveSession() } returns false
+
+        launch {
+            sut.events
+                .onSubscription { collectIsSetup.send(Unit) }
+                .collect {
+                    if (it is LoginEvent.NoActiveSession) {
+                        cancel()
+                    }
+                }
+        }
+
+        collectIsSetup.receive()
+
+        sut.onResume()
     }
 }
