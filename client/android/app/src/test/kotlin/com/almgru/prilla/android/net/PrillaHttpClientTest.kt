@@ -4,6 +4,7 @@ import androidx.datastore.core.DataStore
 import com.almgru.prilla.android.ProtoSettings
 import com.almgru.prilla.android.helpers.CustomClientReadTimeoutRule
 import com.almgru.prilla.android.helpers.CustomOkHttpClientReadTimeout
+import com.almgru.prilla.android.helpers.MainDispatcherRule
 import com.almgru.prilla.android.net.exceptions.UnexpectedHttpStatusException
 import com.almgru.prilla.android.net.results.LoginResult
 import com.almgru.prilla.android.net.utilities.csrf.CsrfTokenExtractor
@@ -30,9 +31,9 @@ class PrillaHttpClientTest {
     private lateinit var sut: PrillaHttpClient
     private lateinit var mockServer: MockWebServer
 
-    @Rule
-    @JvmField
-    val customClientReadTimeout = CustomClientReadTimeoutRule()
+    @get:Rule val mainDispatcherRule = MainDispatcherRule()
+
+    @get:Rule val customClientReadTimeout = CustomClientReadTimeoutRule()
 
     @Before
     fun setup() = runTest {

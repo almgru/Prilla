@@ -7,7 +7,6 @@ import com.almgru.prilla.android.net.LoginManager
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import kotlin.time.Duration
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
@@ -21,6 +20,7 @@ import kotlinx.coroutines.withContext
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import kotlin.time.Duration
 
 class LoginViewModelTest {
     @get:Rule val mainDispatcherRule = MainDispatcherRule()
@@ -74,9 +74,7 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun `onResume should emit HasActiveSession`() = runTest(
-        timeout = Duration.parse("1s")
-    ) {
+    fun `onResume should emit HasActiveSession`() = runTest(timeout = Duration.parse("1s")) {
         val collectIsSetup = Channel<Unit>()
 
         coEvery { loginManager.hasActiveSession() } returns true
@@ -84,11 +82,7 @@ class LoginViewModelTest {
         launch {
             sut.events
                 .onSubscription { collectIsSetup.send(Unit) }
-                .collect {
-                    if (it is LoginEvent.HasActiveSession) {
-                        cancel()
-                    }
-                }
+                .collect { if (it is LoginEvent.HasActiveSession) { cancel() } }
         }
 
         collectIsSetup.receive()
@@ -97,9 +91,7 @@ class LoginViewModelTest {
     }
 
     @Test
-    fun `onResume should emit NoActiveSession`() = runTest(
-        timeout = Duration.parse("1s")
-    ) {
+    fun `onResume should emit NoActiveSession`() = runTest(timeout = Duration.parse("1s")) {
         val collectIsSetup = Channel<Unit>()
 
         coEvery { loginManager.hasActiveSession() } returns false
@@ -107,11 +99,7 @@ class LoginViewModelTest {
         launch {
             sut.events
                 .onSubscription { collectIsSetup.send(Unit) }
-                .collect {
-                    if (it is LoginEvent.NoActiveSession) {
-                        cancel()
-                    }
-                }
+                .collect { if (it is LoginEvent.NoActiveSession) { cancel() } }
         }
 
         collectIsSetup.receive()
