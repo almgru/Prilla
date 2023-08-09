@@ -5,12 +5,13 @@ import com.almgru.prilla.android.ProtoSettings
 import com.almgru.prilla.android.helpers.MainDispatcherRule
 import com.almgru.prilla.android.net.LoginManager
 import io.mockk.coEvery
-import io.mockk.every
 import io.mockk.mockk
+import kotlin.time.Duration
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.launch
@@ -20,19 +21,35 @@ import kotlinx.coroutines.withContext
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import kotlin.time.Duration
 
 class LoginViewModelTest {
     @get:Rule val mainDispatcherRule = MainDispatcherRule()
 
     private val loginManager = mockk<LoginManager>()
-    private val settings = mockk<DataStore<ProtoSettings>>()
     private lateinit var sut: LoginViewModel
 
     @Before
     fun setup() {
-        every { settings.data } returns flowOf(ProtoSettings.getDefaultInstance())
-        sut = LoginViewModel(loginManager, settings)
+        sut = LoginViewModel(loginManager, FakeSettingsDataStore())
+    }
+
+    @Test
+    fun `initializes serverUrl state from settings`() = runTest(
+        timeout = Duration.parse("1s")
+    ) {
+        val expected = "https://test.example.com"
+        val store = object : FakeSettingsDataStore() {
+            override val data: Flow<ProtoSettings> = flowOf(
+                ProtoSettings.getDefaultInstance()
+                    .toBuilder()
+                    .setServerUrl(expected)
+                    .build()
+            )
+        }
+
+        val sut = LoginViewModel(loginManager, store)
+
+        launch { sut.state.collect { if (it.serverUrl == expected) { cancel() } } }
     }
 
     @Test
@@ -105,5 +122,15 @@ class LoginViewModelTest {
         collectIsSetup.receive()
 
         sut.onResume()
+    }
+}
+
+private open class FakeSettingsDataStore : DataStore<ProtoSettings> {
+    override val data: Flow<ProtoSettings> = flowOf(ProtoSettings.getDefaultInstance())
+
+    override suspend fun updateData(
+        transform: suspend (t: ProtoSettings) -> ProtoSettings
+    ): ProtoSettings {
+        error("Should not be called")
     }
 }
