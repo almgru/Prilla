@@ -78,11 +78,7 @@ class LoginViewModelTest {
         launch {
             sut.events
                 .onSubscription { collectIsSetup.send(Unit) }
-                .collect {
-                    if (it is LoginEvent.CheckingForActiveSession) {
-                        cancel() // Cancelling the job will cause the test to exit successfully
-                    }
-                }
+                .collect { if (it is LoginEvent.CheckingForActiveSession) { cancel() } }
         }
 
         collectIsSetup.receive() // Wait for event subscription to be ready
