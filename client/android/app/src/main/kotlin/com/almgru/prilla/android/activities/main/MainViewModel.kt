@@ -39,6 +39,23 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    fun onStartStopPressed() {
+        viewModelScope.launch {
+            state.value.startedDateTime?.let {
+                handleStop(it)
+            } ?: run {
+                handleStart()
+            }
+        }
+    }
+
+    fun onStartStopLongPressed() {
+        viewModelScope.launch {
+            handleClear()
+            _events.emit(EntryEvent.Cleared)
+        }
+    }
+
     fun updateAmount(newAmount: Int) {
         _state.update { it.copy(amount = newAmount) }
     }
@@ -57,23 +74,6 @@ class MainViewModel @Inject constructor(
 
     fun onCancelPickStopDateTime() {
         viewModelScope.launch { _events.emit(EntryEvent.CancelledPickStoppedDatetime) }
-    }
-
-    fun onStartStopPressed() {
-        viewModelScope.launch {
-            state.value.startedDateTime?.let {
-                handleStop(it)
-            } ?: run {
-                handleStart()
-            }
-        }
-    }
-
-    fun onStartStopLongPressed() {
-        viewModelScope.launch {
-            handleClear()
-            _events.emit(EntryEvent.Cleared)
-        }
     }
 
     fun onCustomStartedPressed() {
