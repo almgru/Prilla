@@ -61,8 +61,8 @@ class LoginViewModel @Inject constructor(
 
     private suspend fun handleLoginResult(result: LoginResult) = when (result) {
         LoginResult.Success -> _events.emit(LoginEvent.LoggedIn)
+        LoginResult.SessionExpired,
         LoginResult.InvalidCredentials -> _events.emit(LoginEvent.InvalidCredentialsError)
-        LoginResult.SessionExpired -> _events.emit(LoginEvent.SessionExpiredError)
         is LoginResult.NetworkError -> _events.emit(LoginEvent.NetworkError)
     }
 }

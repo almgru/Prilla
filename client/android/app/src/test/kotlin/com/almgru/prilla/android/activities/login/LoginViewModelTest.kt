@@ -4,8 +4,12 @@ import androidx.datastore.core.DataStore
 import com.almgru.prilla.android.ProtoSettings
 import com.almgru.prilla.android.helpers.MainDispatcherRule
 import com.almgru.prilla.android.net.LoginManager
+import com.almgru.prilla.android.net.results.LoginResult
 import io.mockk.coEvery
+import io.mockk.coVerify
+import io.mockk.confirmVerified
 import io.mockk.mockk
+import io.mockk.verify
 import kotlin.time.Duration
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -18,9 +22,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import java.io.IOException
 
 class LoginViewModelTest {
     @get:Rule val mainDispatcherRule = MainDispatcherRule()
@@ -119,6 +125,126 @@ class LoginViewModelTest {
 
         sut.onResume()
     }
+
+    @Test
+    fun `onLoginPressed should immediately emit Submitted`() = runTest(
+        timeout = Duration.parse("1s")
+    ) {
+        val loginDelay = Duration.parse("2s").inWholeMilliseconds
+        val collectIsSetup = Channel<Unit>()
+
+        coEvery { loginManager.login(any(), any()) } coAnswers {
+            withContext(Dispatchers.Default) { runBlocking { delay(loginDelay) } }
+
+            LoginResult.Success
+        }
+
+        launch {
+            sut.events
+                .onSubscription { collectIsSetup.send(Unit) }
+                .collect { if (it is LoginEvent.Submitted) { cancel() } }
+        }
+
+        collectIsSetup.receive()
+
+        sut.onLoginPressed()
+    }
+
+    @Test
+    fun `onLoginPressed should update serverUrl setting`() = runTest(
+        timeout = Duration.parse("1s")
+    ) {
+        val originalServerUrl = "https://original.example.com"
+        val updatedServerUrl = "https://updated.example.com"
+
+        val store = object : FakeSettingsDataStore() {
+            override val data: Flow<ProtoSettings> = flowOf(
+                ProtoSettings.getDefaultInstance().toBuilder()
+                    .setServerUrl(originalServerUrl)
+                    .build()
+            )
+        }
+        val sut = LoginViewModel(loginManager, store)
+
+        coEvery { loginManager.login(any(), any()) } returns LoginResult.Success
+        launch { store.data.collect { if (it.serverUrl == updatedServerUrl) { cancel() } } }
+
+        sut.onServerUrlFieldTextChanged(updatedServerUrl)
+        sut.onLoginPressed()
+    }
+
+    @Test
+    fun `onLoginPressed should attempt to login using provided credentials`() = runTest {
+        val username = "username"
+        val password = "password"
+
+        coEvery { loginManager.login(any(), any()) } returns LoginResult.Success
+
+        sut.onUsernameFieldTextChanged(username)
+        sut.onPasswordFieldTextChanged(password)
+        sut.onLoginPressed()
+
+        coVerify { loginManager.login(username, password) }
+
+        confirmVerified(loginManager)
+    }
+
+    @Test
+    fun `onLoginPressed should emit LoggedIn on login success`() = runTest(
+        timeout = Duration.parse("1s")
+    ) {
+        val collectIsSetup = Channel<Unit>()
+
+        coEvery { loginManager.login(any(), any()) } returns LoginResult.Success
+
+        launch {
+            sut.events
+                .onSubscription { collectIsSetup.send(Unit) }
+                .collect { if (it is LoginEvent.LoggedIn) { cancel() } }
+        }
+
+        collectIsSetup.receive()
+
+        sut.onLoginPressed()
+    }
+
+    @Test
+    fun `onLoginPressed should emit InvalidCredentialsError on login failed`() = runTest(
+        timeout = Duration.parse("1s")
+    ) {
+        val collectIsSetup = Channel<Unit>()
+
+        coEvery { loginManager.login(any(), any()) } returns LoginResult.InvalidCredentials
+
+        launch {
+            sut.events
+                .onSubscription { collectIsSetup.send(Unit) }
+                .collect { if (it is LoginEvent.InvalidCredentialsError) { cancel() } }
+        }
+
+        collectIsSetup.receive()
+
+        sut.onLoginPressed()
+    }
+
+    @Test
+    fun `onLoginPressed should emit NetworkError on login network error`() = runTest(
+        timeout = Duration.parse("1s")
+    ) {
+        val collectIsSetup = Channel<Unit>()
+
+        coEvery { loginManager.login(any(), any()) } returns LoginResult.NetworkError(IOException())
+
+        launch {
+            sut.events
+                .onSubscription { collectIsSetup.send(Unit) }
+                .collect { if (it is LoginEvent.NetworkError) { cancel() } }
+        }
+
+        collectIsSetup.receive()
+
+        sut.onLoginPressed()
+    }
 }
 
 private open class FakeSettingsDataStore : DataStore<ProtoSettings> {
@@ -127,6 +253,6 @@ private open class FakeSettingsDataStore : DataStore<ProtoSettings> {
     override suspend fun updateData(
         transform: suspend (t: ProtoSettings) -> ProtoSettings
     ): ProtoSettings {
-        error("Should not be called")
+        return ProtoSettings.getDefaultInstance()
     }
 }
