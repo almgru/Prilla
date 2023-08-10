@@ -23,6 +23,7 @@ plugin-hilt = "2.47"
 plugin-protobuf = "0.9.4"
 plugin-detekt = "1.23.1"
 plugin-ktlint = "11.3.1"
+plugin-kover = "0.7.3"
 
 deps-coreKtx = "1.10.1"
 deps-activityKtx = "1.7.2"
@@ -80,3 +81,4 @@ hilt = { id = "com.google.dagger.hilt.android", version.ref = "plugin-hilt" }
 protobuf = { id = "com.google.protobuf", version.ref = "plugin-protobuf" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "plugin-detekt" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "plugin-ktlint" }
+kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "plugin-kover" }

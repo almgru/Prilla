@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.protobuf)
     alias(libs.plugins.detekt)
     alias(libs.plugins.ktlint)
+    alias(libs.plugins.kover)
 
     kotlin("kapt")
     alias(libs.plugins.hilt)
