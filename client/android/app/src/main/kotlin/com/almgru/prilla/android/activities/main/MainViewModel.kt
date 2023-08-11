@@ -9,6 +9,7 @@ import com.almgru.prilla.android.data.Mapper.toProtoTimestamp
 import com.almgru.prilla.android.model.CompleteEntry
 import com.almgru.prilla.android.net.EntrySubmitter
 import com.almgru.prilla.android.net.results.RecordEntryResult
+import com.almgru.prilla.android.utilities.DateTimeProvider
 import com.google.protobuf.Int32Value
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.time.LocalDateTime
@@ -25,7 +26,8 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val submitter: EntrySubmitter,
-    private val dataStore: DataStore<ProtoEntryState>
+    private val dataStore: DataStore<ProtoEntryState>,
+    private val dateTimeProvider: DateTimeProvider
 ) : ViewModel() {
     private val _state = MutableStateFlow(MainViewState(null, null, 1))
     val state = _state.asStateFlow()
@@ -87,7 +89,9 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch { _events.emit(EntryEvent.PickStoppedDatetimeRequest) }
     }
 
-    private suspend fun handleStart(started: LocalDateTime = LocalDateTime.now()) {
+    private suspend fun handleStart(
+        started: LocalDateTime = dateTimeProvider.getCurrentDateTime()
+    ) {
         dataStore.updateData {
             val startedEntry = it.currentStartedEntry.toBuilder()
                 .setStartedAt(started.toProtoTimestamp())
@@ -99,7 +103,7 @@ class MainViewModel @Inject constructor(
         _events.emit(EntryEvent.Started)
     }
 
-    private suspend fun handleStop(stopped: LocalDateTime = LocalDateTime.now()) {
+    private suspend fun handleStop(stopped: LocalDateTime = dateTimeProvider.getCurrentDateTime()) {
         val latest = CompleteEntry(
             checkNotNull(state.value.startedDateTime),
             stopped,
@@ -109,8 +113,8 @@ class MainViewModel @Inject constructor(
 
         when (submitter.submit(latest)) {
             RecordEntryResult.Success -> onEntryAdded(latest)
-            is RecordEntryResult.NetworkError -> _events.tryEmit(EntryEvent.NetworkError)
-            RecordEntryResult.SessionExpiredError -> _events.tryEmit(
+            is RecordEntryResult.NetworkError -> _events.emit(EntryEvent.NetworkError)
+            RecordEntryResult.SessionExpiredError -> _events.emit(
                 EntryEvent.InvalidCredentialsError
             )
         }

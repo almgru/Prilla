@@ -6,6 +6,7 @@ import com.almgru.prilla.android.data.Mapper.toProtoTimestamp
 import com.almgru.prilla.android.helpers.MainDispatcherRule
 import com.almgru.prilla.android.net.EntrySubmitter
 import com.almgru.prilla.android.net.results.RecordEntryResult
+import com.almgru.prilla.android.utilities.DateTimeProvider
 import com.google.protobuf.Int32Value
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -28,11 +29,12 @@ class MainViewModelTests {
 
     private val submitter = mockk<EntrySubmitter>()
     private val store = FakeEntryStateDataStore()
+    private val dateTimeProvider = FakeDateTimeProvider()
     private lateinit var sut: MainViewModel
 
     @Before
     fun setup() {
-        sut = MainViewModel(submitter, store)
+        sut = MainViewModel(submitter, store, dateTimeProvider)
     }
 
     @Test
@@ -51,7 +53,7 @@ class MainViewModelTests {
                 .build()
         }
 
-        val sut = MainViewModel(submitter, store)
+        val sut = MainViewModel(submitter, store, dateTimeProvider)
 
         launch {
             sut.state.collect {
@@ -109,4 +111,9 @@ private open class FakeEntryStateDataStore : DataStore<ProtoEntryState> {
         state.update { transform(state.value) }
         return state.value
     }
+}
+
+private class FakeDateTimeProvider : DateTimeProvider {
+    var dateTime: LocalDateTime = LocalDateTime.parse("2023-08-11T10:28")
+    override fun getCurrentDateTime() = dateTime
 }
