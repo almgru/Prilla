@@ -127,7 +127,9 @@ dependencies {
     testImplementation(libs.test.okhttp.mockWebServer)
 
     androidTestImplementation(libs.test.androidx.junit)
-    androidTestImplementation(libs.test.androidx.espressoCore)
+    androidTestImplementation(libs.test.androidx.junit.ktx)
+    androidTestImplementation(libs.test.androidx.espresso.core)
+    androidTestImplementation(libs.test.okhttp.mockWebServer)
 }
 
 kapt {

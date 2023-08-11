@@ -41,7 +41,7 @@ deps-tools-desugarJdkLibs = "2.0.3"
 deps-test-kotlinx-coroutines = "1.7.3"
 deps-test-junit = "4.13.2"
 deps-test-androidx-junit = "1.1.5"
-deps-test-espressoCore = "3.5.1"
+deps-test-espresso = "3.5.1"
 deps-test-mockK = "1.13.5"
 
 [libraries]
@@ -66,7 +66,8 @@ tools-android-desugarJdkLibs = { group = "com.android.tools", name = "desugar_jd
 test-kotlinx-couroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "deps-test-kotlinx-coroutines" }
 test-junit = { group = "junit", name = "junit", version.ref = "deps-test-junit" }
 test-androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "deps-test-androidx-junit" }
-test-androidx-espressoCore = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "deps-test-espressoCore" }
+test-androidx-junit-ktx = { group = "androidx.test.ext", name = "junit-ktx", version.ref = "deps-test-androidx-junit" }
+test-androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "deps-test-espresso" }
 test-mockk-android = { group = "io.mockk", name = "mockk-android", version.ref = "deps-test-mockK" }
 test-mockk-agent = { group = "io.mockk", name = "mockk-agent", version.ref = "deps-test-mockK" }
 test-okhttp-mockWebServer = { group = "com.squareup.okhttp3", name = "mockwebserver", version.ref = "deps-okhttp" }
