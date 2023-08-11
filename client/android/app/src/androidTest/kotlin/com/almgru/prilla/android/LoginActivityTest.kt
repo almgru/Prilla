@@ -43,6 +43,8 @@ class LoginActivityTest {
 
         onView(withId(R.id.loginButton)).perform(ViewActions.click())
 
+        onView(withId(R.id.loginProgressBar)).check(matches(isDisplayed()))
+
         waitForView(withId(R.id.startStopButton))
     }
 
