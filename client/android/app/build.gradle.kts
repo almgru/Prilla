@@ -1,5 +1,6 @@
 import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 import io.gitlab.arturbosch.detekt.Detekt
+import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 plugins {
     alias(libs.plugins.android.application)
@@ -149,6 +150,12 @@ protobuf {
                 }
             }
         }
+    }
+}
+
+tasks.withType<AbstractTestTask> {
+    testLogging {
+        events = mutableSetOf(TestLogEvent.FAILED, TestLogEvent.PASSED, TestLogEvent.SKIPPED)
     }
 }
 
