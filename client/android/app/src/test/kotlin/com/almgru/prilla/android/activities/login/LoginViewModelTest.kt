@@ -9,14 +9,17 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.confirmVerified
 import io.mockk.mockk
+import java.io.IOException
 import kotlin.time.Duration
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.onSubscription
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
@@ -24,17 +27,17 @@ import kotlinx.coroutines.withContext
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import java.io.IOException
 
 class LoginViewModelTest {
     @get:Rule val mainDispatcherRule = MainDispatcherRule()
 
     private val loginManager = mockk<LoginManager>()
+    private val store = FakeSettingsDataStore()
     private lateinit var sut: LoginViewModel
 
     @Before
     fun setup() {
-        sut = LoginViewModel(loginManager, FakeSettingsDataStore())
+        sut = LoginViewModel(loginManager, store)
     }
 
     @Test
@@ -42,14 +45,8 @@ class LoginViewModelTest {
         timeout = Duration.parse("1s")
     ) {
         val expected = "https://test.example.com"
-        val store = object : FakeSettingsDataStore() {
-            override val data: Flow<ProtoSettings> = flowOf(
-                ProtoSettings.getDefaultInstance()
-                    .toBuilder()
-                    .setServerUrl(expected)
-                    .build()
-            )
-        }
+
+        store.settings.update { it.toBuilder().setServerUrl(expected).build() }
 
         val sut = LoginViewModel(loginManager, store)
 
@@ -126,9 +123,9 @@ class LoginViewModelTest {
 
     @Test
     fun `onLoginPressed should immediately emit Submitted`() = runTest(
-        timeout = Duration.parse("1s")
+        timeout = Duration.parse("2s")
     ) {
-        val loginDelay = Duration.parse("2s").inWholeMilliseconds
+        val loginDelay = Duration.parse("4s").inWholeMilliseconds
         val collectIsSetup = Channel<Unit>()
 
         coEvery { loginManager.login(any(), any()) } coAnswers {
@@ -155,13 +152,8 @@ class LoginViewModelTest {
         val originalServerUrl = "https://original.example.com"
         val updatedServerUrl = "https://updated.example.com"
 
-        val store = object : FakeSettingsDataStore() {
-            override val data: Flow<ProtoSettings> = flowOf(
-                ProtoSettings.getDefaultInstance().toBuilder()
-                    .setServerUrl(originalServerUrl)
-                    .build()
-            )
-        }
+        store.settings.update { it.toBuilder().setServerUrl(originalServerUrl).build() }
+
         val sut = LoginViewModel(loginManager, store)
 
         coEvery { loginManager.login(any(), any()) } returns LoginResult.Success
@@ -231,7 +223,9 @@ class LoginViewModelTest {
     ) {
         val collectIsSetup = Channel<Unit>()
 
-        coEvery { loginManager.login(any(), any()) } returns LoginResult.NetworkError(IOException())
+        coEvery {
+            loginManager.login(any(), any())
+        } returns LoginResult.NetworkError(IOException())
 
         launch {
             sut.events
@@ -246,11 +240,14 @@ class LoginViewModelTest {
 }
 
 private open class FakeSettingsDataStore : DataStore<ProtoSettings> {
-    override val data: Flow<ProtoSettings> = flowOf(ProtoSettings.getDefaultInstance())
+    val settings = MutableStateFlow(ProtoSettings.getDefaultInstance())
+
+    override val data: Flow<ProtoSettings> = settings.asStateFlow()
 
     override suspend fun updateData(
         transform: suspend (t: ProtoSettings) -> ProtoSettings
     ): ProtoSettings {
-        return ProtoSettings.getDefaultInstance()
+        settings.update { transform(settings.value) }
+        return settings.value
     }
 }

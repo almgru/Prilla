@@ -11,7 +11,10 @@ import com.almgru.prilla.android.net.utilities.csrf.CsrfTokenExtractor
 import io.mockk.every
 import io.mockk.mockk
 import java.net.HttpURLConnection
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.test.runTest
 import okhttp3.CookieJar
 import okhttp3.OkHttpClient
@@ -25,34 +28,33 @@ import org.junit.Rule
 import org.junit.Test
 
 class PrillaHttpClientTest {
-    private val cookieJar = mockk<CookieJar>(relaxUnitFun = true)
-    private val csrfTokenExtractor = mockk<CsrfTokenExtractor>()
-    private val settings = mockk<DataStore<ProtoSettings>>()
-    private lateinit var sut: PrillaHttpClient
-    private lateinit var mockServer: MockWebServer
-
     @get:Rule val mainDispatcherRule = MainDispatcherRule()
 
     @get:Rule val customClientReadTimeout = CustomClientReadTimeoutRule()
+
+    private val csrfTokenExtractor = mockk<CsrfTokenExtractor>()
+    private val store = FakeSettingsDataStore()
+
+    private lateinit var sut: PrillaHttpClient
+    private lateinit var mockServer: MockWebServer
 
     @Before
     fun setup() = runTest {
         mockServer = MockWebServer()
 
-        every { settings.data } returns flowOf(
-            ProtoSettings.newBuilder()
+        store.settings.update {
+            it.toBuilder()
                 .setServerUrl(mockServer.url("/").toString())
-                .setBackupIntervalInDays(1)
                 .build()
-        )
+        }
 
         sut = PrillaHttpClient(
             OkHttpClient.Builder()
-                .cookieJar(cookieJar)
+                .cookieJar(CookieJar.NO_COOKIES)
                 .readTimeout(customClientReadTimeout.timeout)
                 .build(),
             csrfTokenExtractor,
-            settings
+            store
         )
     }
 
@@ -65,7 +67,6 @@ class PrillaHttpClientTest {
         )
         mockServer.enqueue(MockResponse().setResponseCode(HttpURLConnection.HTTP_MOVED_TEMP))
 
-        every { cookieJar.loadForRequest(any()) } returns emptyList()
         every { csrfTokenExtractor.extractCsrfToken(any()) } returns "csrf_token"
 
         val result = sut.login("username", "password")
@@ -82,7 +83,6 @@ class PrillaHttpClientTest {
         )
         mockServer.enqueue(MockResponse().setResponseCode(HttpURLConnection.HTTP_UNAUTHORIZED))
 
-        every { cookieJar.loadForRequest(any()) } returns emptyList()
         every { csrfTokenExtractor.extractCsrfToken(any()) } returns "csrf_token"
 
         val result = sut.login("username", "password")
@@ -93,9 +93,6 @@ class PrillaHttpClientTest {
     @Test(expected = UnexpectedHttpStatusException::class)
     fun `login throws UnexpectedHttpStatusException on unexpected get form status`() = runTest {
         mockServer.enqueue(MockResponse().setResponseCode(HttpURLConnection.HTTP_NOT_FOUND))
-
-        every { cookieJar.loadForRequest(any()) } returns emptyList()
-
         sut.login("username", "password")
     }
 
@@ -108,7 +105,6 @@ class PrillaHttpClientTest {
         )
         mockServer.enqueue(MockResponse().setResponseCode(HttpURLConnection.HTTP_BAD_REQUEST))
 
-        every { cookieJar.loadForRequest(any()) } returns emptyList()
         every { csrfTokenExtractor.extractCsrfToken(any()) } returns "csrf_token"
 
         sut.login("username", "password")
@@ -128,7 +124,6 @@ class PrillaHttpClientTest {
                 .setSocketPolicy(SocketPolicy.NO_RESPONSE)
         )
 
-        every { cookieJar.loadForRequest(any()) } returns emptyList()
         every { csrfTokenExtractor.extractCsrfToken(any()) } returns "csrf_token"
 
         val result = sut.login("username", "password")
@@ -138,8 +133,27 @@ class PrillaHttpClientTest {
 
     @Test(expected = Exception::class)
     fun `login propagates other exceptions`() = runTest {
-        every { cookieJar.loadForRequest(any()) } throws Exception()
+        mockServer.enqueue(
+            MockResponse()
+                .setResponseCode(HttpURLConnection.HTTP_OK)
+                .setBody("<input name='_csrf' value='csrf_token'>")
+        )
+
+        every { csrfTokenExtractor.extractCsrfToken(any()) } throws Exception()
 
         sut.login("username", "password")
+    }
+}
+
+private open class FakeSettingsDataStore : DataStore<ProtoSettings> {
+    val settings = MutableStateFlow(ProtoSettings.getDefaultInstance())
+
+    override val data: Flow<ProtoSettings> = settings.asStateFlow()
+
+    override suspend fun updateData(
+        transform: suspend (t: ProtoSettings) -> ProtoSettings
+    ): ProtoSettings {
+        settings.update { transform(settings.value) }
+        return settings.value
     }
 }

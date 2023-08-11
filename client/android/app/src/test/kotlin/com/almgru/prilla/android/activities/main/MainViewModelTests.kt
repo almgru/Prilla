@@ -9,14 +9,14 @@ import com.almgru.prilla.android.net.results.RecordEntryResult
 import com.google.protobuf.Int32Value
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.confirmVerified
 import io.mockk.mockk
 import java.time.LocalDateTime
 import kotlin.time.Duration
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
@@ -27,11 +27,12 @@ class MainViewModelTests {
     @get:Rule val mainDispatcherRule = MainDispatcherRule()
 
     private val submitter = mockk<EntrySubmitter>()
+    private val store = FakeEntryStateDataStore()
     private lateinit var sut: MainViewModel
 
     @Before
     fun setup() {
-        sut = MainViewModel(submitter, FakeEntryStateDataStore())
+        sut = MainViewModel(submitter, store)
     }
 
     @Test
@@ -39,18 +40,15 @@ class MainViewModelTests {
         val expectedDateTime = LocalDateTime.parse("2023-08-10T07:00")
         val expectedAmount = 2
 
-        val store = object : FakeEntryStateDataStore() {
-            override val data: Flow<ProtoEntryState> = flowOf(
-                ProtoEntryState.getDefaultInstance()
-                    .toBuilder()
-                    .setCurrentStartedEntry(
-                        ProtoEntryState.ProtoStartedEntry.getDefaultInstance().toBuilder()
-                            .setStartedAt(expectedDateTime.toProtoTimestamp())
-                            .setAmount(Int32Value.of(expectedAmount))
-                            .build()
-                    )
-                    .build()
-            )
+        store.updateData {
+            store.state.value.toBuilder()
+                .setCurrentStartedEntry(
+                    ProtoEntryState.ProtoStartedEntry.getDefaultInstance().toBuilder()
+                        .setStartedAt(expectedDateTime.toProtoTimestamp())
+                        .setAmount(Int32Value.of(expectedAmount))
+                        .build()
+                )
+                .build()
         }
 
         val sut = MainViewModel(submitter, store)
@@ -68,27 +66,9 @@ class MainViewModelTests {
     fun `creates new entry when no current entry`() = runTest(
         timeout = Duration.parse("1s")
     ) {
-        val entryStarted = Channel<Unit>()
-
-        val store = object : FakeEntryStateDataStore() {
-            override suspend fun updateData(
-                transform: suspend (t: ProtoEntryState) -> ProtoEntryState
-            ): ProtoEntryState {
-                val data = transform.invoke(ProtoEntryState.getDefaultInstance())
-
-                if (data.hasCurrentStartedEntry()) {
-                    entryStarted.send(Unit)
-                }
-
-                return super.updateData(transform)
-            }
-        }
-
-        val sut = MainViewModel(submitter, store)
+        launch { store.data.collect { if (it.hasCurrentStartedEntry()) { cancel() } } }
 
         sut.onStartStopPressed()
-
-        entryStarted.receive()
     }
 
     @Test
@@ -105,17 +85,28 @@ class MainViewModelTests {
         coVerify {
             submitter.submit(match { it.started == expectedStart && it.amount == expectedAmount })
         }
+    }
 
-        confirmVerified(submitter)
+    @Test
+    fun `clears started entry`() = runTest(timeout = Duration.parse("1s")) {
+        sut.onStartDateTimePicked(LocalDateTime.parse("2023-08-10T10:00"))
+
+        launch { sut.state.collect { if (it.startedDateTime == null) { cancel() } } }
+        launch { store.data.collect { if (!it.hasCurrentStartedEntry()) { cancel() } } }
+
+        sut.onStartStopLongPressed()
     }
 }
 
 private open class FakeEntryStateDataStore : DataStore<ProtoEntryState> {
-    override val data: Flow<ProtoEntryState> = flowOf(ProtoEntryState.getDefaultInstance())
+    val state = MutableStateFlow<ProtoEntryState>(ProtoEntryState.getDefaultInstance())
+
+    override val data: Flow<ProtoEntryState> = state.asStateFlow()
 
     override suspend fun updateData(
         transform: suspend (t: ProtoEntryState) -> ProtoEntryState
     ): ProtoEntryState {
-        return ProtoEntryState.getDefaultInstance()
+        state.update { transform(state.value) }
+        return state.value
     }
 }

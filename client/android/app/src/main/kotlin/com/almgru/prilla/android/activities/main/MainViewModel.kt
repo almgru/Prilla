@@ -35,7 +35,9 @@ class MainViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            _state.update { dataStore.data.first().toMainViewState(_state.value) }
+            _state.update {
+                dataStore.data.first().toMainViewState(_state.value)
+            }
         }
     }
 
