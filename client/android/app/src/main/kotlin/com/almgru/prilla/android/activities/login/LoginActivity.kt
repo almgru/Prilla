@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.EditText
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doOnTextChanged
@@ -15,6 +14,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.almgru.prilla.android.R
 import com.almgru.prilla.android.activities.main.MainActivity
 import com.almgru.prilla.android.databinding.ActivityLoginBinding
+import com.almgru.prilla.android.fragment.ErrorDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -82,7 +82,9 @@ class LoginActivity : AppCompatActivity() {
 
     private fun showError(resId: Int) {
         setIsLoading(false)
-        Toast.makeText(this, getString(resId), Toast.LENGTH_SHORT).show()
+
+        ErrorDialogFragment(getString(resId))
+            .show(supportFragmentManager, getString(R.string.error_dialog_tag))
     }
 
     private fun setIsLoading(isLoading: Boolean) {

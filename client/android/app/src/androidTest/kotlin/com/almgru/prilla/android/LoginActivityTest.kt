@@ -2,6 +2,7 @@ package com.almgru.prilla.android
 
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions
+
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
@@ -12,6 +13,7 @@ import com.almgru.prilla.android.helpers.Utilities.waitForView
 import java.net.HttpURLConnection
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
+import org.hamcrest.Matchers.not
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -21,11 +23,10 @@ class LoginActivityTest {
     @get:Rule val activityScenarioRule = activityScenarioRule<LoginActivity>()
 
     private val mockServer = MockWebServer()
+    private val baseUrl = mockServer.url("/")
 
     @Test
     fun login_press_with_correct_inputs_shows_main_view() {
-        val serverHost = mockServer.url("/")
-
         mockServer.enqueue(
             MockResponse()
                 .setResponseCode(HttpURLConnection.HTTP_OK)
@@ -37,7 +38,7 @@ class LoginActivityTest {
         onView(withId(R.id.usernameField)).check(matches(isDisplayed()))
         onView(withId(R.id.passwordField)).check(matches(isDisplayed()))
 
-        enterTextIntoField(R.id.serverField, serverHost.toString())
+        enterTextIntoField(R.id.serverField, baseUrl.toString())
         enterTextIntoField(R.id.usernameField, "username")
         enterTextIntoField(R.id.passwordField, "password")
 

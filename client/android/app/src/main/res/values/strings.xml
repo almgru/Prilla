@@ -33,4 +33,5 @@
 
     <string name="date_picker_tag">datepicker</string>
     <string name="time_picker_tag">timepicker</string>
+    <string name="error_dialog_tag">errordialog</string>
 </resources>
