@@ -43,7 +43,15 @@ class PrillaHttpClient @Inject constructor(
     override suspend fun login(username: String, password: String): LoginResult = withContext(
         Dispatchers.IO
     ) {
-        val url = Request.Builder().url("${baseUrl.await()}/login").build().url
+        val serverUrl = baseUrl.await().trim()
+
+        val url = try {
+            if (serverUrl.isEmpty()) error("Server URL cannot be empty")
+
+            Request.Builder().url("$serverUrl/login").build().url
+        } catch (ex: IllegalArgumentException) {
+            return@withContext LoginResult.NetworkError(IOException(ex))
+        }
 
         val csrf = getCsrfTokenFor(url)
         val loginRequest = buildPostRequest(
@@ -54,7 +62,13 @@ class PrillaHttpClient @Inject constructor(
         return@withContext try {
             httpClient.newCall(loginRequest).execute().use {
                 when (it.code) {
-                    HttpURLConnection.HTTP_MOVED_TEMP -> LoginResult.Success
+                    HttpURLConnection.HTTP_MOVED_TEMP -> {
+                        if (it.header("Location")?.endsWith("/") == true) {
+                            LoginResult.Success
+                        } else {
+                            LoginResult.InvalidCredentials
+                        }
+                    }
                     HttpURLConnection.HTTP_UNAUTHORIZED -> LoginResult.InvalidCredentials
                     else -> throw UnexpectedHttpStatusException(it.code, it.message)
                 }
@@ -68,7 +82,11 @@ class PrillaHttpClient @Inject constructor(
     override suspend fun hasActiveSession() = withContext(Dispatchers.IO) {
         if (!baseUrl.isCompleted) return@withContext false
 
-        val getIndexRequest = Request.Builder().url("${baseUrl.await()}/").get().build()
+        val getIndexRequest = try {
+            Request.Builder().url("${baseUrl.await()}/").get().build()
+        } catch (ex: IllegalArgumentException) {
+            return@withContext false
+        }
 
         return@withContext try {
             httpClient.newCall(getIndexRequest).execute().use {
@@ -121,7 +139,7 @@ class PrillaHttpClient @Inject constructor(
     }
 
     private suspend fun getCsrfTokenFor(url: HttpUrl) = withContext(Dispatchers.IO) {
-        val getFormRequest = Request.Builder().url(url).get().build()
+        val getFormRequest = Request.Builder().url(url).build()
 
         httpClient.newCall(getFormRequest).execute().use {
             when (it.code) {

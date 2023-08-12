@@ -52,6 +52,7 @@ class PrillaHttpClientTest {
             OkHttpClient.Builder()
                 .cookieJar(CookieJar.NO_COOKIES)
                 .readTimeout(customClientReadTimeout.timeout)
+                .followRedirects(false)
                 .build(),
             csrfTokenExtractor,
             store
@@ -65,7 +66,11 @@ class PrillaHttpClientTest {
                 .setResponseCode(HttpURLConnection.HTTP_OK)
                 .setBody("<input name='_csrf' value='csrf_token'>")
         )
-        mockServer.enqueue(MockResponse().setResponseCode(HttpURLConnection.HTTP_MOVED_TEMP))
+        mockServer.enqueue(
+            MockResponse()
+                .setResponseCode(HttpURLConnection.HTTP_MOVED_TEMP)
+                .setHeader("Location", "/")
+        )
 
         every { csrfTokenExtractor.extractCsrfToken(any()) } returns "csrf_token"
 
@@ -75,13 +80,37 @@ class PrillaHttpClientTest {
     }
 
     @Test
+    fun `login returns InvalidCredentials on error redirect`() = runTest {
+        mockServer.enqueue(
+            MockResponse()
+                .setResponseCode(HttpURLConnection.HTTP_OK)
+                .setBody("<input name='_csrf' value='csrf_token'>")
+        )
+        mockServer.enqueue(
+            MockResponse()
+                .setResponseCode(HttpURLConnection.HTTP_MOVED_TEMP)
+                .setHeader("Location", "/error")
+        )
+
+        every { csrfTokenExtractor.extractCsrfToken(any()) } returns "csrf_token"
+
+        val result = sut.login("username", "password")
+
+        assertEquals(LoginResult.InvalidCredentials, result)
+    }
+
+    @Test
     fun `login returns InvalidCredentials on 401 Unauthorized`() = runTest {
         mockServer.enqueue(
             MockResponse()
                 .setResponseCode(HttpURLConnection.HTTP_OK)
                 .setBody("<input name='_csrf' value='csrf_token'>")
         )
-        mockServer.enqueue(MockResponse().setResponseCode(HttpURLConnection.HTTP_UNAUTHORIZED))
+        mockServer.enqueue(
+            MockResponse()
+                .setResponseCode(HttpURLConnection.HTTP_UNAUTHORIZED)
+                .setHeader("Location", "/")
+        )
 
         every { csrfTokenExtractor.extractCsrfToken(any()) } returns "csrf_token"
 
@@ -121,6 +150,7 @@ class PrillaHttpClientTest {
         mockServer.enqueue(
             MockResponse()
                 .setResponseCode(HttpURLConnection.HTTP_MOVED_TEMP)
+                .setHeader("Location", "/")
                 .setSocketPolicy(SocketPolicy.NO_RESPONSE)
         )
 

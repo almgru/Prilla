@@ -35,6 +35,13 @@ android {
         multiDexEnabled = true
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunnerArguments["clearPackageData"] = "true"
+
+        @Suppress("UnstableApiUsage")
+        testOptions {
+            animationsDisabled = true
+            execution = "ANDROIDX_TEST_ORCHESTRATOR"
+        }
     }
 
     signingConfigs {
@@ -126,10 +133,12 @@ dependencies {
     testImplementation(libs.test.mockk.agent)
     testImplementation(libs.test.okhttp.mockWebServer)
 
+    androidTestImplementation(libs.test.androidx.runner)
     androidTestImplementation(libs.test.androidx.junit)
-    androidTestImplementation(libs.test.androidx.junit.ktx)
-    androidTestImplementation(libs.test.androidx.espresso.core)
+    androidTestImplementation(libs.test.androidx.uiAutomator)
     androidTestImplementation(libs.test.okhttp.mockWebServer)
+
+    androidTestUtil(libs.test.androidx.orchestrator)
 }
 
 kapt {

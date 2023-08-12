@@ -1,5 +1,6 @@
 package com.almgru.prilla.android.net.modules
 
+import com.almgru.prilla.android.BuildConfig
 import com.almgru.prilla.android.net.cookie.PrillaCookieJar
 import dagger.Module
 import dagger.Provides
@@ -16,10 +17,14 @@ object OkHttpClientModule {
     @Singleton
     fun provideHttpClient(jar: PrillaCookieJar) = OkHttpClient()
         .newBuilder()
-        .addNetworkInterceptor(
-            HttpLoggingInterceptor().apply { setLevel(HttpLoggingInterceptor.Level.BODY) }
-        )
         .cookieJar(jar)
         .followRedirects(false)
+        .apply {
+            if (BuildConfig.DEBUG) {
+                addNetworkInterceptor(
+                    HttpLoggingInterceptor().apply { setLevel(HttpLoggingInterceptor.Level.BODY) }
+                )
+            }
+        }
         .build()
 }

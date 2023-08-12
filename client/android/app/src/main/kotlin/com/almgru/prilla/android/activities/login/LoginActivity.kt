@@ -58,13 +58,23 @@ class LoginActivity : AppCompatActivity() {
         is LoginEvent.HasActiveSession, is LoginEvent.LoggedIn -> gotoMainActivity()
         is LoginEvent.NoActiveSession -> setIsLoading(false)
         is LoginEvent.Submitted -> setIsLoading(true)
-        is LoginEvent.InvalidCredentialsError ->
-            showError(R.string.invalid_credentials_error_message)
-        is LoginEvent.SessionExpiredError -> showError(R.string.session_expired_error_message)
-        is LoginEvent.NetworkError -> showError(R.string.network_error_message)
+        is LoginEvent.InvalidCredentialsError -> showError(
+            R.string.invalid_credentials_error_title,
+            R.string.invalid_credentials_error_message
+        )
+        is LoginEvent.SessionExpiredError -> showError(
+            R.string.session_expired_error_title,
+            R.string.session_expired_error_message
+        )
+        is LoginEvent.NetworkError -> showError(
+            R.string.network_error_title,
+            R.string.network_error_message
+        )
     }
 
+    @Suppress("ForbiddenComment")
     private fun handleStateChange(state: LoginViewState) {
+        // TODO: Handle this properly so selection is kept
         binding.serverField.setTextAndMoveCaretToEnd(state.serverUrl)
         binding.usernameField.setTextAndMoveCaretToEnd(state.username)
         binding.passwordField.setTextAndMoveCaretToEnd(state.password)
@@ -80,11 +90,13 @@ class LoginActivity : AppCompatActivity() {
         finish()
     }
 
-    private fun showError(resId: Int) {
+    private fun showError(titleId: Int, messageId: Int) {
         setIsLoading(false)
 
-        ErrorDialogFragment(getString(resId))
-            .show(supportFragmentManager, getString(R.string.error_dialog_tag))
+        ErrorDialogFragment(titleId, messageId).show(
+            supportFragmentManager,
+            getString(R.string.error_dialog_tag)
+        )
     }
 
     private fun setIsLoading(isLoading: Boolean) {

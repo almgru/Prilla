@@ -137,7 +137,12 @@ class LoginViewModelTest {
         launch {
             sut.events
                 .onSubscription { collectIsSetup.send(Unit) }
-                .collect { if (it is LoginEvent.Submitted) { cancel() } }
+                .collect {
+                    when (it) {
+                        is LoginEvent.Submitted -> cancel()
+                        else -> error("Should not be reached")
+                    }
+                }
         }
 
         collectIsSetup.receive()

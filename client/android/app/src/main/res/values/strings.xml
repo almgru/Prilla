@@ -27,9 +27,12 @@
 
     <string name="entry_added_message">Entry added</string>
     <string name="entry_clear_message">Entry cleared</string>
-    <string name="invalid_credentials_error_message">Invalid credentials</string>
-    <string name="session_expired_error_message">Session expired</string>
-    <string name="network_error_message">Network error</string>
+    <string name="invalid_credentials_error_title">Invalid Credentials</string>
+    <string name="invalid_credentials_error_message">Invalid username or password, check them and try again</string>
+    <string name="session_expired_error_title">Session Expired</string>
+    <string name="session_expired_error_message">Your login session has expired, please log in again</string>
+    <string name="network_error_title">Network Error</string>
+    <string name="network_error_message">Could not communicate with server. Check the server URL and try again</string>
 
     <string name="date_picker_tag">datepicker</string>
     <string name="time_picker_tag">timepicker</string>
