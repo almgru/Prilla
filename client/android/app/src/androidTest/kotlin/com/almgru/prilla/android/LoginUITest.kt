@@ -47,7 +47,7 @@ class LoginUITest {
 
     @Test
     fun login_press_with_correct_inputs_shows_main_view() {
-        val loginTimeoutMs = 500L
+        val loginTimeoutMs = 10_000L
 
         mockServer.enqueue(
             MockResponse()

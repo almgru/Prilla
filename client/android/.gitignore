@@ -13,3 +13,4 @@ local.properties
 android-sdk/
 /gradle/wrapper/dists/
 .env
+.android/
