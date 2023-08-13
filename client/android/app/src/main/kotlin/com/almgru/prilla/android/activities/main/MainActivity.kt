@@ -74,11 +74,15 @@ class MainActivity : AppCompatActivity() {
         }
 
         is EntryEvent.Submitted -> setUiVisibility(UIMode.SUBMITTED)
-        is EntryEvent.Stored -> showMessage(R.string.entry_added_message)
         is EntryEvent.NetworkError -> showMessage(R.string.network_error_message)
         is EntryEvent.InvalidCredentialsError -> {
             showMessage(R.string.session_expired_error_message)
             returnToLoginScreen()
+        }
+
+        is EntryEvent.Stored -> {
+            showMessage(R.string.entry_added_message)
+            setUiVisibility(UIMode.NOT_STARTED)
         }
 
         is EntryEvent.PickStartedDatetimeRequest -> showDateTimePicker(

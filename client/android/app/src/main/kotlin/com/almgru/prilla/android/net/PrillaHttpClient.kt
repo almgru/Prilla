@@ -122,8 +122,8 @@ class PrillaHttpClient @Inject constructor(
         return@withContext try {
             httpClient.newCall(recordRequest).execute().use {
                 when (it.code) {
-                    HttpURLConnection.HTTP_OK -> {
-                        if (it.request.url.toString().endsWith("/")) {
+                    HttpURLConnection.HTTP_MOVED_TEMP -> {
+                        if (it.header("Location")?.endsWith("/") == true) {
                             RecordEntryResult.Success
                         } else {
                             RecordEntryResult.SessionExpiredError
