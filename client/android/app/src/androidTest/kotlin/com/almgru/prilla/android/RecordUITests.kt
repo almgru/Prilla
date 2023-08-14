@@ -7,9 +7,9 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
-import java.net.HttpURLConnection
+import com.almgru.prilla.android.helpers.MockWebServerExtensions.mockSuccessfulServerResponse
+import com.almgru.prilla.android.helpers.UiDeviceExtensions.authenticate
 import junit.framework.TestCase.assertNotNull
-import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.Before
 import org.junit.Test
@@ -23,7 +23,6 @@ class RecordUITests {
     private lateinit var getStr: (Int) -> String
 
     private val mockServer = MockWebServer()
-    private val baseUrl = mockServer.url("/").toString()
 
     @Before
     fun setup() {
@@ -43,7 +42,7 @@ class RecordUITests {
 
         device.wait(Until.hasObject(By.pkg(packageName).depth(0)), LAUNCH_TIMEOUT_MS)
 
-        authenticate()
+        device.authenticate(context, mockServer)
     }
 
     @Test
@@ -60,7 +59,7 @@ class RecordUITests {
 
         button.click()
 
-        mockStandardServerResponse()
+        mockServer.mockSuccessfulServerResponse()
 
         device.wait(
             Until.gone(By.res(resName(R.id.submitProgressIndicator))),
@@ -75,31 +74,5 @@ class RecordUITests {
         )
 
         assertNotNull(device.findObject(By.res(resName(R.id.lastEntryText))))
-    }
-
-    private fun authenticate() {
-        mockStandardServerResponse()
-
-        device.findObject(By.res(resName(R.id.serverField))).text = baseUrl
-        device.findObject(By.res(resName(R.id.usernameField))).text = "username"
-        device.findObject(By.res(resName(R.id.passwordField))).text = "password"
-
-        device.findObject(By.res(resName(R.id.loginButton))).clickAndWait(
-            Until.newWindow(),
-            SHORT_TIMEOUT_MS
-        )
-    }
-
-    private fun mockStandardServerResponse() {
-        mockServer.enqueue(
-            MockResponse()
-                .setResponseCode(HttpURLConnection.HTTP_OK)
-                .setBody("<input name='_csrf' value='csrf_token'>")
-        )
-        mockServer.enqueue(
-            MockResponse()
-                .setResponseCode(HttpURLConnection.HTTP_MOVED_TEMP)
-                .setHeader("Location", "/")
-        )
     }
 }

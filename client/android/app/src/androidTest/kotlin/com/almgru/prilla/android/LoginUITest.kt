@@ -2,23 +2,25 @@ package com.almgru.prilla.android
 
 import android.content.Context
 import android.content.Intent
+import android.view.KeyEvent
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
+import com.almgru.prilla.android.helpers.Constants.LAUNCH_TIMEOUT_MS
+import com.almgru.prilla.android.helpers.Constants.SHORT_TIMEOUT_MS
+import com.almgru.prilla.android.helpers.MockWebServerExtensions.mockSuccessfulServerResponse
 import java.net.HttpURLConnection
 import java.util.concurrent.TimeUnit
+import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-
-private const val LAUNCH_TIMEOUT_MS = 5000L
-private const val SHORT_TIMEOUT_MS = 500L
 
 @RunWith(AndroidJUnit4::class)
 class LoginUITest {
@@ -50,16 +52,7 @@ class LoginUITest {
 
     @Test
     fun login_press_with_correct_inputs_shows_main_view() {
-        mockServer.enqueue(
-            MockResponse()
-                .setResponseCode(HttpURLConnection.HTTP_OK)
-                .setBody("<input name='_csrf' value='csrf_token'>")
-        )
-        mockServer.enqueue(
-            MockResponse()
-                .setResponseCode(HttpURLConnection.HTTP_MOVED_TEMP)
-                .setHeader("Location", "/")
-        )
+        mockServer.mockSuccessfulServerResponse()
 
         device.findObject(By.res(resName(R.id.serverField))).text = baseUrl
         device.findObject(By.res(resName(R.id.usernameField))).text = "username"
@@ -136,5 +129,21 @@ class LoginUITest {
         )
 
         assertNotNull(device.findObject(By.text(getStr(R.string.invalid_credentials_error_title))))
+    }
+
+    @Test
+    fun can_add_text_in_middle_of_fields() {
+        val serverField = device.findObject(By.res(resName(R.id.serverField)))
+
+        serverField.text = "abcdefg"
+
+        serverField.click()
+
+        device.pressDPadLeft()
+        device.pressKeyCode(KeyEvent.KEYCODE_H)
+        device.pressKeyCode(KeyEvent.KEYCODE_E)
+        device.pressKeyCode(KeyEvent.KEYCODE_J)
+
+        assertEquals("abcdefhejg", serverField.text)
     }
 }

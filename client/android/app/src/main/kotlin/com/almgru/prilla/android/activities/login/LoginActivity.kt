@@ -4,10 +4,10 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.view.View.OnFocusChangeListener
 import android.widget.EditText
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -29,7 +29,12 @@ class LoginActivity : AppCompatActivity() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.loginButton.setOnClickListener { viewModel.onLoginPressed() }
+        binding.loginButton.setOnClickListener {
+            viewModel.onServerUrlFieldTextChanged(binding.serverField.text.toString())
+            viewModel.onUsernameFieldTextChanged(binding.usernameField.text.toString())
+            viewModel.onPasswordFieldTextChanged(binding.passwordField.text.toString())
+            viewModel.onLoginPressed()
+        }
 
         setupFieldListener(binding.serverField, viewModel::onServerUrlFieldTextChanged)
         setupFieldListener(binding.usernameField, viewModel::onUsernameFieldTextChanged)
@@ -72,12 +77,10 @@ class LoginActivity : AppCompatActivity() {
         )
     }
 
-    @Suppress("ForbiddenComment")
     private fun handleStateChange(state: LoginViewState) {
-        // TODO: Handle this properly so selection is kept
-        binding.serverField.setTextAndMoveCaretToEnd(state.serverUrl)
-        binding.usernameField.setTextAndMoveCaretToEnd(state.username)
-        binding.passwordField.setTextAndMoveCaretToEnd(state.password)
+        binding.serverField.setText(state.serverUrl)
+        binding.usernameField.setText(state.username)
+        binding.passwordField.setText(state.password)
     }
 
     @SuppressLint("IntentWithNullActionLaunch")
@@ -110,11 +113,8 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun setupFieldListener(field: EditText, callback: (String) -> (Unit)) {
-        field.doOnTextChanged { text, _, _, _ -> callback(text.toString()) }
-    }
-
-    private fun EditText.setTextAndMoveCaretToEnd(newText: String) {
-        setText(newText)
-        setSelection(text.length)
+        field.onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
+            if (!hasFocus) callback(field.text.toString())
+        }
     }
 }
