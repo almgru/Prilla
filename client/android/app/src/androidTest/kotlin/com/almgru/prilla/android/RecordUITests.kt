@@ -12,9 +12,7 @@ import com.almgru.prilla.android.helpers.Constants.SHORT_TIMEOUT_MS
 import com.almgru.prilla.android.helpers.MockWebServerExtensions.mockErrorResponse
 import com.almgru.prilla.android.helpers.MockWebServerExtensions.mockSuccessfulResponse
 import com.almgru.prilla.android.helpers.UiDeviceExtensions.authenticate
-import java.net.HttpURLConnection
 import junit.framework.TestCase.assertNotNull
-import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.Before
 import org.junit.Test
@@ -78,7 +76,7 @@ class RecordUITests {
     }
 
     @Test
-    fun returns_to_login_view_on_session_expired() {
+    fun returns_to_login_view_and_shows_error_on_session_expired() {
         val button = device.findObject(By.res(resName(R.id.startStopButton)))
 
         button.click()
@@ -89,17 +87,17 @@ class RecordUITests {
         )
 
         mockServer.mockErrorResponse()
-        mockServer.enqueue(MockResponse().setResponseCode(HttpURLConnection.HTTP_UNAUTHORIZED))
 
         button.clickAndWait(
             Until.newWindow(),
             SHORT_TIMEOUT_MS
         )
 
-        device.wait(Until.gone(By.res(resName(R.id.loginProgressBar))), SHORT_TIMEOUT_MS)
+        device.wait(
+            Until.hasObject(By.text(getStr(R.string.session_expired_error_message))),
+            SHORT_TIMEOUT_MS
+        )
 
-        device.wait(Until.hasObject(By.res(resName(R.id.loginButton))), SHORT_TIMEOUT_MS)
-
-        assertNotNull(device.findObject(By.res(resName(R.id.loginButton))))
+        assertNotNull(device.findObject(By.text(getStr(R.string.session_expired_error_message))))
     }
 }

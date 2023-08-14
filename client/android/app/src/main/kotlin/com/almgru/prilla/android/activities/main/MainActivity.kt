@@ -13,6 +13,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.almgru.prilla.android.R
+import com.almgru.prilla.android.activities.errors.ApiError
 import com.almgru.prilla.android.activities.login.LoginActivity
 import com.almgru.prilla.android.databinding.ActivityMainBinding
 import com.almgru.prilla.android.fragment.DatePickerFragment
@@ -74,11 +75,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         is EntryEvent.Submitted -> setUiVisibility(UIMode.SUBMITTED)
-        is EntryEvent.NetworkError -> showMessage(R.string.network_error_message)
-        is EntryEvent.InvalidCredentialsError -> {
-            showMessage(R.string.session_expired_error_message)
-            returnToLoginScreen()
-        }
+        is EntryEvent.NetworkError -> returnToLoginScreen(ApiError.NetworkError)
+        is EntryEvent.InvalidCredentialsError -> returnToLoginScreen(ApiError.SessionExpiredError)
 
         is EntryEvent.Stored -> {
             showMessage(R.string.entry_added_message)
@@ -123,11 +121,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     @SuppressLint("IntentWithNullActionLaunch")
-    private fun returnToLoginScreen() {
+    private fun returnToLoginScreen(apiError: ApiError) {
         setUiVisibility(UIMode.STARTED)
         startActivity(
             Intent(this, LoginActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
+                putExtra("error", apiError)
             }
         )
         finish()

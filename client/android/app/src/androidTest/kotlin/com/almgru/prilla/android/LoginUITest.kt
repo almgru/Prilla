@@ -125,4 +125,9 @@ class LoginUITest {
 
         assertEquals("abcdefhejg", serverField.text)
     }
+
+    @Test
+    fun should_handle_ssl_errors_gracefully() {
+        TODO()
+    }
 }

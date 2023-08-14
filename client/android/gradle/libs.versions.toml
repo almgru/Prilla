@@ -81,6 +81,7 @@ debug-okHttp-logInterceptor = { group = "com.squareup.okhttp3", name = "logging-
 android-application = { id = "com.android.application", version.ref = "plugin-android" }
 android-library = { id = "com.android.library", version.ref = "plugin-android" }
 kotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin"}
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "plugin-hilt" }
 protobuf = { id = "com.google.protobuf", version.ref = "plugin-protobuf" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "plugin-detekt" }

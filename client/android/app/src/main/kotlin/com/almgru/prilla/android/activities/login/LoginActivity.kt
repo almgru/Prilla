@@ -2,6 +2,7 @@ package com.almgru.prilla.android.activities.login
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.View.OnFocusChangeListener
@@ -12,6 +13,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.almgru.prilla.android.R
+import com.almgru.prilla.android.activities.errors.ApiError
 import com.almgru.prilla.android.activities.main.MainActivity
 import com.almgru.prilla.android.databinding.ActivityLoginBinding
 import com.almgru.prilla.android.fragment.ErrorDialogFragment
@@ -22,9 +24,17 @@ import kotlinx.coroutines.launch
 class LoginActivity : AppCompatActivity() {
     private val viewModel by viewModels<LoginViewModel>()
     private lateinit var binding: ActivityLoginBinding
+    private var apiError: ApiError? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        apiError = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra("error", ApiError::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            intent.getParcelableExtra("error")
+        }
 
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -50,7 +60,23 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        viewModel.onResume()
+
+        apiError?.let {
+            when (it) {
+                is ApiError.NetworkError -> showError(
+                    R.string.network_error_title,
+                    R.string.network_error_message
+                )
+                is ApiError.SessionExpiredError -> showError(
+                    R.string.session_expired_error_title,
+                    R.string.session_expired_error_message
+                )
+            }
+
+            apiError = null
+        } ?: {
+            viewModel.onResume()
+        }
     }
 
     override fun onStop() {
