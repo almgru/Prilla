@@ -11,16 +11,12 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import com.almgru.prilla.android.helpers.Constants.LAUNCH_TIMEOUT_MS
 import com.almgru.prilla.android.helpers.Constants.SHORT_TIMEOUT_MS
-import com.almgru.prilla.android.helpers.MockWebServerExtensions.mockDelayedSuccessfulResponse
 import com.almgru.prilla.android.helpers.MockWebServerExtensions.mockErrorResponse
-import com.almgru.prilla.android.helpers.MockWebServerExtensions.mockSuccessfulResponse
+import com.almgru.prilla.android.helpers.MockWebServerExtensions.mockFailedSslHandshake
+import com.almgru.prilla.android.helpers.MockWebServerExtensions.mockSuccessfulLoginResponse
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
-import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
-import okhttp3.mockwebserver.SocketPolicy
-import okhttp3.tls.HandshakeCertificates
-import okhttp3.tls.HeldCertificate
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -55,7 +51,7 @@ class LoginUITest {
 
     @Test
     fun login_press_with_correct_inputs_shows_main_view() {
-        mockServer.mockSuccessfulResponse()
+        mockServer.mockSuccessfulLoginResponse()
 
         device.findObject(By.res(resName(R.id.serverField))).text = baseUrl
         device.findObject(By.res(resName(R.id.usernameField))).text = "username"
@@ -71,7 +67,7 @@ class LoginUITest {
 
     @Test
     fun login_press_displays_spinner() {
-        mockServer.mockDelayedSuccessfulResponse()
+        mockServer.mockSuccessfulLoginResponse(delayInSec = 2)
 
         device.findObject(By.res(resName(R.id.serverField))).text = baseUrl
         device.findObject(By.res(resName(R.id.usernameField))).text = "username"
@@ -135,21 +131,8 @@ class LoginUITest {
     }
 
     @Test
-    fun should_handle_ssl_errors_gracefully() {
-        val localhost = HeldCertificate.Builder()
-            .commonName("localhost")
-            .addSubjectAlternativeName("127.0.0.1")
-            .build()
-
-        val serverCertificates = HandshakeCertificates.Builder()
-            .heldCertificate(localhost)
-            .build()
-
-        mockServer.useHttps(serverCertificates.sslSocketFactory(), false)
-
-        mockServer.enqueue(
-            MockResponse().setSocketPolicy(SocketPolicy.FAIL_HANDSHAKE)
-        )
+    fun handles_ssl_errors_gracefully() {
+        mockServer.mockFailedSslHandshake()
 
         device.findObject(By.res(resName(R.id.serverField))).text =
             mockServer.url("/").toString()

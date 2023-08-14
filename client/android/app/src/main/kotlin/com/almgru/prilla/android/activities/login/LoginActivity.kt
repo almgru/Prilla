@@ -1,6 +1,6 @@
 package com.almgru.prilla.android.activities.login
 
-import android.annotation.SuppressLint
+import android.content.ComponentName
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -24,12 +24,12 @@ import kotlinx.coroutines.launch
 class LoginActivity : AppCompatActivity() {
     private val viewModel by viewModels<LoginViewModel>()
     private lateinit var binding: ActivityLoginBinding
-    private var apiError: ApiError? = null
+    private var error: ApiError? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        apiError = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        error = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent.getParcelableExtra("error", ApiError::class.java)
         } else {
             @Suppress("DEPRECATION")
@@ -61,7 +61,7 @@ class LoginActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        apiError?.let {
+        error?.let {
             when (it) {
                 ApiError.SessionExpiredError -> showError(
                     R.string.session_expired_error_title,
@@ -79,7 +79,7 @@ class LoginActivity : AppCompatActivity() {
                 )
             }
 
-            apiError = null
+            error = null
         } ?: {
             viewModel.onResume()
         }
@@ -122,12 +122,12 @@ class LoginActivity : AppCompatActivity() {
         binding.passwordField.setText(state.password)
     }
 
-    @SuppressLint("IntentWithNullActionLaunch")
     private fun gotoMainActivity() {
         setIsLoading(false)
 
         startActivity(
-            Intent(this, MainActivity::class.java).apply {
+            Intent().apply {
+                component = ComponentName(this@LoginActivity, MainActivity::class.java)
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
             }
         )
@@ -154,7 +154,7 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun setupFieldListener(field: EditText, callback: (String) -> (Unit)) {
-        field.onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
+        field.onFocusChangeListener = OnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) callback(field.text.toString())
         }
     }

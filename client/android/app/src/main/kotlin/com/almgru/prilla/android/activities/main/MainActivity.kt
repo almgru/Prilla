@@ -1,6 +1,6 @@
 package com.almgru.prilla.android.activities.main
 
-import android.annotation.SuppressLint
+import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -121,11 +121,11 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    @SuppressLint("IntentWithNullActionLaunch")
     private fun returnToLoginScreen(apiError: ApiError) {
         setUiVisibility(UIMode.STARTED)
         startActivity(
-            Intent(this, LoginActivity::class.java).apply {
+            Intent().apply {
+                component = ComponentName(this@MainActivity, LoginActivity::class.java)
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_TASK_ON_HOME
                 putExtra("error", apiError)
             }

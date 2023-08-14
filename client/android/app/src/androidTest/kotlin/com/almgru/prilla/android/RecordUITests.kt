@@ -10,7 +10,7 @@ import androidx.test.uiautomator.Until
 import com.almgru.prilla.android.helpers.Constants.LAUNCH_TIMEOUT_MS
 import com.almgru.prilla.android.helpers.Constants.SHORT_TIMEOUT_MS
 import com.almgru.prilla.android.helpers.MockWebServerExtensions.mockErrorResponse
-import com.almgru.prilla.android.helpers.MockWebServerExtensions.mockSuccessfulResponse
+import com.almgru.prilla.android.helpers.MockWebServerExtensions.mockSuccessfulRecordResponse
 import com.almgru.prilla.android.helpers.UiDeviceExtensions.authenticate
 import junit.framework.TestCase.assertNotNull
 import okhttp3.mockwebserver.MockWebServer
@@ -63,7 +63,7 @@ class RecordUITests {
             SHORT_TIMEOUT_MS
         )
 
-        mockServer.mockSuccessfulResponse()
+        mockServer.mockSuccessfulRecordResponse()
 
         button.click()
 

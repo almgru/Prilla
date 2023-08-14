@@ -142,7 +142,7 @@ class PrillaHttpClient @Inject constructor(
             httpClient.newCall(recordRequest).execute().use {
                 when (it.code) {
                     HttpURLConnection.HTTP_MOVED_TEMP -> {
-                        if (it.header("Location")?.endsWith("/") == true) {
+                        if (it.header("Location")?.endsWith("/record") == true) {
                             SubmitResult.Success
                         } else {
                             SubmitResult.SessionExpiredError
@@ -171,17 +171,13 @@ class PrillaHttpClient @Inject constructor(
         }
     }
 
-    private fun buildPostRequest(url: HttpUrl, form: Map<String, String>) =
-        Request.Builder().addHeader("Content-Type", "application/x-www-form-urlencoded")
-            .url(url).post(buildFormBody(form)).build()
+    private fun buildPostRequest(url: HttpUrl, form: Map<String, String>) = Request.Builder()
+        .addHeader("Content-Type", "application/x-www-form-urlencoded")
+        .url(url)
+        .post(buildFormBody(form))
+        .build()
 
-    private fun buildFormBody(form: Map<String, String>): FormBody {
-        val builder = FormBody.Builder()
-
-        form.forEach {
-            builder.add(it.key, it.value)
-        }
-
-        return builder.build()
-    }
+    private fun buildFormBody(form: Map<String, String>): FormBody = FormBody.Builder()
+        .apply { form.forEach { add(it.key, it.value) } }
+        .build()
 }
