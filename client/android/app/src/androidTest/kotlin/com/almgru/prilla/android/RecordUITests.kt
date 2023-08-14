@@ -7,15 +7,17 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
-import com.almgru.prilla.android.helpers.MockWebServerExtensions.mockSuccessfulServerResponse
+import com.almgru.prilla.android.helpers.Constants.LAUNCH_TIMEOUT_MS
+import com.almgru.prilla.android.helpers.Constants.SHORT_TIMEOUT_MS
+import com.almgru.prilla.android.helpers.MockWebServerExtensions.mockErrorResponse
+import com.almgru.prilla.android.helpers.MockWebServerExtensions.mockSuccessfulResponse
 import com.almgru.prilla.android.helpers.UiDeviceExtensions.authenticate
+import java.net.HttpURLConnection
 import junit.framework.TestCase.assertNotNull
+import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.Before
 import org.junit.Test
-
-private const val LAUNCH_TIMEOUT_MS = 5000L
-private const val SHORT_TIMEOUT_MS = 1000L
 
 class RecordUITests {
     private lateinit var device: UiDevice
@@ -43,28 +45,27 @@ class RecordUITests {
         device.wait(Until.hasObject(By.pkg(packageName).depth(0)), LAUNCH_TIMEOUT_MS)
 
         device.authenticate(context, mockServer)
+
+        device.wait(Until.hasObject(By.res(resName(R.id.startStopButton))), SHORT_TIMEOUT_MS)
     }
 
     @Test
     fun starts_at_main_view() {
-        device.wait(Until.hasObject(By.res(resName(R.id.startStopButton))), SHORT_TIMEOUT_MS)
         assertNotNull(device.findObject(By.res(resName(R.id.startStopButton))))
     }
 
     @Test
     fun record_entry_adds_last_entry_text() {
-        device.wait(Until.hasObject(By.res(resName(R.id.startStopButton))), SHORT_TIMEOUT_MS)
-
         val button = device.findObject(By.res(resName(R.id.startStopButton)))
 
         button.click()
 
-        mockServer.mockSuccessfulServerResponse()
-
         device.wait(
-            Until.gone(By.res(resName(R.id.submitProgressIndicator))),
+            Until.hasObject(By.text(getStr(R.string.start_stop_button_stop_text))),
             SHORT_TIMEOUT_MS
         )
+
+        mockServer.mockSuccessfulResponse()
 
         button.click()
 
@@ -74,5 +75,31 @@ class RecordUITests {
         )
 
         assertNotNull(device.findObject(By.res(resName(R.id.lastEntryText))))
+    }
+
+    @Test
+    fun returns_to_login_view_on_session_expired() {
+        val button = device.findObject(By.res(resName(R.id.startStopButton)))
+
+        button.click()
+
+        device.wait(
+            Until.hasObject(By.text(getStr(R.string.start_stop_button_stop_text))),
+            SHORT_TIMEOUT_MS
+        )
+
+        mockServer.mockErrorResponse()
+        mockServer.enqueue(MockResponse().setResponseCode(HttpURLConnection.HTTP_UNAUTHORIZED))
+
+        button.clickAndWait(
+            Until.newWindow(),
+            SHORT_TIMEOUT_MS
+        )
+
+        device.wait(Until.gone(By.res(resName(R.id.loginProgressBar))), SHORT_TIMEOUT_MS)
+
+        device.wait(Until.hasObject(By.res(resName(R.id.loginButton))), SHORT_TIMEOUT_MS)
+
+        assertNotNull(device.findObject(By.res(resName(R.id.loginButton))))
     }
 }

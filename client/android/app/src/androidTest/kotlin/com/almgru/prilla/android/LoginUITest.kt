@@ -11,12 +11,11 @@ import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import com.almgru.prilla.android.helpers.Constants.LAUNCH_TIMEOUT_MS
 import com.almgru.prilla.android.helpers.Constants.SHORT_TIMEOUT_MS
-import com.almgru.prilla.android.helpers.MockWebServerExtensions.mockSuccessfulServerResponse
-import java.net.HttpURLConnection
-import java.util.concurrent.TimeUnit
+import com.almgru.prilla.android.helpers.MockWebServerExtensions.mockDelayedSuccessfulResponse
+import com.almgru.prilla.android.helpers.MockWebServerExtensions.mockErrorResponse
+import com.almgru.prilla.android.helpers.MockWebServerExtensions.mockSuccessfulResponse
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
-import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.Before
 import org.junit.Test
@@ -52,7 +51,7 @@ class LoginUITest {
 
     @Test
     fun login_press_with_correct_inputs_shows_main_view() {
-        mockServer.mockSuccessfulServerResponse()
+        mockServer.mockSuccessfulResponse()
 
         device.findObject(By.res(resName(R.id.serverField))).text = baseUrl
         device.findObject(By.res(resName(R.id.usernameField))).text = "username"
@@ -68,18 +67,7 @@ class LoginUITest {
 
     @Test
     fun login_press_displays_spinner() {
-        mockServer.enqueue(
-            MockResponse()
-                .setResponseCode(HttpURLConnection.HTTP_OK)
-                .setBody("<input name='_csrf' value='csrf_token'>")
-                .setBodyDelay(2, TimeUnit.SECONDS)
-        )
-        mockServer.enqueue(
-            MockResponse()
-                .setResponseCode(HttpURLConnection.HTTP_MOVED_TEMP)
-                .setHeader("Location", "/")
-                .setHeadersDelay(2, TimeUnit.SECONDS)
-        )
+        mockServer.mockDelayedSuccessfulResponse()
 
         device.findObject(By.res(resName(R.id.serverField))).text = baseUrl
         device.findObject(By.res(resName(R.id.usernameField))).text = "username"
@@ -108,16 +96,7 @@ class LoginUITest {
 
     @Test
     fun login_press_with_invalid_credentials_shows_error() {
-        mockServer.enqueue(
-            MockResponse()
-                .setResponseCode(HttpURLConnection.HTTP_OK)
-                .setBody("<input name='_csrf' value='csrf_token'>")
-        )
-        mockServer.enqueue(
-            MockResponse()
-                .setResponseCode(HttpURLConnection.HTTP_MOVED_TEMP)
-                .setHeader("Location", "/error")
-        )
+        mockServer.mockErrorResponse()
 
         device.findObject(By.res(resName(R.id.serverField))).text = baseUrl
         device.findObject(By.res(resName(R.id.usernameField))).text = "username"
