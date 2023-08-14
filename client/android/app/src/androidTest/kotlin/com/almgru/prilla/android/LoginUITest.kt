@@ -16,7 +16,11 @@ import com.almgru.prilla.android.helpers.MockWebServerExtensions.mockErrorRespon
 import com.almgru.prilla.android.helpers.MockWebServerExtensions.mockSuccessfulResponse
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
+import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
+import okhttp3.mockwebserver.SocketPolicy
+import okhttp3.tls.HandshakeCertificates
+import okhttp3.tls.HeldCertificate
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -91,7 +95,8 @@ class LoginUITest {
             SHORT_TIMEOUT_MS
         )
 
-        assertNotNull(device.findObject(By.text(getStr(R.string.network_error_title))))
+        assertNotNull(device.findObject(By.text(getStr(R.string.malformed_url_title))))
+        assertNotNull(device.findObject(By.text(getStr(R.string.malformed_url_message))))
     }
 
     @Test
@@ -108,6 +113,9 @@ class LoginUITest {
         )
 
         assertNotNull(device.findObject(By.text(getStr(R.string.invalid_credentials_error_title))))
+        assertNotNull(
+            device.findObject(By.text(getStr(R.string.invalid_credentials_error_message)))
+        )
     }
 
     @Test
@@ -128,6 +136,33 @@ class LoginUITest {
 
     @Test
     fun should_handle_ssl_errors_gracefully() {
-        TODO()
+        val localhost = HeldCertificate.Builder()
+            .commonName("localhost")
+            .addSubjectAlternativeName("127.0.0.1")
+            .build()
+
+        val serverCertificates = HandshakeCertificates.Builder()
+            .heldCertificate(localhost)
+            .build()
+
+        mockServer.useHttps(serverCertificates.sslSocketFactory(), false)
+
+        mockServer.enqueue(
+            MockResponse().setSocketPolicy(SocketPolicy.FAIL_HANDSHAKE)
+        )
+
+        device.findObject(By.res(resName(R.id.serverField))).text =
+            mockServer.url("/").toString()
+
+        device.findObject(By.res(resName(R.id.usernameField))).text = "username"
+        device.findObject(By.res(resName(R.id.passwordField))).text = "password"
+
+        device.findObject(By.res(resName(R.id.loginButton))).clickAndWait(
+            Until.newWindow(),
+            5000L
+        )
+
+        assertNotNull(device.findObject(By.text(getStr(R.string.handshake_error_title))))
+        assertNotNull(device.findObject(By.text(getStr(R.string.handshake_error_message))))
     }
 }

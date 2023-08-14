@@ -5,12 +5,13 @@ import com.almgru.prilla.android.ProtoSettings
 import com.almgru.prilla.android.model.CompleteEntry
 import com.almgru.prilla.android.net.exceptions.UnexpectedHttpStatusException
 import com.almgru.prilla.android.net.results.LoginResult
-import com.almgru.prilla.android.net.results.RecordEntryResult
+import com.almgru.prilla.android.net.results.SubmitResult
 import com.almgru.prilla.android.net.utilities.csrf.CsrfTokenExtractor
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
+import javax.net.ssl.SSLHandshakeException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -49,11 +50,18 @@ class PrillaHttpClient @Inject constructor(
             if (serverUrl.isEmpty()) error("Server URL cannot be empty")
 
             Request.Builder().url("$serverUrl/login").build().url
-        } catch (ex: IllegalArgumentException) {
-            return@withContext LoginResult.NetworkError(IOException(ex))
+        } catch (_: IllegalArgumentException) {
+            return@withContext LoginResult.MalformedUrl
         }
 
-        val csrf = getCsrfTokenFor(url)
+        val csrf = try {
+            getCsrfTokenFor(url)
+        } catch (_: SSLHandshakeException) {
+            return@withContext LoginResult.SslHandshakeError
+        } catch (ex: IOException) {
+            return@withContext LoginResult.NetworkError(ex)
+        }
+
         val loginRequest = buildPostRequest(
             url,
             mapOf("username" to username, "password" to password, "_csrf" to csrf)
@@ -73,18 +81,19 @@ class PrillaHttpClient @Inject constructor(
                     else -> throw UnexpectedHttpStatusException(it.code, it.message)
                 }
             }
-        } catch (io: IOException) {
-            LoginResult.NetworkError(io)
+        } catch (_: SSLHandshakeException) {
+            LoginResult.SslHandshakeError
+        } catch (ex: IOException) {
+            LoginResult.NetworkError(ex)
         }
     }
 
-    @Suppress("SwallowedException")
     override suspend fun hasActiveSession() = withContext(Dispatchers.IO) {
         if (!baseUrl.isCompleted) return@withContext false
 
         val getIndexRequest = try {
             Request.Builder().url("${baseUrl.await()}/").get().build()
-        } catch (ex: IllegalArgumentException) {
+        } catch (_: IllegalArgumentException) {
             return@withContext false
         }
 
@@ -95,18 +104,28 @@ class PrillaHttpClient @Inject constructor(
                     else -> false
                 }
             }
-        } catch (ex: IOException) {
+        } catch (_: IllegalArgumentException) {
             false
-        } catch (ex: IllegalArgumentException) {
+        } catch (_: SSLHandshakeException) {
+            false
+        } catch (_: IOException) {
             false
         }
     }
 
-    override suspend fun submit(entry: CompleteEntry): RecordEntryResult = withContext(
+    override suspend fun submit(entry: CompleteEntry): SubmitResult = withContext(
         Dispatchers.IO
     ) {
         val url = Request.Builder().url("${baseUrl.await()}/record").build().url
-        val csrf = getCsrfTokenFor(url)
+
+        val csrf = try {
+            getCsrfTokenFor(url)
+        } catch (_: SSLHandshakeException) {
+            return@withContext SubmitResult.SslHandshakeError
+        } catch (ex: IOException) {
+            return@withContext SubmitResult.NetworkError(ex)
+        }
+
         val recordRequest = buildPostRequest(
             url,
             mapOf(
@@ -124,17 +143,19 @@ class PrillaHttpClient @Inject constructor(
                 when (it.code) {
                     HttpURLConnection.HTTP_MOVED_TEMP -> {
                         if (it.header("Location")?.endsWith("/") == true) {
-                            RecordEntryResult.Success
+                            SubmitResult.Success
                         } else {
-                            RecordEntryResult.SessionExpiredError
+                            SubmitResult.SessionExpiredError
                         }
                     }
-                    HttpURLConnection.HTTP_UNAUTHORIZED -> RecordEntryResult.SessionExpiredError
+                    HttpURLConnection.HTTP_UNAUTHORIZED -> SubmitResult.SessionExpiredError
                     else -> throw UnexpectedHttpStatusException(it.code, it.message)
                 }
             }
-        } catch (io: IOException) {
-            RecordEntryResult.NetworkError(io)
+        } catch (_: SSLHandshakeException) {
+            SubmitResult.SslHandshakeError
+        } catch (ex: IOException) {
+            SubmitResult.NetworkError(ex)
         }
     }
 

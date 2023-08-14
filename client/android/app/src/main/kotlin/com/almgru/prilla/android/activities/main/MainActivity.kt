@@ -68,33 +68,34 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun handleEvent(event: EntryEvent) = when (event) {
-        is EntryEvent.Started -> setUiVisibility(UIMode.STARTED)
-        is EntryEvent.Cleared -> {
+        EntryEvent.Started -> setUiVisibility(UIMode.STARTED)
+        EntryEvent.Cleared -> {
             showMessage(R.string.entry_clear_message)
             setUiVisibility(UIMode.NOT_STARTED)
         }
 
-        is EntryEvent.Submitted -> setUiVisibility(UIMode.SUBMITTED)
-        is EntryEvent.NetworkError -> returnToLoginScreen(ApiError.NetworkError)
-        is EntryEvent.InvalidCredentialsError -> returnToLoginScreen(ApiError.SessionExpiredError)
+        EntryEvent.Submitted -> setUiVisibility(UIMode.SUBMITTED)
+        EntryEvent.InvalidCredentialsError -> returnToLoginScreen(ApiError.SessionExpiredError)
+        EntryEvent.SslHandshakeError -> returnToLoginScreen(ApiError.SslHandshakeError)
+        EntryEvent.NetworkError -> returnToLoginScreen(ApiError.NetworkError)
 
-        is EntryEvent.Stored -> {
+        EntryEvent.Stored -> {
             showMessage(R.string.entry_added_message)
             setUiVisibility(UIMode.NOT_STARTED)
         }
 
-        is EntryEvent.PickStartedDatetimeRequest -> showDateTimePicker(
+        EntryEvent.PickStartedDatetimeRequest -> showDateTimePicker(
             viewModel::onStartDateTimePicked,
             viewModel::onCancelPickStartDateTime
         )
 
-        is EntryEvent.PickStoppedDatetimeRequest -> showDateTimePicker(
+        EntryEvent.PickStoppedDatetimeRequest -> showDateTimePicker(
             viewModel::onStopDateTimePicked,
             viewModel::onCancelPickStopDateTime
         )
 
-        is EntryEvent.CancelledPickStartedDatetime -> setUiVisibility(UIMode.NOT_STARTED)
-        is EntryEvent.CancelledPickStoppedDatetime -> setUiVisibility(UIMode.STARTED)
+        EntryEvent.CancelledPickStartedDatetime -> setUiVisibility(UIMode.NOT_STARTED)
+        EntryEvent.CancelledPickStoppedDatetime -> setUiVisibility(UIMode.STARTED)
     }
 
     private fun handleStateChange(state: MainViewState) {

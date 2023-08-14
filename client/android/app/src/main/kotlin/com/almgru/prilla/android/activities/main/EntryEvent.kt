@@ -52,6 +52,8 @@ sealed class EntryEvent {
      */
     data object InvalidCredentialsError : EntryEvent()
 
+    data object SslHandshakeError : EntryEvent()
+
     /**
      * A network error occurred for a previously submitted request to store an entry on the server
      */

@@ -8,7 +8,7 @@ import com.almgru.prilla.android.data.Mapper.toModelEntry
 import com.almgru.prilla.android.data.Mapper.toProtoTimestamp
 import com.almgru.prilla.android.model.CompleteEntry
 import com.almgru.prilla.android.net.EntrySubmitter
-import com.almgru.prilla.android.net.results.RecordEntryResult
+import com.almgru.prilla.android.net.results.SubmitResult
 import com.almgru.prilla.android.utilities.DateTimeProvider
 import com.google.protobuf.Int32Value
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -112,11 +112,10 @@ class MainViewModel @Inject constructor(
         _events.emit(EntryEvent.Submitted)
 
         when (submitter.submit(latest)) {
-            RecordEntryResult.Success -> onEntryAdded(latest)
-            is RecordEntryResult.NetworkError -> _events.emit(EntryEvent.NetworkError)
-            RecordEntryResult.SessionExpiredError -> _events.emit(
-                EntryEvent.InvalidCredentialsError
-            )
+            SubmitResult.Success -> onEntryAdded(latest)
+            SubmitResult.SslHandshakeError -> _events.emit(EntryEvent.SslHandshakeError)
+            SubmitResult.SessionExpiredError -> _events.emit(EntryEvent.InvalidCredentialsError)
+            is SubmitResult.NetworkError -> _events.emit(EntryEvent.NetworkError)
         }
     }
 

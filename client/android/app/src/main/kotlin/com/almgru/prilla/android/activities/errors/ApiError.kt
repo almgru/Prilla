@@ -5,8 +5,11 @@ import kotlinx.parcelize.Parcelize
 
 sealed class ApiError : Parcelable {
     @Parcelize
-    data object NetworkError : ApiError()
+    data object SessionExpiredError : ApiError()
 
     @Parcelize
-    data object SessionExpiredError : ApiError()
+    data object SslHandshakeError : ApiError()
+
+    @Parcelize
+    data object NetworkError : ApiError()
 }

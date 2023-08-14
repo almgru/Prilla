@@ -74,6 +74,7 @@ test-androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref
 test-mockk-android = { group = "io.mockk", name = "mockk-android", version.ref = "deps-test-mockK" }
 test-mockk-agent = { group = "io.mockk", name = "mockk-agent", version.ref = "deps-test-mockK" }
 test-okhttp-mockWebServer = { group = "com.squareup.okhttp3", name = "mockwebserver", version.ref = "deps-okhttp" }
+test-okhttp-tls = { group = "com.squareup.okhttp3", name = "okhttp-tls", version.ref = "deps-okhttp" }
 
 debug-okHttp-logInterceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "deps-okhttp" }
 

@@ -63,6 +63,8 @@ class LoginViewModel @Inject constructor(
         LoginResult.Success -> _events.emit(LoginEvent.LoggedIn)
         LoginResult.SessionExpired,
         LoginResult.InvalidCredentials -> _events.emit(LoginEvent.InvalidCredentialsError)
+        LoginResult.MalformedUrl -> _events.emit(LoginEvent.MalformedUrlError)
+        LoginResult.SslHandshakeError -> _events.emit(LoginEvent.SslHandshakeError)
         is LoginResult.NetworkError -> _events.emit(LoginEvent.NetworkError)
     }
 }

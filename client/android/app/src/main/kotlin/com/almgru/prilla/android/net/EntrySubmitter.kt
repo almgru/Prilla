@@ -1,8 +1,8 @@
 package com.almgru.prilla.android.net
 
 import com.almgru.prilla.android.model.CompleteEntry
-import com.almgru.prilla.android.net.results.RecordEntryResult
+import com.almgru.prilla.android.net.results.SubmitResult
 
 interface EntrySubmitter {
-    suspend fun submit(entry: CompleteEntry): RecordEntryResult
+    suspend fun submit(entry: CompleteEntry): SubmitResult
 }

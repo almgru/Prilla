@@ -7,6 +7,7 @@ sealed class LoginEvent {
     data object Submitted : LoginEvent()
     data object LoggedIn : LoginEvent()
     data object InvalidCredentialsError : LoginEvent()
-    data object SessionExpiredError : LoginEvent()
+    data object MalformedUrlError : LoginEvent()
+    data object SslHandshakeError : LoginEvent()
     data object NetworkError : LoginEvent()
 }

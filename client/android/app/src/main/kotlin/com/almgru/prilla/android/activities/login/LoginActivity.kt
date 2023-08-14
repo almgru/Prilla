@@ -63,13 +63,19 @@ class LoginActivity : AppCompatActivity() {
 
         apiError?.let {
             when (it) {
-                is ApiError.NetworkError -> showError(
-                    R.string.network_error_title,
-                    R.string.network_error_message
-                )
-                is ApiError.SessionExpiredError -> showError(
+                ApiError.SessionExpiredError -> showError(
                     R.string.session_expired_error_title,
                     R.string.session_expired_error_message
+                )
+
+                ApiError.SslHandshakeError -> showError(
+                    R.string.handshake_error_title,
+                    R.string.handshake_error_message
+                )
+
+                ApiError.NetworkError -> showError(
+                    R.string.network_error_title,
+                    R.string.network_error_message
                 )
             }
 
@@ -85,19 +91,26 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun handleEvent(event: LoginEvent) = when (event) {
-        is LoginEvent.CheckingForActiveSession -> setIsLoading(true)
-        is LoginEvent.HasActiveSession, is LoginEvent.LoggedIn -> gotoMainActivity()
-        is LoginEvent.NoActiveSession -> setIsLoading(false)
-        is LoginEvent.Submitted -> setIsLoading(true)
-        is LoginEvent.InvalidCredentialsError -> showError(
+        LoginEvent.CheckingForActiveSession -> setIsLoading(true)
+        LoginEvent.HasActiveSession, LoginEvent.LoggedIn -> gotoMainActivity()
+        LoginEvent.NoActiveSession -> setIsLoading(false)
+        LoginEvent.Submitted -> setIsLoading(true)
+        LoginEvent.InvalidCredentialsError -> showError(
             R.string.invalid_credentials_error_title,
             R.string.invalid_credentials_error_message
         )
-        is LoginEvent.SessionExpiredError -> showError(
-            R.string.session_expired_error_title,
-            R.string.session_expired_error_message
+
+        LoginEvent.MalformedUrlError -> showError(
+            R.string.malformed_url_title,
+            R.string.malformed_url_message
         )
-        is LoginEvent.NetworkError -> showError(
+
+        LoginEvent.SslHandshakeError -> showError(
+            R.string.handshake_error_title,
+            R.string.handshake_error_message
+        )
+
+        LoginEvent.NetworkError -> showError(
             R.string.network_error_title,
             R.string.network_error_message
         )

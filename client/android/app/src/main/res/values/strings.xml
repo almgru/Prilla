@@ -31,6 +31,10 @@
     <string name="invalid_credentials_error_message">Invalid username or password, check them and try again</string>
     <string name="session_expired_error_title">Session Expired</string>
     <string name="session_expired_error_message">Your login session has expired, please log in again</string>
+    <string name="malformed_url_title">Invalid URL</string>
+    <string name="malformed_url_message">The server URL was invalid. Please check that it starts with http(s)://</string>
+    <string name="handshake_error_title">Network Error</string>
+    <string name="handshake_error_message">Server refused client\'s TLS/SSL certificates</string>
     <string name="network_error_title">Network Error</string>
     <string name="network_error_message">Could not communicate with server. Check the server URL and try again</string>
 

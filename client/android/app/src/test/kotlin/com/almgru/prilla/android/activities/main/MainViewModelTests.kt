@@ -5,7 +5,7 @@ import com.almgru.prilla.android.ProtoEntryState
 import com.almgru.prilla.android.data.Mapper.toProtoTimestamp
 import com.almgru.prilla.android.helpers.MainDispatcherRule
 import com.almgru.prilla.android.net.EntrySubmitter
-import com.almgru.prilla.android.net.results.RecordEntryResult
+import com.almgru.prilla.android.net.results.SubmitResult
 import com.almgru.prilla.android.utilities.DateTimeProvider
 import com.google.protobuf.Int32Value
 import io.mockk.coEvery
@@ -93,7 +93,7 @@ class MainViewModelTests {
 
         dateTimeProvider.dateTime = expectedStart
 
-        coEvery { submitter.submit(any()) } returns RecordEntryResult.Success
+        coEvery { submitter.submit(any()) } returns SubmitResult.Success
 
         sut.onStartStopPressed()
         sut.updateAmount(expectedAmount)
@@ -109,7 +109,7 @@ class MainViewModelTests {
         val expectedStart = LocalDateTime.parse("2023-08-10T08:00")
         val expectedAmount = 3
 
-        coEvery { submitter.submit(any()) } returns RecordEntryResult.Success
+        coEvery { submitter.submit(any()) } returns SubmitResult.Success
 
         sut.onStartDateTimePicked(expectedStart)
         sut.updateAmount(expectedAmount)
@@ -250,7 +250,7 @@ class MainViewModelTests {
         sut.onStartStopPressed()
         isStarted.receive()
 
-        coEvery { submitter.submit(any()) } returns RecordEntryResult.NetworkError(IOException())
+        coEvery { submitter.submit(any()) } returns SubmitResult.NetworkError(IOException())
 
         dateTimeProvider.dateTime = LocalDateTime.parse("2023-08-10T16:00")
         sut.onStartStopPressed()
@@ -282,7 +282,7 @@ class MainViewModelTests {
         sut.onStartStopPressed()
         isStarted.receive()
 
-        coEvery { submitter.submit(any()) } returns RecordEntryResult.SessionExpiredError
+        coEvery { submitter.submit(any()) } returns SubmitResult.SessionExpiredError
 
         dateTimeProvider.dateTime = LocalDateTime.parse("2023-08-10T21:30")
         sut.onStartStopPressed()
