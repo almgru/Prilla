@@ -29,12 +29,14 @@ deps-coreKtx = "1.10.1"
 deps-activityKtx = "1.7.2"
 deps-appCompat = "1.6.1"
 deps-constraintLayout = "2.1.4"
+deps-coordinatorLayout = "1.2.0"
 deps-lifecycle = "2.6.1"
 deps-datastore = "1.0.0"
 deps-protobuf-javaLite = "3.23.4"
 deps-jsoup = "1.16.1"
 deps-okhttp = "4.11.0"
 deps-materialComponents = "1.9.0"
+deps-materialComponents-banner = "0.14.0"
 
 deps-tools-desugarJdkLibs = "2.0.3"
 
@@ -52,6 +54,7 @@ androidx-coreKtx = { group = "androidx.core", name = "core-ktx", version.ref = "
 androidx-activityKtx = { group = "androidx.activity", name = "activity-ktx", version.ref = "deps-activityKtx" }
 androidx-appCompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "deps-appCompat" }
 androidx-constraintLayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "deps-constraintLayout" }
+androidx-coordinatorLayout = { group = "androidx.coordinatorlayout", name = "coordinatorlayout", version.ref = "deps-coordinatorLayout" }
 androidx-lifecycle-runtimeKtx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "deps-lifecycle" }
 androidx-lifecycle-viewmodelKtx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "deps-lifecycle" }
 androidx-dataStore = { group = "androidx.datastore", name = "datastore", version.ref = "deps-datastore" }
@@ -62,6 +65,7 @@ okHttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "deps-
 protobuf-javaLite = { group = "com.google.protobuf", name = "protobuf-javalite", version.ref = "deps-protobuf-javaLite" }
 protobuf-protoc = { group = "com.google.protobuf", name = "protoc", version.ref = "deps-protobuf-javaLite" }
 android-materialComponents = { group = "com.google.android.material", name = "material", version.ref = "deps-materialComponents" }
+android-materialComponents-banner = { group = "com.github.cesarferreira", name = "MaterialComponent.Banner", version.ref = "deps-materialComponents-banner" }
 
 tools-android-desugarJdkLibs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "deps-tools-desugarJdkLibs" }
 

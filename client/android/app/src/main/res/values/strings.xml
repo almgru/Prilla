@@ -37,8 +37,19 @@
     <string name="handshake_error_message">Server refused client\'s TLS/SSL certificates</string>
     <string name="network_error_title">Network Error</string>
     <string name="network_error_message">Could not communicate with server. Check the server URL and try again</string>
+    <string name="backup_complete_message">Successfully backed up data</string>
+    <string name="backup_unsupported_message">Backup unsupported</string>
+    <string name="backup_io_error">Backup IO error</string>
+    <string name="backup_permission_required_banner_message">Prilla currently lacks permissions to make regular backups.</string>
+    <string name="backup_permission_required_banner_setup">Setup Backups</string>
+    <string name="backup_permission_required_banner_dismiss">Dismiss</string>
+    <string name="backup_setup_title">Setup Backups</string>
+    <string name="backup_setup_message">Prilla needs access to a folder where backups will be stored.</string>
+    <string name="backup_setup_confirm">Select Folder</string>
+    <string name="backup_setup_cancel">Cancel</string>
 
     <string name="date_picker_tag">datepicker</string>
     <string name="time_picker_tag">timepicker</string>
     <string name="error_dialog_tag">errordialog</string>
+    <string name="backup_setup_dialog_tag">backupsetup</string>
 </resources>

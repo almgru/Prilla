@@ -1,11 +1,15 @@
 package com.almgru.prilla.android.activities.main
 
+import android.net.Uri
 import androidx.datastore.core.DataStore
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.almgru.prilla.android.ProtoEntryState
+import com.almgru.prilla.android.ProtoSettings
 import com.almgru.prilla.android.data.Mapper.toModelEntry
 import com.almgru.prilla.android.data.Mapper.toProtoTimestamp
+import com.almgru.prilla.android.data.backup.BackupManager
+import com.almgru.prilla.android.data.backup.BackupResult
 import com.almgru.prilla.android.model.CompleteEntry
 import com.almgru.prilla.android.net.EntrySubmitter
 import com.almgru.prilla.android.net.results.SubmitResult
@@ -14,6 +18,7 @@ import com.google.protobuf.Int32Value
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.time.LocalDateTime
 import javax.inject.Inject
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -27,12 +32,14 @@ import kotlinx.coroutines.launch
 class MainViewModel @Inject constructor(
     private val submitter: EntrySubmitter,
     private val dataStore: DataStore<ProtoEntryState>,
+    private val settingsStore: DataStore<ProtoSettings>,
+    private val backupManager: BackupManager,
     private val dateTimeProvider: DateTimeProvider
 ) : ViewModel() {
     private val _state = MutableStateFlow(MainViewState(null, null, 1))
     val state = _state.asStateFlow()
 
-    private val _events = MutableSharedFlow<EntryEvent>()
+    private val _events = MutableSharedFlow<MainViewEvent>()
     val events = _events.asSharedFlow()
 
     init {
@@ -56,7 +63,7 @@ class MainViewModel @Inject constructor(
     fun onStartStopLongPressed() {
         viewModelScope.launch {
             handleClear()
-            _events.emit(EntryEvent.Cleared)
+            _events.emit(MainViewEvent.EntryCleared)
         }
     }
 
@@ -69,7 +76,7 @@ class MainViewModel @Inject constructor(
     }
 
     fun onCancelPickStartDateTime() {
-        viewModelScope.launch { _events.emit(EntryEvent.CancelledPickStartedDatetime) }
+        viewModelScope.launch { _events.emit(MainViewEvent.CancelledPickStartedDatetime) }
     }
 
     fun onStopDateTimePicked(stop: LocalDateTime) {
@@ -77,16 +84,30 @@ class MainViewModel @Inject constructor(
     }
 
     fun onCancelPickStopDateTime() {
-        viewModelScope.launch { _events.emit(EntryEvent.CancelledPickStoppedDatetime) }
+        viewModelScope.launch { _events.emit(MainViewEvent.CancelledPickStoppedDatetime) }
     }
 
     fun onCustomStartedPressed() {
-        viewModelScope.launch { _events.emit(EntryEvent.PickStartedDatetimeRequest) }
+        viewModelScope.launch { _events.emit(MainViewEvent.PickStartedDatetimeRequest) }
     }
 
     fun onCustomStoppedPressed() {
         requireNotNull(state.value.startedDateTime)
-        viewModelScope.launch { _events.emit(EntryEvent.PickStoppedDatetimeRequest) }
+        viewModelScope.launch { _events.emit(MainViewEvent.PickStoppedDatetimeRequest) }
+    }
+
+    fun onStoragePermissionGranted(uri: Uri) {
+        viewModelScope.launch(Dispatchers.IO) {
+            settingsStore.updateData {
+                it.toBuilder().setBackupDirectoryUri(uri.toString()).build()
+            }
+
+            backupManager.backup()
+        }
+    }
+
+    fun onResume() {
+        viewModelScope.launch(Dispatchers.IO) { backup() }
     }
 
     private suspend fun handleStart(
@@ -100,7 +121,7 @@ class MainViewModel @Inject constructor(
         }
 
         _state.update { it.copy(startedDateTime = started) }
-        _events.emit(EntryEvent.Started)
+        _events.emit(MainViewEvent.EntryStarted)
     }
 
     private suspend fun handleStop(stopped: LocalDateTime = dateTimeProvider.getCurrentDateTime()) {
@@ -109,13 +130,13 @@ class MainViewModel @Inject constructor(
             stopped,
             state.value.amount
         )
-        _events.emit(EntryEvent.Submitted)
+        _events.emit(MainViewEvent.EntrySubmitted)
 
         when (submitter.submit(latest)) {
             SubmitResult.Success -> onEntryAdded(latest)
-            SubmitResult.SslHandshakeError -> _events.emit(EntryEvent.SslHandshakeError)
-            SubmitResult.SessionExpiredError -> _events.emit(EntryEvent.InvalidCredentialsError)
-            is SubmitResult.NetworkError -> _events.emit(EntryEvent.NetworkError)
+            SubmitResult.SslHandshakeError -> _events.emit(MainViewEvent.SslHandshakeError)
+            SubmitResult.SessionExpiredError -> _events.emit(MainViewEvent.InvalidCredentialsError)
+            is SubmitResult.NetworkError -> _events.emit(MainViewEvent.NetworkError)
         }
     }
 
@@ -130,13 +151,29 @@ class MainViewModel @Inject constructor(
         }
 
         _state.update { it.copy(latestEntry = entry) }
-        _events.emit(EntryEvent.Stored)
+        _events.emit(MainViewEvent.EntryStored)
         handleClear()
     }
 
     private suspend fun handleClear() {
         dataStore.updateData { it.toBuilder().clearCurrentStartedEntry().build() }
         _state.update { it.copy(startedDateTime = null) }
+    }
+
+    private suspend fun backup() {
+        if (backupManager.shouldBackup()) {
+            handleBackupResult(backupManager.backup())
+        }
+    }
+
+    private suspend fun handleBackupResult(result: BackupResult) = when (result) {
+        BackupResult.Success -> _events.emit(MainViewEvent.BackupSuccessful)
+        BackupResult.RequiresPermissions -> _events.emit(MainViewEvent.BackupRequiresPermission)
+        BackupResult.SessionExpiredError -> _events.emit(MainViewEvent.InvalidCredentialsError)
+        BackupResult.SslHandshakeError -> _events.emit(MainViewEvent.SslHandshakeError)
+        BackupResult.UnsupportedPlatformError -> _events.emit(MainViewEvent.BackupUnsupported)
+        BackupResult.NetworkError -> _events.emit(MainViewEvent.NetworkError)
+        BackupResult.IoError -> _events.emit(MainViewEvent.BackupIoError)
     }
 
     private fun ProtoEntryState.toMainViewState(current: MainViewState): MainViewState {

@@ -80,9 +80,7 @@ class LoginActivity : AppCompatActivity() {
             }
 
             error = null
-        } ?: {
-            viewModel.onResume()
-        }
+        } ?: viewModel.onResume()
     }
 
     override fun onStop() {
@@ -123,8 +121,6 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun gotoMainActivity() {
-        setIsLoading(false)
-
         startActivity(
             Intent().apply {
                 component = ComponentName(this@LoginActivity, MainActivity::class.java)

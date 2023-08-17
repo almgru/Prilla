@@ -113,6 +113,7 @@ dependencies {
     implementation(libs.androidx.activityKtx)
     implementation(libs.androidx.appCompat)
     implementation(libs.androidx.constraintLayout)
+    implementation(libs.androidx.coordinatorLayout)
     implementation(libs.androidx.lifecycle.runtimeKtx)
     implementation(libs.androidx.lifecycle.viewmodelKtx)
     implementation(libs.androidx.dataStore)
@@ -120,6 +121,7 @@ dependencies {
     implementation(libs.jsoup)
     implementation(libs.okHttp)
     implementation(libs.android.materialComponents)
+    implementation(libs.android.materialComponents.banner)
 
     implementation(libs.hilt.android)
     kapt(libs.hilt.android.compiler)

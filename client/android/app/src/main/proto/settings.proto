@@ -6,4 +6,5 @@ option java_multiple_files = true;
 message ProtoSettings {
   optional string server_url = 1;
   optional int32 backup_interval_in_days = 2;
+  optional string backup_directory_uri = 3;
 }

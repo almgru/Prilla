@@ -136,7 +136,7 @@ class MainViewModelTests {
 
         launch {
             sut.events.onSubscription { collectIsSetup.send(Unit) }.collect {
-                if (it is EntryEvent.PickStartedDatetimeRequest) {
+                if (it is MainViewEvent.PickStartedDatetimeRequest) {
                     cancel()
                 }
             }
@@ -157,8 +157,8 @@ class MainViewModelTests {
         launch {
             sut.events.onSubscription { collectIsSetup.send(Unit) }.collect {
                 when (it) {
-                    EntryEvent.PickStartedDatetimeRequest -> isPickRequestReceived.send(Unit)
-                    EntryEvent.CancelledPickStartedDatetime -> cancel()
+                    MainViewEvent.PickStartedDatetimeRequest -> isPickRequestReceived.send(Unit)
+                    MainViewEvent.CancelledPickStartedDatetime -> cancel()
                     else -> error("Invalid branch for this test")
                 }
             }
@@ -180,8 +180,8 @@ class MainViewModelTests {
         launch {
             sut.events.onSubscription { collectIsSetup.send(Unit) }.collect {
                 when (it) {
-                    EntryEvent.Started -> isStarted.send(Unit)
-                    EntryEvent.PickStoppedDatetimeRequest -> cancel()
+                    MainViewEvent.EntryStarted -> isStarted.send(Unit)
+                    MainViewEvent.PickStoppedDatetimeRequest -> cancel()
                     else -> error("Invalid branch for this test")
                 }
             }
@@ -205,9 +205,9 @@ class MainViewModelTests {
         launch {
             sut.events.onSubscription { collectIsSetup.send(Unit) }.collect {
                 when (it) {
-                    EntryEvent.Started -> isStarted.send(Unit)
-                    EntryEvent.PickStoppedDatetimeRequest -> isPickerRequestReceived.send(Unit)
-                    EntryEvent.CancelledPickStoppedDatetime -> cancel()
+                    MainViewEvent.EntryStarted -> isStarted.send(Unit)
+                    MainViewEvent.PickStoppedDatetimeRequest -> isPickerRequestReceived.send(Unit)
+                    MainViewEvent.CancelledPickStoppedDatetime -> cancel()
                     else -> error("Invalid branch for this test")
                 }
             }
@@ -236,9 +236,9 @@ class MainViewModelTests {
         launch {
             sut.events.onSubscription { collectIsSetup.send(Unit) }.collect {
                 when (it) {
-                    EntryEvent.Started -> isStarted.send(Unit)
-                    EntryEvent.Submitted -> isSubmitted.send(Unit)
-                    EntryEvent.NetworkError -> cancel()
+                    MainViewEvent.EntryStarted -> isStarted.send(Unit)
+                    MainViewEvent.EntrySubmitted -> isSubmitted.send(Unit)
+                    MainViewEvent.NetworkError -> cancel()
                     else -> error("Invalid branch for this test")
                 }
             }
@@ -268,9 +268,9 @@ class MainViewModelTests {
         launch {
             sut.events.onSubscription { collectIsSetup.send(Unit) }.collect {
                 when (it) {
-                    EntryEvent.Started -> isStarted.send(Unit)
-                    EntryEvent.Submitted -> isSubmitted.send(Unit)
-                    EntryEvent.InvalidCredentialsError -> cancel()
+                    MainViewEvent.EntryStarted -> isStarted.send(Unit)
+                    MainViewEvent.EntrySubmitted -> isSubmitted.send(Unit)
+                    MainViewEvent.InvalidCredentialsError -> cancel()
                     else -> error("Invalid branch for this test")
                 }
             }

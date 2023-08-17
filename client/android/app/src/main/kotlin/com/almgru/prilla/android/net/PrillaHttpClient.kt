@@ -4,6 +4,7 @@ import androidx.datastore.core.DataStore
 import com.almgru.prilla.android.ProtoSettings
 import com.almgru.prilla.android.model.CompleteEntry
 import com.almgru.prilla.android.net.exceptions.UnexpectedHttpStatusException
+import com.almgru.prilla.android.net.results.FetchBackupResult
 import com.almgru.prilla.android.net.results.LoginResult
 import com.almgru.prilla.android.net.results.SubmitResult
 import com.almgru.prilla.android.net.utilities.csrf.CsrfTokenExtractor
@@ -26,7 +27,7 @@ class PrillaHttpClient @Inject constructor(
     private val httpClient: OkHttpClient,
     private val csrfExtractor: CsrfTokenExtractor,
     private val settings: DataStore<ProtoSettings>
-) : LoginManager, EntrySubmitter {
+) : LoginManager, EntrySubmitter, BackupFetcher {
     private val scope = CoroutineScope(Dispatchers.IO)
     private var baseUrl: CompletableDeferred<String> = CompletableDeferred()
 
@@ -156,6 +157,27 @@ class PrillaHttpClient @Inject constructor(
             SubmitResult.SslHandshakeError
         } catch (ex: IOException) {
             SubmitResult.NetworkError(ex)
+        }
+    }
+
+    override suspend fun fetchBackup(): FetchBackupResult {
+        val getBackupRequest = Request.Builder().url("${baseUrl.await()}/download-backup").build()
+
+        return try {
+            httpClient.newCall(getBackupRequest).execute().use {
+                when (it.code) {
+                    HttpURLConnection.HTTP_OK -> FetchBackupResult.Success(
+                        checkNotNull(it.body).string()
+                    )
+
+                    HttpURLConnection.HTTP_UNAUTHORIZED -> FetchBackupResult.SessionExpiredError
+                    else -> throw UnexpectedHttpStatusException(it.code, it.message)
+                }
+            }
+        } catch (_: SSLHandshakeException) {
+            FetchBackupResult.SslHandshakeError
+        } catch (_: IOException) {
+            FetchBackupResult.NetworkError
         }
     }
 

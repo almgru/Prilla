@@ -1,12 +1,16 @@
 package com.almgru.prilla.android.activities.main
 
+import android.app.Activity
 import android.content.ComponentName
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.provider.DocumentsContract
 import android.view.View
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
-import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
@@ -16,9 +20,11 @@ import com.almgru.prilla.android.R
 import com.almgru.prilla.android.activities.errors.ApiError
 import com.almgru.prilla.android.activities.login.LoginActivity
 import com.almgru.prilla.android.databinding.ActivityMainBinding
+import com.almgru.prilla.android.fragment.CancelableDialogFragment
 import com.almgru.prilla.android.fragment.DatePickerFragment
 import com.almgru.prilla.android.fragment.TimePickerFragment
 import com.almgru.prilla.android.model.CompleteEntry
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -29,6 +35,7 @@ import kotlinx.coroutines.launch
 class MainActivity : AppCompatActivity() {
     private val viewModel by viewModels<MainViewModel>()
     private lateinit var binding: ActivityMainBinding
+    private lateinit var openDirectoryLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,12 +46,49 @@ class MainActivity : AppCompatActivity() {
 
         setupViewListeners()
 
+        binding.banner.setLeftButtonAction { binding.banner.dismiss() }
+        binding.banner.setRightButtonAction {
+            binding.banner.dismiss()
+
+            CancelableDialogFragment(
+                R.string.backup_setup_title,
+                R.string.backup_setup_message,
+                R.string.backup_setup_confirm,
+                R.string.backup_setup_cancel
+            ) {
+                requestStoragePermission()
+            }.show(supportFragmentManager, getString(R.string.backup_setup_dialog_tag))
+        }
+
+        openDirectoryLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            when (result.resultCode) {
+                Activity.RESULT_OK -> {
+                    result.data?.data?.also { uri ->
+                        val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                            Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+
+                        contentResolver.takePersistableUriPermission(uri, flags)
+                        viewModel.onStoragePermissionGranted(uri)
+                    }
+                }
+                Activity.RESULT_CANCELED -> TODO()
+                else -> error("Unexpected result code")
+            }
+        }
+
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch { viewModel.events.collect(::handleEvent) }
                 launch { viewModel.state.collect(::handleStateChange) }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.onResume()
     }
 
     private fun setupViewListeners() {
@@ -67,35 +111,40 @@ class MainActivity : AppCompatActivity() {
         binding.customStopLink.setOnClickListener { viewModel.onCustomStoppedPressed() }
     }
 
-    private fun handleEvent(event: EntryEvent) = when (event) {
-        EntryEvent.Started -> setUiVisibility(UIMode.STARTED)
-        EntryEvent.Cleared -> {
+    private fun handleEvent(event: MainViewEvent) = when (event) {
+        MainViewEvent.EntryStarted -> setUiVisibility(UIMode.STARTED)
+        MainViewEvent.EntryCleared -> {
             showMessage(R.string.entry_clear_message)
             setUiVisibility(UIMode.NOT_STARTED)
         }
 
-        EntryEvent.Submitted -> setUiVisibility(UIMode.SUBMITTED)
-        EntryEvent.InvalidCredentialsError -> returnToLoginScreen(ApiError.SessionExpiredError)
-        EntryEvent.SslHandshakeError -> returnToLoginScreen(ApiError.SslHandshakeError)
-        EntryEvent.NetworkError -> returnToLoginScreen(ApiError.NetworkError)
+        MainViewEvent.EntrySubmitted -> setUiVisibility(UIMode.SUBMITTED)
+        MainViewEvent.InvalidCredentialsError -> returnToLoginScreen(ApiError.SessionExpiredError)
+        MainViewEvent.SslHandshakeError -> returnToLoginScreen(ApiError.SslHandshakeError)
+        MainViewEvent.NetworkError -> returnToLoginScreen(ApiError.NetworkError)
 
-        EntryEvent.Stored -> {
+        MainViewEvent.BackupSuccessful -> showMessage(R.string.backup_complete_message)
+        MainViewEvent.BackupRequiresPermission -> binding.banner.show()
+        MainViewEvent.BackupUnsupported -> showMessage(R.string.backup_unsupported_message)
+        MainViewEvent.BackupIoError -> showMessage(R.string.backup_io_error)
+
+        MainViewEvent.EntryStored -> {
             showMessage(R.string.entry_added_message)
             setUiVisibility(UIMode.NOT_STARTED)
         }
 
-        EntryEvent.PickStartedDatetimeRequest -> showDateTimePicker(
+        MainViewEvent.PickStartedDatetimeRequest -> showDateTimePicker(
             viewModel::onStartDateTimePicked,
             viewModel::onCancelPickStartDateTime
         )
 
-        EntryEvent.PickStoppedDatetimeRequest -> showDateTimePicker(
+        MainViewEvent.PickStoppedDatetimeRequest -> showDateTimePicker(
             viewModel::onStopDateTimePicked,
             viewModel::onCancelPickStopDateTime
         )
 
-        EntryEvent.CancelledPickStartedDatetime -> setUiVisibility(UIMode.NOT_STARTED)
-        EntryEvent.CancelledPickStoppedDatetime -> setUiVisibility(UIMode.STARTED)
+        MainViewEvent.CancelledPickStartedDatetime -> setUiVisibility(UIMode.NOT_STARTED)
+        MainViewEvent.CancelledPickStoppedDatetime -> setUiVisibility(UIMode.STARTED)
     }
 
     private fun handleStateChange(state: MainViewState) {
@@ -178,9 +227,17 @@ class MainActivity : AppCompatActivity() {
         }).show(supportFragmentManager, getString(R.string.date_picker_tag))
     }
 
-    private fun showMessage(resId: Int) {
-        Toast.makeText(this, resId, Toast.LENGTH_SHORT).show()
-    }
+    private fun showMessage(resId: Int, length: Int = Snackbar.LENGTH_SHORT) = Snackbar
+        .make(binding.coordinatorLayout, resId, length)
+        .show()
+
+    private fun requestStoragePermission() = openDirectoryLauncher.launch(
+        Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).apply {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                putExtra(DocumentsContract.EXTRA_INITIAL_URI, "/")
+            }
+        }
+    )
 }
 
 private enum class UIMode {
