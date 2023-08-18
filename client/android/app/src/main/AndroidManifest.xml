@@ -11,9 +11,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Prilla">
-        <activity android:name="com.almgru.prilla.android.activities.main.MainActivity" />
+        <activity android:name="se.algr.prilla.android.view.main.implementation.MainActivity" />
         <activity
-            android:name="com.almgru.prilla.android.activities.login.LoginActivity"
+            android:name="se.algr.prilla.android.view.login.implementation.LoginActivity"
             android:exported="true"
             android:screenOrientation="sensor">
             <intent-filter>

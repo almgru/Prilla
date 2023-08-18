@@ -1,4 +1,3 @@
-import com.android.build.gradle.internal.api.BaseVariantOutputImpl
 import io.gitlab.arturbosch.detekt.Detekt
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 
@@ -21,13 +20,14 @@ kotlin {
 }
 
 android {
-    namespace = "com.almgru.prilla.android"
+    namespace = "se.algr.prilla.android"
 
     compileSdk = libs.versions.sdk.compile.get().toInt()
     buildToolsVersion = libs.versions.sdk.buildTools.get()
 
     defaultConfig {
-        applicationId = "com.almgru.prilla.android"
+        testInstrumentationRunnerArguments += mapOf()
+        applicationId = "se.algr.prilla.android"
         minSdk = libs.versions.sdk.min.get().toInt()
         targetSdk = libs.versions.sdk.target.get().toInt()
         versionCode = 3
@@ -80,7 +80,7 @@ android {
 
     applicationVariants.all {
         outputs.all {
-            (this as BaseVariantOutputImpl).outputFileName = "prilla-$versionName.apk"
+            // (this as BaseVariantOutputImpl).outputFileName = "prilla-$versionName.apk"
         }
     }
 
