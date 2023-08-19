@@ -10,6 +10,7 @@ import javax.inject.Inject
 import se.algr.prilla.android.data.backup.BackupFileManager
 import se.algr.prilla.android.data.backup.results.BackupResult
 import se.algr.prilla.android.data.backup.results.GetBackupFileResult
+import se.algr.prilla.android.data.backup.results.WriteBackupFileResult
 import se.algr.prilla.android.utilities.datetimeprovider.DateTimeProvider
 
 class DocumentFileBackupFileManager @Inject constructor(
@@ -32,16 +33,16 @@ class DocumentFileBackupFileManager @Inject constructor(
     override fun writeBackupFile(json: String, file: DocumentFile) = try {
         context.contentResolver.openOutputStream(file.uri, "w").use { stream ->
             if (stream == null) {
-                return BackupResult.IoError
+                return WriteBackupFileResult.IoError
             }
 
             stream.bufferedWriter().use { buf -> buf.write(json) }
 
-            BackupResult.Success
+            WriteBackupFileResult.Success
         }
     } catch (_: SecurityException) {
-        BackupResult.RequiresPermissions
+        WriteBackupFileResult.RequiresPermission
     } catch (_: IOException) {
-        BackupResult.IoError
+        WriteBackupFileResult.IoError
     }
 }

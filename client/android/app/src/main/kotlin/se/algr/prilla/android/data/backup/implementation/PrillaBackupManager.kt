@@ -12,6 +12,7 @@ import se.algr.prilla.android.data.backup.BackupFileManager
 import se.algr.prilla.android.data.backup.BackupManager
 import se.algr.prilla.android.data.backup.results.BackupResult
 import se.algr.prilla.android.data.backup.results.GetBackupFileResult
+import se.algr.prilla.android.data.backup.results.WriteBackupFileResult
 import se.algr.prilla.android.net.BackupFetcher
 import se.algr.prilla.android.net.results.FetchBackupResult
 import se.algr.prilla.android.utilities.datetimeprovider.DateTimeProvider
@@ -25,6 +26,7 @@ class PrillaBackupManager @Inject constructor(
     private val state: DataStore<ProtoBackupState>,
     private val backupFileManager: BackupFileManager
 ) : BackupManager {
+    @Suppress("ReturnCount")
     override suspend fun backup(): BackupResult {
         val directoryUri = if (settings.data.first().hasBackupDirectoryUri()) {
             Uri.parse(settings.data.first().backupDirectoryUri)
@@ -32,24 +34,20 @@ class PrillaBackupManager @Inject constructor(
             return BackupResult.RequiresPermissions
         }
 
-        return when (val getFileResult = backupFileManager.getBackupFile(directoryUri)) {
-            is GetBackupFileResult.Success -> when (val fetchResult = fetcher.fetchBackup()) {
-                is FetchBackupResult.Success -> when (
-                    val writeResult = backupFileManager.writeBackupFile(
-                        fetchResult.json,
-                        getFileResult.file
-                    )
-                ) {
-                    BackupResult.Success -> writeResult.also { writeTimestamp() }
-                    else -> writeResult
-                }
-
-                else -> fetchResult.toBackupResult()
-            }
-
-            else -> getFileResult.toBackupResult()
+        val backupFile = when (val res = backupFileManager.getBackupFile(directoryUri)) {
+            is GetBackupFileResult.Success -> res.file
+            else -> return res.toBackupResult()
         }
-    }
+
+        val backupJson = when (val res = fetcher.fetchBackup()) {
+            is FetchBackupResult.Success -> res.json
+            else -> return res.toBackupResult()
+        }
+
+        return backupFileManager.writeBackupFile(backupJson, backupFile)
+            .apply { if (this is WriteBackupFileResult.Success) { writeTimestamp() } }
+            .toBackupResult()
+        }
 
     override suspend fun shouldBackup(): Boolean {
         val lastBackup = state.data.first().lastBackup.toLocalDateTime()
@@ -79,6 +77,12 @@ class PrillaBackupManager @Inject constructor(
         is GetBackupFileResult.Success -> BackupResult.Success
         GetBackupFileResult.RequiresPermission -> BackupResult.RequiresPermissions
         GetBackupFileResult.UnsupportedPlatform -> BackupResult.UnsupportedPlatformError
+    }
+
+    private fun WriteBackupFileResult.toBackupResult() = when (this) {
+        WriteBackupFileResult.Success -> BackupResult.Success
+        WriteBackupFileResult.RequiresPermission -> BackupResult.RequiresPermissions
+        WriteBackupFileResult.IoError -> BackupResult.IoError
     }
 
     private fun FetchBackupResult.toBackupResult() = when (this) {
