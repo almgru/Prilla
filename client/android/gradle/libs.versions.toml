@@ -1,0 +1,94 @@
+[versions]
+prilla-code = "3"
+prilla-name = "0.1.1"
+
+# Check versions and checksums here: https://gradle.org/release-checksums/
+gradle-wrapper = "8.2.1"
+gradle-sha256Sum = "03ec176d388f2aa99defcadc3ac6adf8dd2bce5145a129659537c0874dea5ad1"
+
+kotlin = "1.9.10"
+
+jvm-toolchain = "17"
+jvm-target = "1.8"
+jvm-sourceCompat = "VERSION_1_8"
+jvm-targetCompat = "VERSION_1_8"
+
+sdk-compile = "34"
+sdk-min = "21"
+sdk-target = "34"
+sdk-buildTools = "34.0.0"
+
+plugin-android = "8.1.1"
+plugin-hilt = "2.47"
+plugin-protobuf = "0.9.4"
+plugin-detekt = "1.23.1"
+plugin-ktlint = "11.5.1"
+plugin-kover = "0.7.3"
+
+deps-coreKtx = "1.10.1"
+deps-activityKtx = "1.7.2"
+deps-appCompat = "1.6.1"
+deps-constraintLayout = "2.1.4"
+deps-coordinatorLayout = "1.2.0"
+deps-lifecycle = "2.6.1"
+deps-datastore = "1.0.0"
+deps-protobuf-javaLite = "3.24.2"
+deps-jsoup = "1.16.1"
+deps-okhttp = "4.11.0"
+deps-materialComponents = "1.9.0"
+deps-materialComponents-banner = "0.14.0"
+
+deps-tools-desugarJdkLibs = "2.0.3"
+
+deps-test-kotlinx-coroutines = "1.7.3"
+deps-test-junit = "4.13.2"
+deps-test-androidx-runner = "1.5.2"
+deps-test-androidx-orchestrator = "1.4.2"
+deps-test-androidx-junit = "1.1.5"
+deps-test-androidx-uiAutomator = "2.3.0-alpha04"
+deps-test-mockK = "1.13.7"
+
+[libraries]
+kotlin-stdLib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
+androidx-coreKtx = { group = "androidx.core", name = "core-ktx", version.ref = "deps-coreKtx" }
+androidx-activityKtx = { group = "androidx.activity", name = "activity-ktx", version.ref = "deps-activityKtx" }
+androidx-appCompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "deps-appCompat" }
+androidx-constraintLayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "deps-constraintLayout" }
+androidx-coordinatorLayout = { group = "androidx.coordinatorlayout", name = "coordinatorlayout", version.ref = "deps-coordinatorLayout" }
+androidx-lifecycle-runtimeKtx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "deps-lifecycle" }
+androidx-lifecycle-viewmodelKtx = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "deps-lifecycle" }
+androidx-dataStore = { group = "androidx.datastore", name = "datastore", version.ref = "deps-datastore" }
+hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "plugin-hilt"}
+hilt-android-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "plugin-hilt"}
+jsoup = { group = "org.jsoup", name = "jsoup", version.ref = "deps-jsoup" }
+okHttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "deps-okhttp" }
+protobuf-javaLite = { group = "com.google.protobuf", name = "protobuf-javalite", version.ref = "deps-protobuf-javaLite" }
+protobuf-protoc = { group = "com.google.protobuf", name = "protoc", version.ref = "deps-protobuf-javaLite" }
+android-materialComponents = { group = "com.google.android.material", name = "material", version.ref = "deps-materialComponents" }
+android-materialComponents-banner = { group = "com.github.cesarferreira", name = "MaterialComponent.Banner", version.ref = "deps-materialComponents-banner" }
+
+tools-android-desugarJdkLibs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "deps-tools-desugarJdkLibs" }
+
+test-kotlinx-couroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "deps-test-kotlinx-coroutines" }
+test-junit = { group = "junit", name = "junit", version.ref = "deps-test-junit" }
+test-androidx-runner = { group = "androidx.test", name = "runner", version.ref = "deps-test-androidx-runner"}
+test-androidx-orchestrator = { group = "androidx.test", name = "orchestrator", version.ref = "deps-test-androidx-orchestrator"}
+test-androidx-uiAutomator = { group = "androidx.test.uiautomator", name = "uiautomator", version.ref = "deps-test-androidx-uiAutomator" }
+test-androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "deps-test-androidx-junit" }
+test-mockk-android = { group = "io.mockk", name = "mockk-android", version.ref = "deps-test-mockK" }
+test-mockk-agent = { group = "io.mockk", name = "mockk-agent", version.ref = "deps-test-mockK" }
+test-okhttp-mockWebServer = { group = "com.squareup.okhttp3", name = "mockwebserver", version.ref = "deps-okhttp" }
+test-okhttp-tls = { group = "com.squareup.okhttp3", name = "okhttp-tls", version.ref = "deps-okhttp" }
+
+debug-okHttp-logInterceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "deps-okhttp" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "plugin-android" }
+android-library = { id = "com.android.library", version.ref = "plugin-android" }
+kotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin"}
+hilt = { id = "com.google.dagger.hilt.android", version.ref = "plugin-hilt" }
+protobuf = { id = "com.google.protobuf", version.ref = "plugin-protobuf" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "plugin-detekt" }
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "plugin-ktlint" }
+kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "plugin-kover" }

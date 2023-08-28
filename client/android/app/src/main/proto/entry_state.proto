@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+option java_package = "se.algr.prilla.android";
+option java_multiple_files = true;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+
+message ProtoEntryState {
+  optional ProtoStartedEntry current_started_entry = 1;
+  optional ProtoCompleteEntry most_recently_stored_entry = 2;
+
+  message ProtoStartedEntry {
+    google.protobuf.Timestamp started_at = 1;
+    google.protobuf.Int32Value amount = 3;
+  }
+
+  message ProtoCompleteEntry {
+    google.protobuf.Timestamp started_at = 1;
+    google.protobuf.Timestamp stopped_at = 2;
+    google.protobuf.Int32Value amount = 3;
+  }
+}

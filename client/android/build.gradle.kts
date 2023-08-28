@@ -1,15 +1,16 @@
 plugins {
-
-    /**
-     * Use `apply false` in the top-level build.gradle file to add a Gradle
-     * plugin as a build dependency but not apply it to the current (root)
-     * project. Don't use `apply false` in sub-projects. For more information,
-     * see Applying external plugins with same version to subprojects.
-     */
-
-    id("com.android.application") version "8.1.0" apply false
-    id("com.android.library") version "8.1.0" apply false
-    id("org.jetbrains.kotlin.android") version "1.9.0" apply false
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.0" apply false
+    alias(libs.plugins.android.application).apply(false)
+    alias(libs.plugins.android.library).apply(false)
+    alias(libs.plugins.kotlin).apply(false)
+    alias(libs.plugins.parcelize).apply(false)
+    alias(libs.plugins.hilt).apply(false)
+    alias(libs.plugins.protobuf).apply(false)
+    alias(libs.plugins.detekt).apply(false)
+    alias(libs.plugins.ktlint).apply(false)
+    alias(libs.plugins.kover).apply(false)
 }
 
+tasks.wrapper {
+    gradleVersion = libs.versions.gradle.wrapper.get()
+    distributionSha256Sum = libs.versions.gradle.sha256Sum.get()
+}

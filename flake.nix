@@ -21,7 +21,15 @@
                 client-android = pkgs.mkShell {
                     buildInputs = [
                         pkgs.jdk17
+                        pkgs.kotlin-language-server
                     ];
+                    shellHook = ''
+                        GIT_ROOT="$(git rev-parse --show-toplevel)"
+                        export ANDROID_HOME="$GIT_ROOT"/client/android/.android
+                        export ANDROID_SDK_ROOT="$ANDROID_HOME"
+                        export GRADLE_OPTS="-Dorg.gradle.jvmargs='-Xms64m -Xmx512m'"
+                        export PATH="$PATH":$"$ANDROID_HOME"/cmdline-tools/latest/bin
+                    '';
                 };
             };
         };
